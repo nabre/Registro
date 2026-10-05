@@ -23,7 +23,7 @@
 .cella-voto__tag {
   flex: 0 0 auto;
   width: 1.15em;
-  padding: 0 2px;
+  padding: 0 3px;
   border-radius: 3px;
   background: color-mix(in srgb, var(--informativo) 22%, transparent);
   color: var(--informativo);
@@ -153,19 +153,8 @@
   background: var(--sfondo);
 }
 
-.cella-voto__tag {
-  flex: 0 0 auto;
-  padding: 0 3px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--informativo) 22%, transparent);
-  color: var(--informativo);
-  font-size: 0.7em;
-  font-weight: 700;
-  line-height: 1.5;
-  cursor: default;
-}
-
-/* Dispensato: il recupero è stato deciso per dire che non si fa. */
+/* La «R» della riga di recupero è quella della griglia (`.cella-voto__tag`, in cima).
+   Dispensato: il recupero è stato deciso per dire che non si fa. */
 .cella-voto__tag--dispensato {
   background: color-mix(in srgb, var(--testo) 10%, transparent);
   color: var(--testo-quieto);

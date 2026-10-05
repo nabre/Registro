@@ -170,11 +170,13 @@
   font-size: 0.9em;
 }
 
-/* Quel che manca, in fondo e sottovoce: un promemoria, non un errore. */
+/* Quel che manca, in fondo e sottovoce: un promemoria, non un errore. Una riga per blocco. */
 .anagrafica__mancano {
   margin: var(--spazio-3) 0 0;
   font-size: 0.85em;
 }
+.anagrafica__mancano-titolo { font-weight: 600; }
+.anagrafica__mancano ul { margin: 0; padding: 0; list-style: none; }
 
 .anagrafica p { margin: 0 0 var(--spazio-1); }
 
@@ -337,8 +339,11 @@ button.matrice-presenze__segno:hover { outline: 2px solid var(--bordo); outline-
 
 .diario__voce {
   display: flex;
+  /* La nota va a capo sotto la voce: in riga si prendeva lo spazio, e la
+     descrizione restava a una parola per riga. */
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--spazio-2);
+  gap: 2px var(--spazio-2);
   padding: var(--spazio-1) var(--spazio-2);
   border-radius: var(--raggio);
 }
@@ -353,7 +358,7 @@ button.matrice-presenze__segno:hover { outline: 2px solid var(--bordo); outline-
 }
 
 .diario__cosa { flex: 1; min-width: 0; }
-.diario__nota { color: var(--testo-quieto); font-size: 0.9em; }
+.diario__nota { flex-basis: 100%; color: var(--testo-quieto); font-size: 0.9em; }
 
 /* ------------------------------------------------------- box di una materia
 

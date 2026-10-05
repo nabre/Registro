@@ -2,7 +2,7 @@
 // indirizzi e il cartellino di un segnaposto.
 
 import { catalogo } from '#core/i18n/index.js'
-import { PIF, del, quanti } from '#core/dominio/lexicon.js'
+import { Maiuscola, PIF, del, quanti } from '#core/dominio/lexicon.js'
 import { plurale } from '#core/dominio/text.js'
 
 const it = {
@@ -44,8 +44,9 @@ const it = {
   vuotoNessuno: 'Nessun indirizzo da mettere in mappa',
   vuotoDaTrovare: 'Indirizzi ancora da trovare',
   vuotoScrivi:
-    `Gli indirizzi si scrivono nella scheda ${del(PIF)}, in Classi: ` +
+    `Gli indirizzi si scrivono nella scheda ${del(PIF)}, in ${Maiuscola(PIF.plurale)}: ` +
     'domicilio e posto di lavoro.',
+  apriPersone: `Apri ${Maiuscola(PIF.plurale)}`,
   vuotoCoordinate:
     'Il registro chiede le coordinate a OpenStreetMap, una volta per indirizzo, e se le tiene.',
   trovaIndirizzi: 'Trova gli indirizzi',
@@ -93,7 +94,8 @@ export const testi = catalogo(it, {
     vuotoNessuno: 'Keine Adresse für die Karte',
     vuotoDaTrovare: 'Adressen noch zu finden',
     vuotoScrivi:
-      'Die Adressen erfasst man im Personenblatt, unter Klassen: Wohnort und Arbeitsort.',
+      'Die Adressen erfasst man im Personenblatt, unter Lernende: Wohnort und Arbeitsort.',
+    apriPersone: 'Lernende öffnen',
     vuotoCoordinate:
       'Das Klassenbuch fragt OpenStreetMap einmal pro Adresse nach den Koordinaten und behält sie.',
     trovaIndirizzi: 'Adressen suchen',
@@ -139,8 +141,9 @@ export const testi = catalogo(it, {
     vuotoNessuno: 'Aucune adresse à mettre sur la carte',
     vuotoDaTrovare: 'Adresses encore à trouver',
     vuotoScrivi:
-      'Les adresses s’écrivent dans la fiche de la personne en formation, dans Classes : ' +
-      'domicile et lieu de travail.',
+      'Les adresses s’écrivent dans la fiche de la personne en formation, dans Personnes en ' +
+      'formation : domicile et lieu de travail.',
+    apriPersone: 'Ouvrir Personnes en formation',
     vuotoCoordinate:
       'Le registre demande les coordonnées à OpenStreetMap, une fois par adresse, et les garde.',
     trovaIndirizzi: 'Trouver les adresses',
@@ -184,7 +187,8 @@ export const testi = catalogo(it, {
     senzaIndirizzo: (persone) => ` · ${plurale(persone, 'learner', 'learners')} without an address`,
     vuotoNessuno: 'No addresses to put on the map',
     vuotoDaTrovare: 'Addresses still to find',
-    vuotoScrivi: 'Addresses go in the learner’s record, under Classes: home and workplace.',
+    vuotoScrivi: 'Addresses go in the learner’s record, under Learners: home and workplace.',
+    apriPersone: 'Open Learners',
     vuotoCoordinate:
       'The register asks OpenStreetMap for the coordinates, once per address, and keeps them.',
     trovaIndirizzi: 'Find addresses',

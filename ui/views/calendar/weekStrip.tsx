@@ -15,6 +15,7 @@ import { aggiorna, annoCorrente, lezioniInAgenda, stato } from '#ui/state.js'
 import { chiusura, festivo, chiudeSemestreDiMezzo, giorniVisibili, letteraDi } from './common.js'
 import { SEGNI_ICS, segniAnomalie } from './ics.js'
 import { testi } from './calendar.testi.js'
+import { testi as testiPagina } from '#ui/views/calendar.testi.js'
 
 // ------------------------------------------------------------------ settimana
 
@@ -171,7 +172,7 @@ export function StrisciaSettimane (): ReactElement | null {
     // Anello della catena di telaio fino alla fila.
     <div className={classi('striscia-settimane', chiusa && 'striscia-settimane--chiusa')} data-telaio="striscia">
       <div className="striscia-settimane__testata">
-        <span>{t.settimaneDellAnno(piene, voci.length)}</span>
+        <span>{testiPagina().settimaneConLezioni(piene, voci.length)}</span>
         {anomalie
           ? (
               <span

@@ -42,7 +42,8 @@ function fontePdf (fonte: string): ReactElement {
       {web
         ? (
             <a
-              className="calendari-ufficiali__pdf"
+              // Il collegamento del progetto, non il blu e viola del browser.
+              className="collegamento calendari-ufficiali__pdf"
               href={fonte}
               target="_blank"
               rel="noopener noreferrer"

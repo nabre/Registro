@@ -1034,7 +1034,7 @@ function testata (risultato: Risultato): ReactElement {
               <Pastiglia
                 testo={`${T.parti[parteAttiva]} (${sezioniFiltrate(risultato, inRicerca).length})`}
                 tono="informativo"
-                simbolo="segnalibro"
+                simbolo="libro"
               />
             )
           : <Pastiglia testo={T.conto(GUIDA.length, vociInTutto, FIGURE.length)} tono="quiete" simbolo="informazione" />}

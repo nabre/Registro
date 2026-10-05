@@ -12,7 +12,7 @@ import { progettoMostrato } from '#ui/views/projects.js'
 import { progettoIntegratoMostrato } from '#ui/views/projectIntegration.js'
 import { apriIntegrazione, apriProgetto } from '#ui/views/projects/links.js'
 import { nuovoCompito } from '#ui/views/projects/tasks.js'
-import { moduloCriteri, moduloFasi, moduloLivelli, moduloProgetto } from '#ui/forms/project.js'
+import { moduloProgetto } from '#ui/forms/project.js'
 import { testi } from './projects.testi.js'
 
 // Testi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).
@@ -29,6 +29,8 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
   // ------------------------------------------------------------- Progetti
   //
   // Lavorano sul progetto che la pagina mostra: lo scelto, o il primo dell'elenco.
+  // Modifica, fasi, criteri e livelli no: hanno il loro pulsante nella scheda
+  // che mostrano, e qui sarebbero doppioni.
   {
     id: 'progetto.nuovo',
     titolo: t.nuovoProgetto,
@@ -36,27 +38,12 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     dove: ['progetti'],
     gruppo: G.progetto,
     aiuto: () => (nellIntegrazione() ? t.nuovoNelCorsoAiuto : t.nuovoProgettoAiuto),
-    primario: nellaBiblioteca,
     // Nella biblioteca nasce di nessun corso; nell'integrazione si integra subito nel corso.
     impedimento: () => (nellIntegrazione() ? senzaCorso() : null),
     al: () => {
       const corso = nellIntegrazione() ? corsoDelContesto() : null
       if (corso) moduloProgetto({ corsoId: corso.id, dopo: (id) => apriIntegrazione(id, corso.id) })
       else moduloProgetto({ dopo: apriProgetto })
-    },
-  },
-  {
-    id: 'progetto.modifica',
-    titolo: P.modifica,
-    simbolo: 'matita',
-    dove: ['progetti'],
-    gruppo: G.progetto,
-    aiuto: t.progettoModificaAiuto,
-    soloSe: nellaBiblioteca,
-    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
-    al: () => {
-      const progetto = progettoMostrato()
-      if (progetto) moduloProgetto({ progetto })
     },
   },
   {
@@ -67,51 +54,11 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     gruppo: G.progetto,
     aiuto: t.nuovoCompitoAiuto,
     primario: true,
-    soloSe: nellIntegrazione,
-    impedimento: () => (progettoIntegratoMostrato() ? null : t.nessunProgettoAperto),
+    // Senza un progetto in vista non c'è a che cosa dare il compito: il comando non c'è.
+    soloSe: () => nellIntegrazione() && progettoIntegratoMostrato() !== null,
     al: () => {
       const progetto = progettoIntegratoMostrato()
       if (progetto) nuovoCompito(progetto)
-    },
-  },
-  {
-    id: 'progetto.fasi',
-    titolo: t.fasiProgetto,
-    simbolo: 'progetto',
-    dove: ['progetti'],
-    gruppo: G.progetto,
-    aiuto: t.fasiProgettoAiuto,
-    soloSe: nellaBiblioteca,
-    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
-    al: () => {
-      const progetto = progettoMostrato()
-      if (progetto) moduloFasi(progetto.id)
-    },
-  },
-  {
-    id: 'progetto.criteri',
-    titolo: t.criteriProgetto,
-    simbolo: 'presa',
-    dove: ['progetti'],
-    gruppo: G.progetto,
-    soloSe: nellaBiblioteca,
-    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
-    al: () => {
-      const progetto = progettoMostrato()
-      if (progetto) moduloCriteri(progetto.id)
-    },
-  },
-  {
-    id: 'progetto.livelli',
-    titolo: t.livelliProgetto,
-    simbolo: 'presa',
-    dove: ['progetti'],
-    gruppo: G.progetto,
-    soloSe: nellaBiblioteca,
-    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
-    al: () => {
-      const progetto = progettoMostrato()
-      if (progetto) moduloLivelli(progetto.id)
     },
   },
   {
@@ -121,8 +68,7 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     dove: ['progetti'],
     gruppo: G.progetto,
     aiuto: t.eliminaProgettoAiuto,
-    soloSe: nellaBiblioteca,
-    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    soloSe: () => nellaBiblioteca() && progettoMostrato() !== null,
     al: async () => {
       const progetto = progettoMostrato()
       if (!progetto) return

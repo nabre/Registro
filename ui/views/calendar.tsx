@@ -104,11 +104,17 @@ function VistaCalendario (): ReactElement {
   const guasto = modo === 'anno' ? null : guastoCalendarioEsterno()
   const sottotitolo = guasto ? t.guastoIcs(conSemestre, guasto) : conSemestre
 
-  const dellaSettimana = lezioniInAgenda().filter((l) => settimana.includes(l.data))
+  // I conti sono del periodo che la pagina mostra: in Mese e Anno la settimana
+  // scelta non si vede, e i suoi numeri accanto al mese leggerebbero come del mese.
+  // L'agenda resta sulla settimana, che il sottotitolo dice.
+  const periodo = modo === 'mese' || modo === 'anno' ? modo : 'settimana'
+  const mese = stato.data.slice(0, 7)
+  const delPeriodo = periodo === 'anno'
+    ? lezioniInAgenda()
+    : lezioniInAgenda().filter((l) => (periodo === 'mese' ? l.data.startsWith(mese) : settimana.includes(l.data)))
   const { minutiUd } = stato.registro.impostazioni
-  const udSettimana =
-    dellaSettimana.reduce((somma, lezione) => somma + contaUd(lezione, minutiUd), 0)
-  const oreSettimana = dellaSettimana.reduce((somma, l) => somma + minutiEffettivi(l), 0)
+  const udPeriodo = delPeriodo.reduce((somma, lezione) => somma + contaUd(lezione, minutiUd), 0)
+  const orePeriodo = delPeriodo.reduce((somma, l) => somma + minutiEffettivi(l), 0)
 
   return (
     <div
@@ -127,19 +133,18 @@ function VistaCalendario (): ReactElement {
     >
       <TestataVista
         // Compatta: la griglia vuole tutta l'altezza.
-        compatta
         titolo={t.titolo}
         sottotitolo={sottotitolo}
         // Niente pulsanti né filtri: i comandi stanno nella riga delle azioni, classe
         // e corso nella riga delle scelte della barra. Nel contorno solo numeri.
         contorno={(
           <div className="sintesi">
-            <DatoSintetico etichetta={t.lezioniSettimana} valore={String(dellaSettimana.length)} />
-            <DatoSintetico etichetta={t.udSettimana} valore={String(udSettimana)} />
-            <DatoSintetico etichetta={t.oreEffettive} valore={formattaDurata(oreSettimana)} />
+            <DatoSintetico etichetta={t.lezioniNel[periodo]} valore={String(delPeriodo.length)} />
+            <DatoSintetico etichetta={t.udNel[periodo]} valore={String(udPeriodo)} />
+            <DatoSintetico etichetta={t.oreEffettive} valore={formattaDurata(orePeriodo)} />
             <DatoSintetico
               etichetta={t.daSvolgere}
-              valore={String(dellaSettimana.filter((l) => l.stato === 'pianificata').length)}
+              valore={String(delPeriodo.filter((l) => l.stato === 'pianificata').length)}
             />
           </div>
         )}

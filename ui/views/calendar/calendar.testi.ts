@@ -42,9 +42,6 @@ const it = {
   finisceAnno: (anno: string) => `Qui finisce l’anno ${anno}`,
   cominciaAnno: (anno: string) => `Qui comincia l’anno ${anno}`,
 
-  // La striscia delle settimane
-  settimaneDellAnno: (piene: number, tutte: number) =>
-    `Settimane dell’anno · ${piene} su ${tutte} con lezioni`,
   icsDaGuardare: (quante: number) =>
     `ICS: ${plurale(quante, 'settimana', 'settimane')} da guardare · `,
   icsTuttoTorna: 'ICS: tutto torna · ',
@@ -110,8 +107,6 @@ export const testi = catalogo(it, {
     finisceAnno: (anno) => `Hier endet das Schuljahr ${anno}`,
     cominciaAnno: (anno) => `Hier beginnt das Schuljahr ${anno}`,
 
-    settimaneDellAnno: (piene, tutte) =>
-      `Wochen des Schuljahrs · ${piene} von ${tutte} mit Stunden`,
     icsDaGuardare: (quante) => `ICS: ${plurale(quante, 'Woche', 'Wochen')} zu prüfen · `,
     icsTuttoTorna: 'ICS: alles stimmt · ',
     mostraSettimane: 'Wochen des Schuljahrs anzeigen',
@@ -166,8 +161,6 @@ export const testi = catalogo(it, {
     finisceAnno: (anno) => `Ici se termine l’année ${anno}`,
     cominciaAnno: (anno) => `Ici commence l’année ${anno}`,
 
-    settimaneDellAnno: (piene, tutte) =>
-      `Semaines de l’année · ${piene} sur ${tutte} avec des leçons`,
     icsDaGuardare: (quante) => `ICS : ${plurale(quante, 'semaine', 'semaines')} à vérifier · `,
     icsTuttoTorna: 'ICS : tout concorde · ',
     mostraSettimane: 'Afficher les semaines de l’année',
@@ -223,7 +216,6 @@ export const testi = catalogo(it, {
     finisceAnno: (anno) => `The ${anno} year ends here`,
     cominciaAnno: (anno) => `The ${anno} year begins here`,
 
-    settimaneDellAnno: (piene, tutte) => `Weeks of the year · ${piene} of ${tutte} with lessons`,
     icsDaGuardare: (quante) => `ICS: ${plurale(quante, 'week', 'weeks')} to check · `,
     icsTuttoTorna: 'ICS: everything matches · ',
     mostraSettimane: 'Show the weeks of the year',

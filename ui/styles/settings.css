@@ -166,12 +166,13 @@
   min-width: 0;
 }
 
-/* Una sezione: la testata, poi i blocchi. Si ferma sotto la testata appiccicata. */
+/* Una sezione: la testata, poi i blocchi. Si ferma sotto la testata appiccicata
+   e, su schermo stretto, sotto la tendina dell'indice attaccata a lei. */
 .impostazioni__sezione {
   display: flex;
   flex-direction: column;
   gap: var(--spazio-3);
-  scroll-margin-top: calc(var(--impostazioni-fascia-alto, 6rem) + var(--spazio-3));
+  scroll-margin-top: calc(var(--impostazioni-fascia-alto, 6rem) + var(--impostazioni-indice-alto, 0px) + var(--spazio-3));
 }
 
 .impostazioni__sezione-testa {
@@ -196,7 +197,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spazio-3);
-  scroll-margin-top: calc(var(--impostazioni-fascia-alto, 6rem) + var(--spazio-3));
+  scroll-margin-top: calc(var(--impostazioni-fascia-alto, 6rem) + var(--impostazioni-indice-alto, 0px) + var(--spazio-3));
 }
 
 .impostazioni__blocco-ambito { display: flex; }

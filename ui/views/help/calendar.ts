@@ -137,14 +137,7 @@ function figuraOggi (): Schema {
       riquadro(144, 126, 488, 110, { tono: 'quieto', raggio: 6 }),
       testo(154, 142, o.leOreDiOggi, { corpo: 'piccolo', forte: true }),
       oraDiOggi(148, '08:20', s.ora1, o.fasi.svolta, 'positivo'),
-      oraDiOggi(
-        170,
-        '09:10',
-        s.ora2,
-        o.fasi['in-corso'],
-        'informativo',
-        o.adesso,
-      ),
+      oraDiOggi(170, '09:10', s.ora2, o.fasi['in-corso'], 'informativo'),
       oraDiOggi(192, '10:15', s.ora1, o.fasi.futura, 'quieto'),
       oraDiOggi(214, '13:30', s.ora2, o.fasi.annullata, 'quieto'),
       // Sotto, a sinistra le prossime prove, a destra i compleanni.

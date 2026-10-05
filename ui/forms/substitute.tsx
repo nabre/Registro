@@ -53,7 +53,8 @@ export function moduloSupplenza (lezione: Lezione): void {
     titolo: t.titolo,
     sottotitolo: formattaData(lezione.data, 'lungo'),
     aiuto: t.aiuto,
-    larghezza: 'media',
+    // Tre campi e le ore del giorno: una finestra larga li lascerebbe a metà vuoti.
+    larghezza: 'stretta',
     testoSalva: t.prepara,
     corpo: () => (
       <div className="modulo">

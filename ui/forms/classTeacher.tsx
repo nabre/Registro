@@ -36,7 +36,8 @@ export function moduloRecapito (classe: Classe, recapito?: Recapito): void {
 
   apriModale({
     titolo: modifica ? t.modifica : t.nuovo,
-    larghezza: 'media',
+    // Due campi e una casella: una modale media li stirerebbe su tutta la larghezza.
+    larghezza: 'stretta',
     corpo: () => (
       <div className="modulo">
         <Campo

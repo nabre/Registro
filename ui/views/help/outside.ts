@@ -311,7 +311,7 @@ const FIGURA_CONDOTTO = disegno(
   catena(20, 30, [
     // testo-fisso: il nome del comando, che si batte così in ogni lingua
     { etichetta: C.terminale, sotto: 'regi …', simbolo: 'lente' },
-    { etichetta: C.condotto, sotto: C.maiLaRete, simbolo: 'presa', tono: 'accento' },
+    { etichetta: C.condotto, sotto: C.maiLaRete, simbolo: 'collegamento', tono: 'accento' },
     {
       etichetta: C.registro,
       sotto: C.conLeProcedure,
@@ -374,7 +374,8 @@ export const SEZIONI_FUORI: SezioneGuida[] = [
   sezione({
     id: 'riga-di-comando',
     parte: 'fuori',
-    simbolo: 'presa',
+    // Il collegamento: un altro programma che si attacca al registro. La presa (≡) sembrava una maniglia.
+    simbolo: 'collegamento',
     figure: [{ vista: '0 0 640 196', disegno: FIGURA_CONDOTTO }],
     note: ['attenzione', 'meccanismo', 'meccanismo', 'attenzione'],
     vedi: ['assistente', 'impostazioni', 'dati'],

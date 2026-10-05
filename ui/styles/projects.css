@@ -109,6 +109,9 @@
   gap: var(--spazio-2);
 }
 
+/* Il pulsante eredita il carattere: nel titolo sarebbe in grassetto, fuori no. */
+.fase-progetto__titolo > .pulsante { font-weight: 400; }
+
 /* I gesti di una fase nell'integrazione: programmarla in un piano, cambiarne la scaletta. */
 .fase-progetto__azioni { display: flex; flex-wrap: wrap; gap: var(--spazio-2); }
 
@@ -263,4 +266,56 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spazio-2);
+}
+
+/* L'etichetta in vista accanto alle tre voci dello stato nel corso. */
+.testata-progetto__stato { align-items: center; gap: var(--spazio-2); }
+
+/* Il riassunto in cima alla scheda delle fasi, che non ha titolo: lo dà la linguetta. */
+.fasi-progetto__riassunto { margin: 0 0 var(--spazio-2); }
+
+/* La barra di una fase con la cifra accanto: la barra da sola non dice quanto. */
+.fase-progetto__avanzamento {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.fase-progetto__avanzamento .barra { flex: 1; }
+
+.fase-progetto__avanzamento .testo-quieto {
+  flex: none;
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Una risorsa del progetto: il simbolo del tipo, poi il titolo, che va a capo. */
+.risorsa-progetto {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.risorsa-progetto .collegamento { text-decoration: none; }
+.risorsa-progetto .collegamento:hover { text-decoration: underline; }
+
+.testata-progetto .risorse-progetto { list-style: none; padding-left: 0; }
+
+/*
+ * La griglia di un compito in una scheda stretta: il nome cede spazio, e
+ * un'ombra sul bordo dice che a destra c'è ancora una colonna. Le due ombre
+ * «local» coprono quelle fisse quando si è già in fondo (o in cima).
+ */
+.compito-progetto .check__chi { min-width: 6rem; }
+
+.compito-progetto .check th,
+.compito-progetto .check td { padding-inline: 2px; }
+
+.compito-progetto .check__telaio {
+  background:
+    linear-gradient(to left, var(--sfondo-scheda) 30%, transparent) right / 24px 100% no-repeat local,
+    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--testo) 35%, transparent), transparent)
+      right / 12px 100% no-repeat scroll;
 }

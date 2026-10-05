@@ -34,6 +34,7 @@ import {
   type QuadroDelProgetto,
   type QuadroDellaFase,
 } from '#core/dominio/projects.js'
+import { percento } from '#core/dominio/text.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { classi } from '#ui/classNames.js'
 import {
@@ -285,7 +286,9 @@ function schedaTestata (progetto: ProgettoNelCorso): ReactElement {
       )}
     >
       <div className="testata-progetto">
-        <div className="filtri">
+        {/* L'etichetta in vista: le tre voci da sole sembrano lo stato del progetto ovunque. */}
+        <div className="filtri testata-progetto__stato">
+          <span className="testo-quieto" aria-hidden="true">{t.statoNelCorso}</span>
           <Selettore
             valore={progetto.stato}
             voci={STATI_PROGETTO.map((s) => ({ valore: s, testo: nomeStatoProgetto(s) }))}
@@ -566,13 +569,17 @@ function schedaFasi (progetto: ProgettoNelCorso, corso: Corso, quadro: QuadroDel
   const ts = testiScaletta()
   const lezioni = new Map(stato.registro.lezioni.map((l) => [l.id, l]))
   const pianiDelCorso = stato.registro.piani.filter((p) => p.corsoId === corso.id)
-  /** Le ore del corso in cui un'attività della scaletta è già programmata (o il piano, se non è in un'ora). */
-  const dove = (attivitaId: string): string[] => pianiDelCorso
+  /**
+   * Le ore del corso in cui un'attività della scaletta è già programmata (o il
+   * piano, se non è in un'ora). Una volta per giorno: un piano su due ore
+   * dello stesso giorno ripeterebbe la data.
+   */
+  const dove = (attivitaId: string): string[] => [...new Set(pianiDelCorso
     .filter((p) => p.attivita.some((a) => a.progettoId === progetto.id && a.attivitaProgettoId === attivitaId))
     .flatMap((p) => {
       const ore = stato.registro.lezioni.filter((l) => l.pianoId === p.id).sort(confrontaLezioni)
       return ore.length > 0 ? ore.map((l) => formattaData(l.data)) : [nomeDiPiano(p)]
-    })
+    }))]
   const fase = (voce: QuadroDellaFase): ReactElement => {
     const canoniche = (progetto.attivita ?? []).filter((a) => a.faseId === voce.fase.id)
     const aperta = faseAperta(progetto, voce)
@@ -630,11 +637,14 @@ function schedaFasi (progetto: ProgettoNelCorso, corso: Corso, quadro: QuadroDel
         </h4>
         {voce.attivita.length > 0
           ? (
-              <Barra
-                quota={voce.quota}
-                tono={voce.quota >= 1 ? 'positivo' : 'informativo'}
-                etichetta={t.avanzamentoDi(voce.fase.titolo)}
-              />
+              <div className="fase-progetto__avanzamento">
+                <Barra
+                  quota={voce.quota}
+                  tono={voce.quota >= 1 ? 'positivo' : 'informativo'}
+                  etichetta={t.avanzamentoDi(voce.fase.titolo)}
+                />
+                <span className="testo-quieto">{percento(voce.quota)}</span>
+              </div>
             )
           : null}
         {aperta
@@ -670,9 +680,13 @@ function schedaFasi (progetto: ProgettoNelCorso, corso: Corso, quadro: QuadroDel
                                 testo={formattaDurata(minutiDiAttivita(a.durataUd, stato.registro.impostazioni.minutiUd))}
                                 tono="quiete"
                               />
+                              {/* La prima data e quante altre: con tutte la pastiglia usciva dalla scheda. */}
                               <Pastiglia
-                                testo={quando.length > 0 ? [ts.pianificata, ...quando].join(' · ') : ts.daPianificare}
+                                testo={quando.length > 0
+                                  ? `${ts.pianificata} · ${quando[0]}${quando.length > 1 ? ` ${ti.eAltre(quando.length - 1)}` : ''}`
+                                  : ts.daPianificare}
                                 tono={quando.length > 0 ? 'informativo' : 'quiete'}
+                                titolo={quando.length > 1 ? quando.join(', ') : undefined}
                               />
                             </li>
                           )
@@ -695,14 +709,14 @@ function schedaFasi (progetto: ProgettoNelCorso, corso: Corso, quadro: QuadroDel
       </section>
     )
   }
+  // Senza titolo: lo dice già la linguetta sopra, che porta anche l'aiuto.
   return (
-    <Scheda
-      titolo={ti.neiPiani}
-      sottotitolo={quadro.periodo
-        ? `${periodoScritto(quadro.periodo)} · ${t.svolto(Math.round(quadro.quota * 100))}`
-        : t.nessunaLezione}
-      aiuto={ti.neiPianiAiuto}
-    >
+    <Scheda>
+      <p className="testo-quieto fasi-progetto__riassunto">
+        {quadro.periodo
+          ? `${periodoScritto(quadro.periodo)} · ${t.svolto(Math.round(quadro.quota * 100))}`
+          : t.nessunaLezione}
+      </p>
       <div className="fasi-progetto">{quadro.fasi.map(fase)}</div>
     </Scheda>
   )
@@ -825,7 +839,7 @@ function linguetteDelProgetto (progetto: ProgettoNelCorso, corso: Corso, quadro:
   const t = testiProgetti()
   const aperta = linguettaAperta(progetto)
   const voci: Array<{ valore: LinguettaProgetto, testo: string, titolo?: string }> = [
-    { valore: 'fasi', testo: testi().neiPiani },
+    { valore: 'fasi', testo: testi().neiPiani, titolo: testi().neiPianiAiuto },
     { valore: 'matrice', testo: t.matrice },
     { valore: 'esiti', testo: t.esiti, titolo: t.esitiAiuto },
   ]

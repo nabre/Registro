@@ -65,6 +65,7 @@ const it = {
   // La matrice e l'elenco dei periodi.
   senzaDatore: ' senza datore',
   senzaDatoreAiuto: 'Senza l’indirizzo del datore l’e-mail non parte',
+  ritirato: 'non frequenta più',
   apriPeriodo: 'Apri il periodo',
   nessunFoglio: 'nessun foglio caricato',
   contoPeriodo: (firmate: number, interessati: number, inviate: number) =>
@@ -207,6 +208,7 @@ export const testi = catalogo(it, {
     senzaDatore: ` ohne ${de.datore.singolare}`,
     senzaDatoreAiuto:
       'Ohne Adresse des Arbeitgebers geht die E-Mail nicht raus',
+    ritirato: 'besucht nicht mehr',
     apriPeriodo: 'Zeitraum öffnen',
     nessunFoglio: 'kein Blatt geladen',
     contoPeriodo: (firmate, interessati, inviate) =>
@@ -329,6 +331,7 @@ export const testi = catalogo(it, {
     inAttesaDellaFirma: 'en attente de signature',
     senzaDatore: ` sans ${fr.datore.singolare}`,
     senzaDatoreAiuto: 'Sans l’adresse de l’employeur, l’e-mail ne part pas',
+    ritirato: 'ne suit plus',
     apriPeriodo: 'Ouvrir la période',
     nessunFoglio: 'aucune feuille chargée',
     contoPeriodo: (firmate, interessati, inviate) =>
@@ -449,6 +452,7 @@ export const testi = catalogo(it, {
     inAttesaDellaFirma: 'waiting for signature',
     senzaDatore: ` no ${en.datore.singolare}`,
     senzaDatoreAiuto: `Without the ${en.datore.singolare}’s address the email won’t go out`,
+    ritirato: 'no longer attending',
     apriPeriodo: 'Open the period',
     nessunFoglio: 'no sheet loaded',
     contoPeriodo: (firmate, interessati, inviate) =>

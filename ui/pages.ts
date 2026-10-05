@@ -163,7 +163,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'agenda',
     aiuto: t.pendenzeAiuto,
     conto: () => pendenzeDellaBarra().aperti,
-    attiva: qui('pagina.pendenze'),
+    // Anche le pendenze della classe: si arriva da qui, e il percorso lo dice.
+    attiva: () => stato.posto.pagina === 'pagina.pendenze' || stato.posto.pagina === 'pagina.classe.pendenze',
     apri: () => { vai({ pagina: 'pagina.pendenze' }) },
   },
   {
@@ -226,7 +227,7 @@ export const PAGINE: readonly Pagina[] = [
   {
     id: 'pagina.corso.overview',
     titolo: t.overview,
-    simbolo: 'dashboard',
+    simbolo: 'colonne',
     gruppo: 'progettazione',
     aiuto: t.overviewAiuto,
     impedimento: senzaCorso,
@@ -247,7 +248,7 @@ export const PAGINE: readonly Pagina[] = [
     // Accanto ai piani: i progetti della biblioteca messi al lavoro nel corso.
     id: 'pagina.corso.integrazione',
     titolo: t.integrazione,
-    simbolo: 'progetto',
+    simbolo: 'innesto',
     gruppo: 'progettazione',
     aiuto: t.integrazioneAiuto,
     impedimento: senzaCorso,
@@ -273,7 +274,7 @@ export const PAGINE: readonly Pagina[] = [
   {
     id: 'pagina.classe.check',
     titolo: t.checkClasse,
-    simbolo: 'check',
+    simbolo: 'checkClasse',
     gruppo: 'classe',
     aiuto: t.checkClasseAiuto,
     attiva: qui('pagina.classe.check'),
@@ -282,7 +283,7 @@ export const PAGINE: readonly Pagina[] = [
   {
     id: 'pagina.classe.documenti',
     titolo: t.archivio,
-    simbolo: 'documento',
+    simbolo: 'archivio',
     gruppo: 'classe',
     aiuto: t.archivioAiuto,
     attiva: qui('pagina.classe.documenti'),

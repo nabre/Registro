@@ -308,15 +308,20 @@ export function rigaFoglio (
       onClick={alClicSullaRiga(opzioni)}
     >
       {/* Il nome è il gesto principale e resta raggiungibile senza puntatore. La
-          lente offre lo stesso gesto con un'etichetta più descrittiva. */}
-      <button
-        className="pulsante pulsante--fantasma documenti__nome documenti__nome-apri"
-        type="button"
-        disabled={!suo}
-        onClick={() => { void guarda(suo) }}
-      >
-        {opzioni.etichetta}
-      </button>
+          lente offre lo stesso gesto con un'etichetta più descrittiva. Di un
+          documento non ancora fatto resta testo, e non un pulsante spento: a mezza
+          luce sembrerebbe una riga che non conta, e invece dice che cosa manca. */}
+      {suo
+        ? (
+            <button
+              className="pulsante pulsante--fantasma documenti__nome documenti__nome-apri"
+              type="button"
+              onClick={() => { void guarda(suo) }}
+            >
+              {opzioni.etichetta}
+            </button>
+          )
+        : <span className="documenti__nome documenti__nome--da-fare">{opzioni.etichetta}</span>}
       {opzioni.segni ?? null}
       {gesti}
     </li>

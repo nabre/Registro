@@ -111,13 +111,13 @@ const it = {
           'dei tipi di settimana), Giornata, Calendari esterni. **Didattica**: Valutazione, ' +
           'Liste; le materie si decidono nella pagina **Corsi**. **Utente**: Chi sei, Carta e ' +
           'stampa, Account, Posta con la firma. **Programma**: Aspetto, Avvio e promemoria, ' +
-          'Assistente e modelli, Aggiornamenti, Avanzate. In questa guida un posto si scrive ' +
+          'Assistente e modelli, Aggiornamenti, Sistema e altri programmi. In questa guida un posto si scrive ' +
           'così: Impostazioni › Calendario › Giornata.',
       },
       {
         termine: 'Questo anno, questo computer',
         testo:
-          'Ogni sezione dice dove sta, con una pastiglia accanto al nome: **Questo anno** sta ' +
+          'Ogni sezione dice dove sta, con una pastiglia sotto il nome: **Questo anno** sta ' +
           'dentro il file dell’anno aperto e viaggia con lui; **Questo computer** resta qui e ' +
           'vale per tutti gli anni. Dove una sezione li mescola — la posta, con la firma che ' +
           'sta nel file — la pastiglia sta su ogni blocco.',
@@ -325,7 +325,7 @@ const it = {
           'sospesa finché la **Dettatura** è spenta.',
       },
       {
-        termine: 'La sezione Avanzate',
+        termine: 'La sezione Sistema e altri programmi',
         testo:
           'L’ultima di Programma. **Integrazione nel sistema operativo**, accesa di ' +
           'serie, con la pastiglia «al prossimo avvio»: a ogni avvio annota nel sistema ' +
@@ -347,7 +347,7 @@ const it = {
         '`documenti.json`, nella cartella dei dati del programma. Nella versione portabile ' +
         'quella cartella è «Regiklass - dati», accanto all’eseguibile, e se ne va ' +
         'insieme a lui.',
-      'L’avvertenza del condotto, in **Avanzate**, si legge prima di sceglierlo: acceso, ' +
+      'L’avvertenza del condotto, in **Sistema e altri programmi**, si legge prima di sceglierlo: acceso, ' +
         'qualunque programma che ' +
         'gira con il tuo accesso può leggere i dati delle persone senza chiedere. Si accende ' +
         'per il tempo che serve, e si spegne.',
@@ -1080,14 +1080,14 @@ export const testi = catalogo(it, {
             'Liste der Wochentypen), Schultag, Externe Kalender. **Unterricht**: Beurteilung, ' +
             'Listen; die Fächer legt man auf der Seite **Kurse** fest. **Benutzer**: Wer du ' +
             'bist, Briefpapier und Druck, Konten, Post mit der Signatur. **Programm**: Aussehen, ' +
-            'Start und Erinnerungen, Assistent und Modelle, Aktualisierungen, Erweitert. In ' +
+            'Start und Erinnerungen, Assistent und Modelle, Aktualisierungen, System und andere Programme. In ' +
             'dieser Hilfe schreibt man einen Ort so: Einstellungen › Kalender › ' +
             'Schultag.',
         },
         {
           termine: 'Dieses Jahr, dieser Computer',
           testo:
-            'Jeder Abschnitt sagt mit einem Etikett neben dem Namen, wo er liegt: **Dieses Jahr** ' +
+            'Jeder Abschnitt sagt mit einem Etikett unter dem Namen, wo er liegt: **Dieses Jahr** ' +
             'liegt in der Datei des offenen Schuljahrs und reist mit ihr; **Dieser Computer** ' +
             'bleibt hier und gilt für alle Schuljahre. Wo ein Abschnitt beides mischt — die ' +
             'Post, mit der Signatur in der Datei — steht das Etikett auf jedem Block.',
@@ -1306,7 +1306,7 @@ export const testi = catalogo(it, {
             '127.0.0.1, dieser Computer. Er bleibt ausgesetzt, solange das **Diktat** aus ist.',
         },
         {
-          termine: 'Der Abschnitt Erweitert',
+          termine: 'Der Abschnitt System und andere Programme',
           testo:
             'Der letzte unter Programm. **Betriebssystem-Integration**, standardmässig an, mit ' +
             'dem Etikett «beim nächsten Start»: Bei jedem Start trägt sie im System die ' +
@@ -1330,7 +1330,7 @@ export const testi = catalogo(it, {
         'Die Einstellungen liegen in `impostazioni.json` und die letzten Schuljahre in ' +
           '`documenti.json`, im Datenordner des Programms. In der portablen Version ist dieser ' +
           'Ordner «Regiklass - dati», neben der ausführbaren Datei, und wandert mit ihr.',
-        'Den Warnhinweis des Kanals, unter **Erweitert**, liest man, bevor man ihn wählt: ' +
+        'Den Warnhinweis des Kanals, unter **System und andere Programme**, liest man, bevor man ihn wählt: ' +
           'Eingeschaltet kann ' +
           'jedes Programm, das mit deinem Zugang läuft, die Daten der Personen ohne Nachfrage ' +
           'lesen. Man schaltet ihn für die nötige Zeit ein, und dann wieder aus.',
@@ -2112,13 +2112,13 @@ export const testi = catalogo(it, {
             'Évaluation, Listes ; les branches se décident dans la page **Cours**. ' +
             '**Utilisateur** : Qui tu es, Papier et impression, Comptes, Messagerie avec la ' +
             'signature. **Programme** : Apparence, Démarrage et rappels, Assistant et modèles, ' +
-            'Mises à jour, Avancé. Dans ce guide, un endroit s’écrit ainsi : ' +
+            'Mises à jour, Système et autres programmes. Dans ce guide, un endroit s’écrit ainsi : ' +
             'Paramètres › Calendrier › Journée.',
         },
         {
           termine: 'Cette année, cet ordinateur',
           testo:
-            'Chaque section dit où elle se trouve, avec une pastille à côté du nom : **Cette ' +
+            'Chaque section dit où elle se trouve, avec une pastille sous le nom : **Cette ' +
             'année** est dans le fichier de l’année ouverte et voyage avec lui ; **Cet ' +
             'ordinateur** reste ici et vaut pour toutes les années. Là où une section mélange ' +
             'les deux — la messagerie, avec la signature dans le fichier — la pastille est sur ' +
@@ -2338,7 +2338,7 @@ export const testi = catalogo(it, {
             'reste suspendu tant que la **Dictée** est désactivée.',
         },
         {
-          termine: 'La section Avancé',
+          termine: 'La section Système et autres programmes',
           testo:
             'La dernière de Programme. **Intégration au système d’exploitation**, activée par ' +
             'défaut, avec la pastille « au prochain démarrage » : à chaque démarrage, elle ' +
@@ -2363,7 +2363,7 @@ export const testi = catalogo(it, {
           '`documenti.json`, dans le dossier des données du programme. Dans la version ' +
           'portable, ce dossier est « Regiklass - dati », à côté de l’exécutable, et ' +
           'part avec lui.',
-        'L’avertissement du canal, dans **Avancé**, se lit avant de le choisir : activé, ' +
+        'L’avertissement du canal, dans **Système et autres programmes**, se lit avant de le choisir : activé, ' +
           'n’importe quel programme qui ' +
           'tourne avec ton accès peut lire les données des personnes sans demander. On ' +
           'l’active le temps qu’il faut, et on le désactive.',
@@ -3143,13 +3143,13 @@ export const testi = catalogo(it, {
             'week types), School day, External calendars. **Teaching**: Assessment, Lists; ' +
             'subjects are decided on the **Courses** page. **User**: Who you are, Letterheads ' +
             'and printing, Accounts, Mail with the signature. **Program**: Appearance, Startup ' +
-            'and reminders, Assistant and models, Updates, Advanced. In this guide a place is ' +
+            'and reminders, Assistant and models, Updates, System and other programs. In this guide a place is ' +
             'written like this: Settings › Calendar › School day.',
         },
         {
           termine: 'This year, this computer',
           testo:
-            'Every section says where it lives, with a pill next to its name: **This year** is ' +
+            'Every section says where it lives, with a pill under its name: **This year** is ' +
             'inside the open year’s file and travels with it; **This computer** stays here and ' +
             'applies to every year. Where a section mixes the two — mail, with the signature in ' +
             'the file — the pill is on every block.',
@@ -3360,7 +3360,7 @@ export const testi = catalogo(it, {
             'stays suspended while **Dictation** is off.',
         },
         {
-          termine: 'The Advanced section',
+          termine: 'The System and other programs section',
           testo:
             'The last one in Program. **Operating system integration**, on by default, with the ' +
             '“at next start” badge: at every start it registers with the system the association ' +
@@ -3383,7 +3383,7 @@ export const testi = catalogo(it, {
           '`documenti.json`, in the program’s data folder. In the portable version that ' +
           'folder is “Regiklass - dati”, next to the executable, and goes wherever it ' +
           'goes.',
-        'Read the pipe’s warning, under **Advanced**, before choosing: when on, any program ' +
+        'Read the pipe’s warning, under **System and other programs**, before choosing: when on, any program ' +
           'running with ' +
           'your account can read people’s data without asking. Turn it on for as long as you ' +
           'need, then off.',

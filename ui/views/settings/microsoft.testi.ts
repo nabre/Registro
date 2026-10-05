@@ -3,7 +3,7 @@
 import { catalogo } from '#core/i18n/index.js'
 
 const it = {
-  titolo: 'Account',
+  titolo: 'Account Microsoft',
   aiuto:
     'Un account Microsoft sa fare due cose per il registro, e ognuna ha il suo permesso: la ' +
     'Posta — la casella da cui partono le comunicazioni — e OneDrive, dove il registro cerca i ' +
@@ -48,7 +48,7 @@ const it = {
 
 export const testi = catalogo(it, {
   de: {
-    titolo: 'Konten',
+    titolo: 'Microsoft-Konten',
     aiuto:
       'Ein Microsoft-Konto kann zwei Dinge für das Klassenbuch, jedes mit seiner eigenen ' +
       'Berechtigung: die E-Mail — das Postfach, aus dem die Mitteilungen gehen — und OneDrive, ' +
@@ -96,7 +96,7 @@ export const testi = catalogo(it, {
       'OneDrive.',
   },
   fr: {
-    titolo: 'Comptes',
+    titolo: 'Comptes Microsoft',
     aiuto:
       'Un compte Microsoft sait faire deux choses pour le registre, chacune avec son ' +
       'autorisation : la messagerie — la boîte d’où partent les communications — et OneDrive, où ' +
@@ -144,7 +144,7 @@ export const testi = catalogo(it, {
       'se télécharge dans un dossier au choix : cette copie ne retourne pas sur OneDrive.',
   },
   en: {
-    titolo: 'Accounts',
+    titolo: 'Microsoft accounts',
     aiuto:
       'A Microsoft account can do two things for the register, each with its own permission: ' +
       'Mail — the mailbox the communications are sent from — and OneDrive, where the register ' +

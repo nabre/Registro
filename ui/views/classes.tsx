@@ -56,6 +56,7 @@ import { Tabella } from '#ui/components/table.js'
 import { CellaNome } from '#ui/components/avatar.js'
 import { inviaDalModulo } from '#ui/forms/common.js'
 import { telaioVista } from '#ui/viewFrame.js'
+import { nomeDelPosto } from '#ui/pages.js'
 import { testi } from './classes.testi.js'
 
 /**
@@ -110,7 +111,7 @@ function tabellaAllievi (classe: Classe): ReactElement {
       scorrimento={`allievi:${classe.id}`}
       intestazione={(
         <>
-          <th>{Uno(L.pif)}</th>
+          <th className="tabella__nome">{Uno(L.pif)}</th>
           <th>{t.nascita}</th>
           <th>{parole().indirizzo}</th>
           <th>{Uno(L.email)}</th>
@@ -139,10 +140,10 @@ function tabellaAllievi (classe: Classe): ReactElement {
           </th>
           {/* La data come sui moduli, non in ISO: si ricopia a mano. */}
           {cella(allievo.dataNascita ? formattaData(allievo.dataNascita) : undefined)}
-          {cella(scriviIndirizzo(allievo.indirizzo) || undefined)}
+          {cella(scriviIndirizzo(allievo.indirizzo) || undefined, 'tabella__indirizzo')}
           {cella(allievo.email, 'tabella__recapito', 'email')}
           {cella(allievo.azienda)}
-          {cella(scriviIndirizzo(allievo.indirizzoDatore) || undefined)}
+          {cella(scriviIndirizzo(allievo.indirizzoDatore) || undefined, 'tabella__indirizzo')}
           {cella(allievo.emailDatore, 'tabella__recapito', 'email')}
           <td className="tabella__azioni">
             <Pulsante
@@ -278,9 +279,12 @@ function dettagliClasse (classe: Classe): ReactElement {
       )}
     >
       <div className="dettagli-classe">
+        {/* Nello stesso ordine del modulo della classe (`forms/class.tsx`): nome e
+            colore, le due spunte, le note. Chi passa dall'uno all'altro ritrova i campi. */}
         <div className="dettagli-classe__riga">
+          {testoInRiga('nome', t.nomeClasse, classe.nome, 'I MEC A')}
           <label className="dettagli-classe__campo dettagli-classe__campo--colore">
-            <span>{parole().colore}</span>
+            <span>{t.coloreNelCalendario}</span>
             <Input
               className="dettagli-classe__colore"
               type="color"
@@ -297,7 +301,6 @@ function dettagliClasse (classe: Classe): ReactElement {
               }}
             />
           </label>
-          {testoInRiga('nome', t.nomeClasse, classe.nome, 'I MEC A')}
         </div>
         <div className="dettagli-classe__riga">
           {spunta('docenteDiClasse', t.sonoDocenteDiClasse, t.aiutoDocenteDiClasse)}
@@ -517,7 +520,8 @@ function VistaClassi (): ReactElement {
   return (
     <div className="vista vista--classi" data-telaio={telaioVista()}>
       <TestataVista
-        titolo={t.titolo}
+        // Lo stesso nome del percorso e della barra laterale.
+        titolo={nomeDelPosto()}
         sottotitolo={t.anno(anno.etichetta)}
         aiuto={t.aiuto}
         // «Nuova classe» sta nella riga delle azioni.
@@ -543,10 +547,8 @@ function VistaClassi (): ReactElement {
                 >
                   <div>
                     {classe.note ? <p className="nota-classe">{classe.note}</p> : null}
-                    {/* Il fascicolo del docente di classe ha la sua voce nel menu: qui solo la pastiglia. */}
-                    {classe.docenteDiClasse
-                      ? <Pastiglia testo={L.docenteClasse.singolare} tono="informativo" simbolo="posta" />
-                      : null}
+                    {/* Niente pastiglia «docente di classe»: lo dice la casella dei dettagli,
+                        subito sopra, e il fascicolo ha la sua voce nel menu. */}
                     {tabellaAllievi(classe)}
                   </div>
                 </Scheda>

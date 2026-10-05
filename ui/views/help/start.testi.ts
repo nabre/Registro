@@ -560,7 +560,8 @@ const it = {
       'Che cosa manca, e com’è messa la macchina. Si guarda senza cercare niente.',
     scritte: {
       aSinistra: 'a sinistra',
-      daCompilare: 'da compilare: DIC4a · lun 14 set',
+      prossimaBarra: 'prossima: DIC4a · lun 08:20',
+      daCompilare: '2 da compilare ▾',
       pendenze: quanti(3, CARTE.pendenza),
       tuttiICorsi: 'Tutti i corsi ▾',
       semestre: '1° semestre ▾',
@@ -569,16 +570,15 @@ const it = {
       casella: 'casella collegata',
       leOre: 'Le lezioni',
       diCorsoEPeriodo: 'di corso e periodo',
-      buco: 'C’è un buco?',
-      buco2: 'ora passata e non chiusa',
+      buco: 'Ore passate aperte?',
+      buco2: 'registro non a posto',
       si: 'sì',
-      compilare: 'da compilare',
-      piuVecchio: 'il buco più vecchio',
-      no: 'no',
-      inArrivo: 'Un’ora in arrivo?',
+      compilare: 'N da compilare',
+      tendina: 'la tendina per aprirle',
+      inArrivo: 'Un’ora in corso o in arrivo?',
       nonAnnullata: 'non annullata',
-      prossima: 'prossima',
-      classeGiornoOra: 'classe · giorno ora',
+      prossima: 'adesso, o prossima',
+      classeGiornoOra: 'fino a quando, o quando',
     },
     figure: [
       {
@@ -586,7 +586,7 @@ const it = {
           'Nella finestra le due metà stanno sulla stessa riga: a sinistra quel che chiede ' +
           'qualcosa, a destra com’è messa la macchina.',
         legenda: [
-          'La lezione da compilare, o la prossima.',
+          'La lezione in corso o la prossima, e quante sono da compilare.',
           `Le ${CARTE.pendenza.plurale} aperte.`,
           'Corso e periodo dell’ora proposta.',
           'L’assistente e la lettura delle scansioni: accesi o spenti.',
@@ -596,17 +596,17 @@ const it = {
       },
       {
         didascalia:
-          'Prima i buchi, poi il futuro: un’ora di martedì senza appello resta proposta anche ' +
-          'giovedì, finché non la si chiude. Senza né buchi né ore in arrivo la voce dice ' +
-          '«nessuna lezione in programma».',
+          'Due domande, due voci: l’ora in corso o la prossima, sempre; accanto, se ce ne sono, ' +
+          'le ore passate da compilare. Un buco di settimana scorsa non nasconde l’ora di fra ' +
+          'dieci minuti. Senza ore in arrivo la prima voce dice «nessuna lezione in arrivo».',
       },
     ],
     voci: [
       {
-        termine: 'La prossima lezione e quelle da chiudere',
+        termine: 'La prossima lezione e quelle da compilare',
         testo:
           'In fondo a sinistra, sempre: «prossima: classe · giorno ora», la lezione che viene ' +
-          'secondo l’orario; un clic la apre. Accanto, con il triangolo giallo, «3 da chiudere»: ' +
+          'secondo l’orario, o «adesso: classe fino alle ora» mentre la si fa; un clic la apre. Accanto, con il triangolo giallo, «3 da compilare»: ' +
           'le lezioni passate con il registro non a posto. Il clic apre la tendina con numero ' +
           'della lezione, data e corso; scegliendone una la si apre.',
       },
@@ -1476,7 +1476,8 @@ export const testi = catalogo(it, {
         'Was fehlt und wie es um den Computer steht. Man sieht es, ohne zu suchen.',
       scritte: {
         aSinistra: 'links',
-        daCompilare: 'auszufüllen: DIC4a · Mo 14. Sep',
+        prossimaBarra: 'nächste: DIC4a · Mo 08:20',
+        daCompilare: '2 auszufüllen ▾',
         pendenze: quanti(3, DE.pendenza),
         tuttiICorsi: 'Alle Kurse ▾',
         semestre: '1. Semester ▾',
@@ -1485,16 +1486,15 @@ export const testi = catalogo(it, {
         casella: 'Postfach verbunden',
         leOre: 'Die Stunden',
         diCorsoEPeriodo: 'von Kurs und Zeitraum',
-        buco: 'Eine Lücke?',
-        buco2: 'vorbei und nicht erfasst',
+        buco: 'Offene vergangene Stunden?',
+        buco2: 'Eintrag unvollständig',
         si: 'ja',
-        compilare: 'auszufüllen',
-        piuVecchio: 'die älteste Lücke',
-        no: 'nein',
-        inArrivo: 'Kommt eine Stunde?',
+        compilare: 'N auszufüllen',
+        tendina: 'die Liste, um sie zu öffnen',
+        inArrivo: 'Läuft oder kommt eine Stunde?',
         nonAnnullata: 'nicht ausgefallen',
-        prossima: 'nächste',
-        classeGiornoOra: 'Klasse · Tag Zeit',
+        prossima: 'jetzt, oder nächste',
+        classeGiornoOra: 'bis wann, oder wann',
       },
       figure: [
         {
@@ -1502,7 +1502,7 @@ export const testi = catalogo(it, {
             'Im Fenster stehen die beiden Hälften auf derselben Zeile: links, was etwas ' +
             'verlangt, rechts, wie es um den Computer steht.',
           legenda: [
-            'Die auszufüllende Stunde, oder die nächste.',
+            'Die laufende oder die nächste Stunde, und wie viele auszufüllen sind.',
             `Die offenen ${DE.pendenza.plurale}.`,
             'Kurs und Zeitraum der vorgeschlagenen Stunde.',
             'Der Assistent und das Lesen der Scans: an oder aus.',
@@ -1512,17 +1512,18 @@ export const testi = catalogo(it, {
         },
         {
           didascalia:
-            'Zuerst die Lücken, dann die Zukunft: Eine Stunde vom Dienstag ohne ' +
-            'Präsenzkontrolle wird auch am Donnerstag noch vorgeschlagen, bis man sie ' +
-            'abschliesst. Ohne Lücken und ohne kommende Stunden steht da «keine Stunde geplant».',
+            'Zwei Fragen, zwei Einträge: die laufende oder die nächste Stunde, immer; daneben, ' +
+            'falls es welche gibt, die vergangenen Stunden zum Ausfüllen. Eine Lücke von letzter ' +
+            'Woche verdeckt nicht die Stunde in zehn Minuten. Ohne kommende Stunden steht im ' +
+            'ersten Eintrag «keine Stunde mehr in Sicht».',
         },
       ],
       voci: [
         {
-          termine: 'Die nächste Stunde und die abzuschliessenden',
+          termine: 'Die nächste Stunde und die auszufüllenden',
           testo:
             'Unten links, immer: «nächste: Klasse · Tag Zeit», die Stunde, die laut Stundenplan ' +
-            'kommt; ein Klick öffnet sie. Daneben, mit dem gelben Dreieck, «3 abzuschliessen»: ' +
+            'kommt, oder «jetzt: Klasse bis Zeit», während sie läuft; ein Klick öffnet sie. Daneben, mit dem gelben Dreieck, «3 auszufüllen»: ' +
             'vergangene Stunden mit unvollständigem Eintrag. Der Klick öffnet die Liste mit ' +
             'Nummer der Stunde, Datum und Kurs; eine Wahl öffnet sie.',
         },
@@ -2388,7 +2389,8 @@ export const testi = catalogo(it, {
         'Ce qui manque, et l’état de la machine. On la regarde sans rien chercher.',
       scritte: {
         aSinistra: 'à gauche',
-        daCompilare: 'à remplir : DIC4a · lun 14 sept',
+        prossimaBarra: 'prochaine : DIC4a · lun 08:20',
+        daCompilare: '2 à remplir ▾',
         pendenze: '3 en suspens',
         tuttiICorsi: 'Tous les cours ▾',
         semestre: '1er semestre ▾',
@@ -2397,16 +2399,15 @@ export const testi = catalogo(it, {
         casella: 'boîte connectée',
         leOre: 'Les leçons',
         diCorsoEPeriodo: 'du cours et de la période',
-        buco: 'Un trou ?',
-        buco2: 'passée et pas fermée',
+        buco: 'Leçons passées ouvertes ?',
+        buco2: 'registre pas en ordre',
         si: 'oui',
-        compilare: 'à remplir',
-        piuVecchio: 'le plus ancien trou',
-        no: 'non',
-        inArrivo: 'Une leçon à venir ?',
+        compilare: 'N à remplir',
+        tendina: 'la liste pour les ouvrir',
+        inArrivo: 'Une leçon en cours ou à venir ?',
         nonAnnullata: 'non annulée',
-        prossima: 'prochaine',
-        classeGiornoOra: 'classe · jour heure',
+        prossima: 'maintenant, ou prochaine',
+        classeGiornoOra: 'jusqu’à quand, ou quand',
       },
       figure: [
         {
@@ -2414,7 +2415,7 @@ export const testi = catalogo(it, {
             'Dans la fenêtre, les deux moitiés sont sur la même ligne : à gauche ce qui ' +
             'demande quelque chose, à droite l’état de la machine.',
           legenda: [
-            'La leçon à remplir, ou la prochaine.',
+            'La leçon en cours ou la prochaine, et combien sont à remplir.',
             `Les ${FR.pendenza.plurale} ouvertes.`,
             'Cours et période de la leçon proposée.',
             'L’assistant et la lecture des scans : activés ou désactivés.',
@@ -2424,17 +2425,19 @@ export const testi = catalogo(it, {
         },
         {
           didascalia:
-            'D’abord les trous, puis l’avenir : une leçon du mardi sans appel reste proposée ' +
-            'même le jeudi, tant qu’on ne la ferme pas. Sans trous ni leçons à venir, l’entrée ' +
-            'dit « aucune leçon prévue ».',
+            'Deux questions, deux entrées : la leçon en cours ou la prochaine, toujours ; à côté, ' +
+            's’il y en a, les leçons passées à remplir. Un trou de la semaine dernière ne cache ' +
+            'pas la leçon dans dix minutes. Sans leçons à venir, la première entrée dit ' +
+            '« aucune leçon à venir ».',
         },
       ],
       voci: [
         {
-          termine: 'La prochaine leçon et celles à clôturer',
+          termine: 'La prochaine leçon et celles à remplir',
           testo:
             'En bas à gauche, toujours : « prochaine : classe · jour heure », la leçon qui vient ' +
-            'selon l’horaire ; un clic l’ouvre. À côté, avec le triangle jaune, « 3 à clôturer » : ' +
+            'selon l’horaire, ou « maintenant : classe jusqu’à heure » pendant qu’on la fait ; ' +
+            'un clic l’ouvre. À côté, avec le triangle jaune, « 3 à remplir » : ' +
             'les leçons passées dont le registre n’est pas en ordre. Le clic ouvre la liste avec ' +
             'numéro de la leçon, date et cours ; en choisir une l’ouvre.',
         },
@@ -3281,7 +3284,8 @@ export const testi = catalogo(it, {
         'What is missing, and how the machine is doing. You glance at it, not search it.',
       scritte: {
         aSinistra: 'left',
-        daCompilare: 'to fill in: DIC4a · Mon 14 Sep',
+        prossimaBarra: 'next: DIC4a · Mon 08:20',
+        daCompilare: '2 to fill in ▾',
         pendenze: '3 pending',
         tuttiICorsi: 'All courses ▾',
         semestre: '1st semester ▾',
@@ -3290,16 +3294,15 @@ export const testi = catalogo(it, {
         casella: 'mailbox connected',
         leOre: 'The lessons',
         diCorsoEPeriodo: 'of course and period',
-        buco: 'A gap?',
-        buco2: 'past and not closed',
+        buco: 'Past lessons open?',
+        buco2: 'register not complete',
         si: 'yes',
-        compilare: 'to fill in',
-        piuVecchio: 'the oldest gap',
-        no: 'no',
-        inArrivo: 'A lesson coming?',
+        compilare: 'N to fill in',
+        tendina: 'the list to open them',
+        inArrivo: 'A lesson now or coming?',
         nonAnnullata: 'not cancelled',
-        prossima: 'next',
-        classeGiornoOra: 'class · day time',
+        prossima: 'now, or next',
+        classeGiornoOra: 'until when, or when',
       },
       figure: [
         {
@@ -3307,7 +3310,7 @@ export const testi = catalogo(it, {
             'In the window the two halves sit on the same row: on the left what asks for ' +
             'something, on the right how the machine is doing.',
           legenda: [
-            'The lesson to fill in, or the next one.',
+            'The lesson in progress or the next one, and how many are to fill in.',
             `The open ${EN.pendenza.plurale}.`,
             'Course and period of the suggested lesson.',
             'The assistant and scan reading: on or off.',
@@ -3317,18 +3320,19 @@ export const testi = catalogo(it, {
         },
         {
           didascalia:
-            'Gaps first, then the future: a Tuesday lesson with no attendance taken is still ' +
-            'suggested on Thursday, until it is closed. With neither gaps nor lessons coming, ' +
-            'the item says “no lessons scheduled”.',
+            'Two questions, two entries: the lesson in progress or the next one, always; beside ' +
+            'it, if there are any, the past lessons to fill in. A gap from last week does not ' +
+            'hide the lesson in ten minutes. With no lessons coming, the first entry says ' +
+            '“no lessons coming up”.',
         },
       ],
       voci: [
         {
-          termine: 'The next lesson and those to close',
+          termine: 'The next lesson and those to fill in',
           testo:
             'At the bottom left, always: “next: class · day time”, the lesson that comes next ' +
-            'by the timetable; a click opens it. Beside it, with the yellow triangle, “3 to ' +
-            'close”: past lessons whose register is not complete. The click opens the list with ' +
+            'by the timetable, or “now: class until time” while it is on; a click opens it. Beside it, with the yellow triangle, “3 to ' +
+            'fill in”: past lessons whose register is not complete. The click opens the list with ' +
             'lesson number, date and course; choosing one opens it.',
         },
         {

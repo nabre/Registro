@@ -63,7 +63,10 @@
   outline: 2px solid var(--fuoco);
   outline-offset: -2px;
 }
-.barra-comandi__spazio { flex: 1 1 0; }
+/* Lo spazio elastico serve solo senza contesto: con il contesto, è lui a prendere
+   la riga (vedi sotto), e dividersela farebbe andare a capo le scelte a metà. */
+.barra-comandi__spazio { flex: 0 1 0; }
+.barra-comandi__contesto:empty ~ .barra-comandi__spazio { flex-grow: 1; }
 .barra-comandi__schermo--acceso,
 .barra-comandi__scheda--attiva {
   background: color-mix(in srgb, var(--positivo) 10%, transparent);
@@ -79,7 +82,9 @@
   flex: none;
 }
 .barra-comandi__scheda--schermo .icona { color: var(--positivo); }
-/* Il contesto segue la destinazione. A finestra stretta ha una riga propria. */
+/* Il contesto segue la destinazione. A finestra stretta le scelte vanno a capo
+   dentro di lui, e solo quando non stanno: una riga propria sempre, sotto i 1280
+   px, faceva tre righe di testata anche con spazio. */
 .barra-comandi__contesto,
 .barra-comandi__scelta {
   display: flex;
@@ -87,8 +92,10 @@
   gap: var(--spazio-2);
   min-width: 0;
 }
-/* Spazio fra le righe come nella navigazione: si vede solo quando vanno a capo. */
-.barra-comandi__contesto { flex-wrap: wrap; gap: var(--spazio-2) var(--spazio-3); }
+/* Spazio fra le righe come nella navigazione: si vede solo quando vanno a capo.
+   Prende lo spazio che resta accanto agli interruttori, che così restano sulla
+   prima riga: a capo vanno le scelte, dentro il contesto. */
+.barra-comandi__contesto { flex: 1 1 0; flex-wrap: wrap; gap: var(--spazio-2) var(--spazio-3); }
 .barra-comandi__contesto:empty { display: none; }
 .barra-comandi__scelta-nome { font-size: var(--corpo-minore); color: var(--testo-quieto); }
 /* La scelta è un pulsante che apre la tendina del programma: nome quieto,
@@ -108,7 +115,6 @@
               border-color var(--durata-svelta) var(--curva);
 }
 .barra-comandi__scelta--tendina:hover { background: var(--sfondo-alto-2); border-color: var(--bordo); }
-.barra-comandi__scelta--tendina:focus-visible { outline: 2px solid var(--accento); outline-offset: 1px; }
 .barra-comandi__scelta--tendina[aria-expanded="true"] { background: var(--velo-scelto); border-color: var(--accento); }
 .barra-comandi__scelta-valore {
   min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600;
@@ -132,6 +138,16 @@
 .barra-comandi__gruppo { flex: none; padding-right: var(--spazio-2); border-right: 1px solid var(--bordo-tenue); }
 .barra-comandi__gruppo:last-child { border-right: 0; padding-right: 0; }
 .barra-comandi__comandi { display: flex; align-items: stretch; gap: 3px; }
+/* Il nome del riquadro, sopra gli interruttori che da soli non dicono che cosa
+   scelgono: piccolo e quieto, una didascalia, non un titolo. */
+.barra-comandi__gruppo > .barra-comandi__etichetta {
+  display: block;
+  margin: 0 0 2px 2px;
+  font-size: var(--corpo-minuto);
+  line-height: 1.1;
+  color: var(--testo-quieto);
+  white-space: nowrap;
+}
 /* La piastrella: icona sopra, nome sotto. L'icona sta in alto e non al centro,
    così in un gruppo le icone restano in fila anche se un nome va a capo. Il
    nome è sempre intero: oltre la larghezza massima va su una seconda riga,
@@ -143,7 +159,9 @@
   justify-content: flex-start;
   gap: 2px;
   min-width: 3.5rem;
-  max-width: 9rem;
+  /* Quanto basta a «Importa classe dall'anno…» su una riga: tasselli vicini
+     della stessa altezza. */
+  max-width: 11rem;
   min-height: var(--bersaglio-compatto);
   padding: var(--dentro-comando-fitto);
   border: 1px solid transparent;
@@ -191,6 +209,15 @@
   border-color: transparent;
   border-radius: 6px;
 }
+/* Nei segmenti dice tutto il segmento scelto: un «primario» non premuto, con la
+   sua tinta e il grassetto, sembrerebbe scelto anche lui. */
+.barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando--primario:not([aria-pressed="true"]) {
+  background: transparent;
+  font-weight: inherit;
+}
+.barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando--primario:not([aria-pressed="true"]) .icona {
+  color: var(--testo-quieto);
+}
 .barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando:hover:not(:disabled) {
   border-color: transparent;
   background: color-mix(in srgb, var(--testo) 6%, transparent);
@@ -212,7 +239,6 @@
    perché su `--testo-quieto` la spiegazione resti leggibile nel tema chiaro. */
 .comando:disabled { color: var(--testo-quieto); opacity: .75; cursor: default; }
 @media (max-width: 80em) {
-  .barra-comandi__contesto { order: 2; flex-basis: 100%; }
   .barra-comandi__scelta--tendina { max-width: min(19rem, 65vw); }
 }
 @media (max-width: 48em) {

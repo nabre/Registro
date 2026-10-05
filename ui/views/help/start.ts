@@ -535,20 +535,23 @@ export const SEZIONI_INIZIO: SezioneGuida[] = [
               tono: 'quieto',
             }),
             riquadro(10, 18, 620, 26, { tono: 'quieto', raggio: 4 }),
-            simbolo('avviso', 18, 24, 14, 'attenzione'),
-            testo(36, 35, T.barraStato.scritte.daCompilare, {
+            // Due voci: l'ora che viene (o che si fa), e le ore passate da compilare.
+            simbolo('lezione', 18, 24, 14),
+            testo(36, 35, T.barraStato.scritte.prossimaBarra, { corpo: 'piccolo' }),
+            simbolo('avviso', 196, 24, 14, 'attenzione'),
+            testo(214, 35, T.barraStato.scritte.daCompilare, {
               corpo: 'piccolo',
               tono: 'attenzione',
             }),
-            simbolo('spunta', 238, 24, 14),
-            testo(256, 35, T.barraStato.scritte.pendenze, { corpo: 'piccolo' }),
-            riquadro(326, 22, 1, 18, { tono: 'quieto', raggio: 0 }),
-            simbolo('classi', 338, 24, 14),
-            testo(356, 35, T.barraStato.scritte.tuttiICorsi, {
+            simbolo('spunta', 318, 24, 14),
+            testo(336, 35, T.barraStato.scritte.pendenze, { corpo: 'piccolo' }),
+            riquadro(398, 22, 1, 18, { tono: 'quieto', raggio: 0 }),
+            simbolo('classi', 408, 24, 14),
+            testo(426, 35, T.barraStato.scritte.tuttiICorsi, {
               corpo: 'piccolo',
             }),
-            simbolo('calendario', 456, 24, 14),
-            testo(474, 35, T.barraStato.scritte.semestre, { corpo: 'piccolo' }),
+            simbolo('calendario', 516, 24, 14),
+            testo(534, 35, T.barraStato.scritte.semestre, { corpo: 'piccolo' }),
             testo(10, 76, T.barraStato.scritte.aDestra, {
               corpo: 'piccolo',
               tono: 'quieto',
@@ -566,9 +569,9 @@ export const SEZIONI_INIZIO: SezioneGuida[] = [
             }),
             simbolo('libro', 506, 88, 14),
             testo(524, 99, '2026-2027', { corpo: 'piccolo' }),
-            bollino(130, 54, 1),
-            bollino(290, 54, 2),
-            bollino(430, 54, 3),
+            bollino(190, 54, 1),
+            bollino(360, 54, 2),
+            bollino(500, 54, 3),
             bollino(285, 118, 4),
             bollino(450, 118, 5),
             bollino(555, 118, 6),
@@ -576,6 +579,7 @@ export const SEZIONI_INIZIO: SezioneGuida[] = [
         },
         {
           vista: '0 0 640 150',
+          // Due domande in parallelo, una voce ciascuna: l'una non nasconde l'altra.
           disegno: disegno(
             riquadro(10, 20, 150, 44, {
               tono: 'quieto',
@@ -587,53 +591,50 @@ export const SEZIONI_INIZIO: SezioneGuida[] = [
               [197, 42],
             ]),
             riquadro(200, 20, 180, 44, {
-              tono: 'attenzione',
-              etichetta: T.barraStato.scritte.buco,
-              sotto: T.barraStato.scritte.buco2,
+              tono: 'quieto',
+              etichetta: T.barraStato.scritte.inArrivo,
+              sotto: T.barraStato.scritte.nonAnnullata,
             }),
-            freccia(
-              [
-                [383, 42],
-                [427, 42],
-              ],
-              { tono: 'attenzione' },
-            ),
+            freccia([
+              [383, 42],
+              [427, 42],
+            ]),
             testo(405, 36, T.barraStato.scritte.si, {
               corpo: 'piccolo',
               tono: 'quieto',
               ancora: 'centro',
             }),
             riquadro(430, 20, 200, 44, {
-              tono: 'attenzione',
-              etichetta: T.barraStato.scritte.compilare,
-              sotto: T.barraStato.scritte.piuVecchio,
+              tono: 'positivo',
+              etichetta: T.barraStato.scritte.prossima,
+              sotto: T.barraStato.scritte.classeGiornoOra,
             }),
             freccia([
-              [290, 67],
-              [290, 97],
+              [85, 67],
+              [85, 122],
+              [197, 122],
             ]),
-            testo(298, 86, T.barraStato.scritte.no, {
-              corpo: 'piccolo',
-              tono: 'quieto',
-            }),
             riquadro(200, 100, 180, 44, {
-              tono: 'quieto',
-              etichetta: T.barraStato.scritte.inArrivo,
-              sotto: T.barraStato.scritte.nonAnnullata,
+              tono: 'attenzione',
+              etichetta: T.barraStato.scritte.buco,
+              sotto: T.barraStato.scritte.buco2,
             }),
-            freccia([
-              [383, 122],
-              [427, 122],
-            ]),
+            freccia(
+              [
+                [383, 122],
+                [427, 122],
+              ],
+              { tono: 'attenzione' },
+            ),
             testo(405, 116, T.barraStato.scritte.si, {
               corpo: 'piccolo',
               tono: 'quieto',
               ancora: 'centro',
             }),
             riquadro(430, 100, 200, 44, {
-              tono: 'positivo',
-              etichetta: T.barraStato.scritte.prossima,
-              sotto: T.barraStato.scritte.classeGiornoOra,
+              tono: 'attenzione',
+              etichetta: T.barraStato.scritte.compilare,
+              sotto: T.barraStato.scritte.tendina,
             }),
           ),
         },

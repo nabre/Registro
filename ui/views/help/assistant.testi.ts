@@ -548,7 +548,7 @@ const it = {
     ],
     note: [
       'Il condotto è un’altra porta. Acceso in Impostazioni › Programma › ' +
-        `**Avanzate**, lascia leggere i dati ${dei(PIF)} a ogni programma che gira con il tuo ` +
+        `**Sistema e altri programmi**, lascia leggere i dati ${dei(PIF)} a ogni programma che gira con il tuo ` +
         'utente, senza chiedere — anche a uno che li manda a un modello in rete. Di serie è ' +
         'spento. Su Windows il suo nome porta un segreto rifatto a ogni accensione: tiene fuori gli ' +
         'altri utenti del computer, non i programmi del tuo.',
@@ -1127,7 +1127,7 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        'Der Kanal ist eine andere Tür. Unter Einstellungen › Programm › **Erweitert** ' +
+        'Der Kanal ist eine andere Tür. Unter Einstellungen › Programm › **System und andere Programme** ' +
           'eingeschaltet, lässt er jedes Programm, das unter deinem Benutzer ' +
           `läuft, die Daten der ${DE.pif.plurale} lesen, ohne zu fragen — auch eines, das sie ` +
           'an ein Modell im Netz schickt. Standardmässig ist er aus. Unter Windows trägt sein ' +
@@ -1699,7 +1699,7 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        'Le canal est une autre porte. Activé dans Paramètres › Programme › **Avancé**, il ' +
+        'Le canal est une autre porte. Activé dans Paramètres › Programme › **Système et autres programmes**, il ' +
           'laisse lire les données des ' +
           `${FR.pif.plurale} à tout programme qui tourne sous ton utilisateur, sans ` +
           'demander — même à un programme qui les envoie à un modèle en ligne. Par défaut, il ' +
@@ -2259,7 +2259,7 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        'The pipe is another door. Turned on in Settings › Program › **Advanced**, it ' +
+        'The pipe is another door. Turned on in Settings › Program › **System and other programs**, it ' +
           `lets every program running under your user read the ${EN.pif.plurale}’ ` +
           'data, without asking — even one that sends it to an online model. By default it is ' +
           'off. On Windows its name carries a secret remade every time it is turned on: it ' +

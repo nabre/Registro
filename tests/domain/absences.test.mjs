@@ -6,6 +6,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
+  allieviDelPeriodo,
   allievoDelFile,
   avanzamentoAssenze,
   creaAllievo,
@@ -125,6 +126,27 @@ describe('le fasi di un periodo di assenze', () => {
     assert.equal(conto.firmate, 1)
     assert.equal(conto.inviate, 1)
     assert.equal(conto.completo, false)
+  })
+
+  // Il conto in testa («1 non partita») e la matrice sotto leggono le stesse
+  // righe: un ritirato con la riga viva contato e non mostrato era introvabile.
+  it('nella matrice c’è ogni riga che i conti contano, anche di chi si è ritirato', () => {
+    const resta = creaAllievo('Verdi', 'Ada')
+    const ritiratoConRiga = { ...creaAllievo('Neri', 'Bruno'), attivo: false }
+    const ritiratoSenza = { ...creaAllievo('Gialli', 'Carla'), attivo: false }
+    const classe = { ...creaClasse('anno-1', '1A'), allievi: [resta, ritiratoConRiga, ritiratoSenza] }
+    const fallita = { destinatari: [], inviatoIl: '2026-02-01T10:00:00.000Z', errore: 'casella piena' }
+    const blocco = periodo([
+      riga(ritiratoConRiga.id, [foglio('assenze', false)], fallita),
+      riga(ritiratoSenza.id, []),
+    ])
+
+    const inMatrice = allieviDelPeriodo(classe, blocco).map((a) => a.id)
+    assert.equal(avanzamentoAssenze(blocco).falliti, 1)
+    for (const viva of righeVive(blocco)) assert.ok(inMatrice.includes(viva.allievoId))
+    assert.deepEqual(inMatrice, [resta.id, ritiratoConRiga.id])
+    // Senza periodo aperto restano solo quelli che frequentano.
+    assert.deepEqual(allieviDelPeriodo(classe, null).map((a) => a.id), [resta.id])
   })
 
   it('trova il foglio giusto fra i quattro possibili', () => {

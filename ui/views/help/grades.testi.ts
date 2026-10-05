@@ -61,7 +61,8 @@ const it = {
             'c’è solo quando ce ne sono.',
           'La **griglia**: una riga per persona, una colonna per prova. In testa il titolo della ' +
             'prova, sotto la data e il peso quando non è 1 (`×2`). Il titolo apre la prova a destra.',
-          '**Media** e **Nota** della riga: la nota è verde dalla sufficienza in su, rossa sotto.',
+          '**Media** e **Nota** della riga: la nota è verde dalla sufficienza in su, rossa sotto. ' +
+            'Con molte prove restano ferme a destra, come i nomi a sinistra.',
           '**Media della classe**: la media di ogni prova, sui voti messi.',
           '**Recuperi** della prova aperta: chi la rifà, quando, con che voto.',
           'La **prova aperta**: i suoi numeri, il grafico a punti, **Modifica** e **Vai alla ' +
@@ -727,7 +728,8 @@ export const testi = catalogo(it, {
             'Das **Raster**: eine Zeile pro Person, eine Spalte pro Prüfung. Oben der Titel der ' +
               'Prüfung, darunter das Datum und das Gewicht, wenn es nicht 1 ist (`×2`). Der ' +
               'Titel öffnet die Prüfung rechts.',
-            '**Durchschnitt** und **Note** der Zeile: Die Note ist grün ab genügend, rot darunter.',
+            '**Durchschnitt** und **Note** der Zeile: Die Note ist grün ab genügend, rot darunter. ' +
+              'Bei vielen Prüfungen bleiben sie rechts stehen, wie die Namen links.',
             '**Klassendurchschnitt**: der Durchschnitt jeder Prüfung, über die eingetragenen ' +
               'Noten.',
             '**Nachprüfungen** der geöffneten Prüfung: wer sie nachholt, wann, mit welcher Note.',
@@ -1445,7 +1447,8 @@ export const testi = catalogo(it, {
               'de l’épreuve, en dessous la date et le poids quand il n’est pas 1 (`×2`). Le ' +
               'titre ouvre l’épreuve à droite.',
             '**Moyenne** et **Note** de la ligne : la note est verte à partir du seuil de ' +
-              'suffisance, rouge en dessous.',
+              'suffisance, rouge en dessous. Avec beaucoup d’épreuves, elles restent fixes à ' +
+              'droite, comme les noms à gauche.',
             '**Moyenne de la classe** : la moyenne de chaque épreuve, sur les notes saisies.',
             '**Rattrapages** de l’épreuve ouverte : qui la refait, quand, avec quelle note.',
             'L’**épreuve ouverte** : ses chiffres, le graphique à points, **Modifier** et ' +
@@ -2145,7 +2148,7 @@ export const testi = catalogo(it, {
               'title, below it the date and the weight when it isn’t 1 (`×2`). The title opens ' +
               'the test on the right.',
             '**Average** and **Grade** for the row: the grade is green from the pass mark up, ' +
-              'red below.',
+              'red below. With many tests they stay put on the right, like the names on the left.',
             '**Class average**: the average of each test, over the grades entered.',
             '**Resits** for the open test: who is resitting it, when, with what grade.',
             'The **open test**: its figures, the dot chart, **Edit** and **Go to the lesson**.',

@@ -24,6 +24,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* Titolo, ricerca e conto non si toccano. */
+  gap: var(--spazio-2);
 }
 
 .elenco-laterale__testata h3 { margin: 0; font-size: 1em; }
@@ -104,7 +106,6 @@
 .orfane__testata {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
   gap: var(--spazio-2);
   flex-wrap: wrap;
 }
@@ -131,6 +132,9 @@
 }
 
 .orfane__voce:first-child { border-top: 0; }
+
+/* Il gesto per tutti in fondo all'elenco, a destra come i cestini delle righe. */
+.orfane__piede { display: flex; justify-content: flex-end; margin-top: var(--spazio-1); }
 
 @media (max-width: 47.5em) {
   .orfane__voce { grid-template-columns: minmax(0, 1fr) auto; }
@@ -166,9 +170,12 @@
      all'altro. Le matrici, con classi loro, restano strette. */
   padding: 10px 14px;
   border-bottom: 1px solid var(--bordo-tenue);
-  text-align: left;
   vertical-align: middle;
 }
+
+/* L'allineamento a peso zero: `.tabella td` peserebbe più di `.tabella__numero`,
+   `.tabella__media` e `.tabella__cella--totale`, e i numeri finirebbero a sinistra. */
+:where(.tabella) :where(th, td) { text-align: left; }
 
 /* L'ultima riga non ha filo: lo fa già il bordo del contenitore. */
 .tabella tbody tr:last-child > th,
@@ -204,18 +211,40 @@
 .tabella__numero { text-align: right; white-space: nowrap; }
 .tabella__azioni { width: 40px; text-align: right; }
 
+/*
+ * Le colonne ferme mentre la tabella scorre di lato: il nome a sinistra nelle
+ * matrici e nell'anagrafica, i gesti a destra nell'anagrafica, media e nota a
+ * destra nella griglia dei voti. Opache, con il fondo della scheda: le celle
+ * che scorrono ci passano sotto.
+ */
 .tabella--voti .tabella__nome,
-.tabella--documenti .tabella__nome {
+.tabella--documenti .tabella__nome,
+.tabella--allievi .tabella__nome {
   position: sticky;
   left: 0;
   background: var(--sfondo-scheda, var(--sfondo-alto));
   z-index: var(--piano-incollato);
-  /* In `rem`: la colonna dei nomi li tiene su una riga anche con il testo di sistema più grande. */
+  /* In `rem`: la colonna resta comoda anche con il testo di sistema più grande. */
   min-width: 11rem;
 }
 
+.tabella--allievi .tabella__azioni,
+.tabella--voti .tabella__media {
+  position: sticky;
+  right: 0;
+  background: var(--sfondo-scheda, var(--sfondo-alto));
+  z-index: var(--piano-incollato);
+}
+
+/* Media e nota ferme insieme: la media sta a sinistra della nota, larga quanto lei. */
+.tabella--voti .tabella__media { right: 4.5rem; min-width: 4.5rem; box-shadow: inset 1px 0 0 var(--bordo-tenue); }
+.tabella--voti .tabella__nota { right: 0; width: 4.5rem; min-width: 4.5rem; box-shadow: none; }
+
 .tabella--voti thead .tabella__nome,
-.tabella--documenti thead .tabella__nome {
+.tabella--documenti thead .tabella__nome,
+.tabella--allievi thead .tabella__nome,
+.tabella--allievi thead .tabella__azioni,
+.tabella--voti thead .tabella__media {
   z-index: var(--piano-incollato-2);
   background: color-mix(in srgb, var(--testo) 3%, var(--sfondo-scheda, var(--sfondo-alto)));
 }
@@ -223,33 +252,170 @@
 /* La colonna ferma è opaca: le si ricopia il velo della riga mescolato al
    fondo, o la riga sfiorata comincerebbe dalla seconda colonna. */
 .tabella--voti tbody tr:hover .tabella__nome,
-.tabella--documenti tbody tr:hover .tabella__nome {
+.tabella--documenti tbody tr:hover .tabella__nome,
+.tabella--allievi tbody tr:hover .tabella__nome,
+.tabella--allievi tbody tr:hover .tabella__azioni,
+.tabella--voti tbody tr:hover .tabella__media {
   background: color-mix(in srgb, var(--testo) 4%, var(--sfondo-scheda, var(--sfondo-alto)));
 }
 
+/*
+ * Il nome nelle matrici (voti, documenti, assenze; il check in `check.css` ha
+ * le stesse misure): mai più stretto del nome, al più 12rem di testo e due
+ * righe. Più largo spingerebbe le caselle fuori vista, più stretto lo
+ * spezzerebbe parola per parola.
+ */
+.tabella--voti .tabella__nome .cella-nome__testo,
+.tabella--documenti .tabella__nome .cella-nome__testo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  width: max-content;
+  max-width: 12rem;
+}
+
+/* La testata della colonna dei nomi può andare a capo: sola su una riga
+   allargherebbe la colonna più dei nomi che porta. */
+.tabella thead th.tabella__nome { white-space: normal; }
+
 /* L'anagrafica di una classe: il nome non va mai a capo (è la chiave per
    scorrere), indirizzi e recapiti sì, così non vengono tagliati e si copiano. */
-.tabella--allievi .tabella__nome { white-space: nowrap; min-width: 11rem; }
+.tabella--allievi .tabella__nome { white-space: nowrap; }
 /* Il nome col suo tondo è più alto di una riga: le altre celle stanno in cima
    e scendono quanto basta ad allineare la prima riga col nome. */
 .tabella--allievi td { vertical-align: top; padding-top: 14px; }
 .tabella--allievi .tabella__nome { vertical-align: top; }
-.tabella--allievi .tabella__recapito { overflow-wrap: anywhere; }
+/* Un indirizzo spezzato lettera per lettera non si legge: la colonna resta
+   larga quanto una parola lunga, e la tabella scorre con nome e matita fermi. */
+.tabella--allievi .tabella__recapito,
+.tabella--allievi .tabella__indirizzo { min-width: 12rem; overflow-wrap: anywhere; }
 
 .tabella__momento { min-width: 5.75rem; }
 .tabella__momento .collegamento { display: flex; flex-direction: column; }
 .tabella__momento small { color: var(--testo-quieto); font-weight: 400; }
 .tabella__momento-titolo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 8rem; }
-.tabella__momento--scelto { background: color-mix(in srgb, var(--accento) 14%, transparent); }
+/* Con `thead th` davanti: il fondo della testata peserebbe di più. Opaco, perché la testata è incollata. */
+.tabella thead th.tabella__momento--scelto {
+  background: color-mix(in srgb, var(--accento) 14%, var(--sfondo-scheda, var(--sfondo-alto)));
+}
 
 .tabella__cella { padding: 2px; }
 .tabella__cella--totale { text-align: center; color: var(--testo-quieto); }
 .tabella__media { text-align: center; white-space: nowrap; }
 
+.tabella tfoot th,
 .tabella tfoot td {
   background: color-mix(in srgb, var(--testo) 3%, var(--sfondo-scheda, var(--sfondo-alto)));
   font-weight: 600;
   border-top: 1px solid var(--bordo);
+}
+
+/*
+ * Le tabelle che si impilano (`impilabile`): poche righe con molte domande
+ * (la riconsegna nome per nome, i recuperi di una prova) stanno spesso in una
+ * colonna stretta, accanto alla griglia o nell'ora. Lì una tabella taglierebbe
+ * le ultime colonne, proprio quelle dove si scrive. Sotto la larghezza che le
+ * serve ogni riga diventa una schedina: il nome in testa, sotto le risposte,
+ * ognuna con l'etichetta della sua colonna (`data-etichetta`).
+ *
+ * La misura è quella del contenitore, non della finestra: la stessa tabella
+ * sta larga sotto la griglia e stretta nella colonna di destra. Due soglie,
+ * quante le larghezze che servono alle due tabelle; la forma impilata è la
+ * stessa, ripetuta perché una regola non può stare sotto due soglie diverse.
+ */
+.tabella-contenitore:has(> .tabella--impilabile) { container: tabella / inline-size; }
+
+@container tabella (max-width: 32rem) {
+  .tabella--impilabile.tabella--riconsegne { display: block; }
+  /* La testata sparisce a vista; ogni casella porta la sua etichetta. */
+  .tabella--impilabile.tabella--riconsegne thead { display: none; }
+  .tabella--impilabile.tabella--riconsegne tbody { display: block; }
+  .tabella--impilabile.tabella--riconsegne tbody tr {
+    display: grid;
+    align-items: center;
+    gap: 4px var(--spazio-2);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--bordo-tenue);
+  }
+  .tabella--impilabile.tabella--riconsegne tbody tr:last-child { border-bottom: 0; }
+  .tabella--impilabile.tabella--riconsegne tbody td {
+    display: flex;
+    align-items: center;
+    gap: var(--spazio-2);
+    min-width: 0;
+    width: auto;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+  .tabella--impilabile.tabella--riconsegne td[data-etichetta]::before {
+    content: attr(data-etichetta);
+    flex: none;
+    color: var(--testo-quieto);
+    font-size: var(--corpo-minore);
+    font-weight: 600;
+  }
+  .tabella--riconsegne tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "nome voto"
+      "data azioni";
+  }
+  .tabella--riconsegne .tabella__nome { grid-area: nome; }
+  .tabella--riconsegne .tabella__numero { grid-area: voto; }
+  .tabella--riconsegne .riconsegne__data { grid-area: data; }
+  .tabella--riconsegne .tabella__azioni { grid-area: azioni; }
+}
+
+@container tabella (max-width: 58rem) {
+  .tabella--impilabile.tabella--recuperi { display: block; }
+  /* La testata sparisce a vista; ogni casella porta la sua etichetta. */
+  .tabella--impilabile.tabella--recuperi thead { display: none; }
+  .tabella--impilabile.tabella--recuperi tbody { display: block; }
+  .tabella--impilabile.tabella--recuperi tbody tr {
+    display: grid;
+    align-items: center;
+    gap: 4px var(--spazio-2);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--bordo-tenue);
+  }
+  .tabella--impilabile.tabella--recuperi tbody tr:last-child { border-bottom: 0; }
+  .tabella--impilabile.tabella--recuperi tbody td {
+    display: flex;
+    align-items: center;
+    gap: var(--spazio-2);
+    min-width: 0;
+    width: auto;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+  .tabella--impilabile.tabella--recuperi td[data-etichetta]::before {
+    content: attr(data-etichetta);
+    flex: none;
+    color: var(--testo-quieto);
+    font-size: var(--corpo-minore);
+    font-weight: 600;
+  }
+  .tabella--recuperi tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "nome stato azioni"
+      "quando quando quando"
+      "voto voto voto"
+      "data data data"
+      "scansione scansione scansione";
+  }
+  .tabella--recuperi .tabella__nome { grid-area: nome; }
+  .tabella--recuperi .recuperi__stato { grid-area: stato; }
+  .tabella--recuperi .tabella__azioni { grid-area: azioni; }
+  .tabella--recuperi .recuperi__quando { grid-area: quando; }
+  .tabella--recuperi .tabella__numero { grid-area: voto; }
+  .tabella--recuperi .recuperi__riconsegna { grid-area: data; }
+  .tabella--recuperi .recuperi__scansione { grid-area: scansione; min-width: 0; }
+  /* Le etichette una sotto l'altra, larghe uguali: le risposte si incolonnano. */
+  .tabella--recuperi td[data-etichetta]::before { min-width: 7.5rem; }
 }
 
 .cella-voto {

@@ -125,7 +125,7 @@ test('oggi', async ({ browser }) => {
     await expect(ore).toHaveCount(4)
     expect(await valutaTutti(ore, 'os => os.map(o => o.dataset.lezione)'))
       .toEqual(['oggi-1', 'oggi-2', 'oggi-3', 'oggi-4'])
-    await expect(ore.nth(0).locator('.pastiglia')).toHaveText('Da chiudere')
+    await expect(ore.nth(0).locator('.pastiglia')).toHaveText('Da compilare')
     await expect(ore.nth(1).locator('.pastiglia')).toHaveText('In corso')
     await expect(ore.nth(3).locator('.pastiglia')).toHaveText('Annullata')
     await expect(vista.locator('.oggi-ora--evidenza')).toHaveCount(1)

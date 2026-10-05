@@ -354,7 +354,7 @@ const it = {
       {
         termine: 'Accendere il condotto',
         testo:
-          '«Condotto locale», in Impostazioni › Programma › **Avanzate**: ' +
+          '«Condotto locale», in Impostazioni › Programma › **Sistema e altri programmi**: ' +
           'vale subito, senza riavviare. Il registro deve essere acceso — basta l’icona accanto ' +
           'all’orologio.',
       },
@@ -806,7 +806,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Den Kanal einschalten',
           testo:
-            '«Lokaler Kanal», unter Einstellungen › Programm › **Erweitert**: gilt ' +
+            '«Lokaler Kanal», unter Einstellungen › Programm › **System und andere Programme**: gilt ' +
             'sofort, ohne Neustart. Das Klassenbuch muss laufen — das Symbol neben der Uhr ' +
             'genügt.',
         },
@@ -1249,7 +1249,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Activer le canal',
           testo:
-            '« Canal local », dans Paramètres › Programme › **Avancé** : ' +
+            '« Canal local », dans Paramètres › Programme › **Système et autres programmes** : ' +
             'vaut tout de suite, sans redémarrer. Le registre doit être allumé — l’icône près de ' +
             'l’horloge suffit.',
         },
@@ -1684,7 +1684,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Turning the pipe on',
           testo:
-            '“Local pipe”, in Settings › Program › **Advanced**: it applies at ' +
+            '“Local pipe”, in Settings › Program › **System and other programs**: it applies at ' +
             'once, without restarting. The register must be running — the icon next to the ' +
             'clock is enough.',
         },

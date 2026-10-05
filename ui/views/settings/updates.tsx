@@ -210,7 +210,8 @@ function corpo (s: StatoAggiornamenti): ReactElement {
 function allaPagina (s: StatoAggiornamenti): ReactElement {
   return (
     <a
-      className="aggiornamenti__collegamento"
+      // Il collegamento del progetto, non il blu e viola del browser.
+      className="collegamento aggiornamenti__collegamento"
       // La guardia delle finestre la manda al browser di sistema
       // (`environment/navigation.ts`).
       href={s.pagina}

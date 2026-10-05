@@ -752,7 +752,8 @@ function schedaTodo (classe: Classe): ReactElement {
                           : ('quiete' as const),
                   }))}
                 />
-                {sezioniTodoClasse(todo)}
+                {/* Il nome del corso su ogni voce solo se la classe ne ha più d'uno. */}
+                {sezioniTodoClasse(todo, corsi.length > 1)}
               </div>
             )}
     />
@@ -788,7 +789,11 @@ function schedaRecapiti (classe: Classe): ReactElement {
                   {fascicolo.recapiti.map((recapito) => (
                     <li key={recapito.id} className="recapito">
                       <strong>{recapito.etichetta}</strong>
-                      <RecapitoPremibile genere="email" valore={recapito.email} classe="testo-quieto" />
+                      <RecapitoPremibile
+                        genere="email"
+                        valore={recapito.email}
+                        classe="testo-quieto recapito__indirizzo"
+                      />
                       {recapito.predefinito ? <Pastiglia testo={t.predefinito} tono="informativo" /> : null}
                       <Pulsante
                         simbolo="matita"
@@ -828,6 +833,10 @@ function rigaComunicazione (classe: Classe, comunicazione: Comunicazione): React
               )
             : t.bozza(indirizzi.length)}
         </small>
+        {/* Il motivo per cui non è partita: senza, «errore» non dice che cosa correggere. */}
+        {comunicazione.stato === 'errore' && comunicazione.errore
+          ? <small className="testo-negativo">{comunicazione.errore}</small>
+          : null}
       </button>
       <Pastiglia testo={t.stati[comunicazione.stato] ?? comunicazione.stato} tono={tono} />
       {/* «Apri» scrive la bozza nel programma di posta; la spunta dice che è partita.
@@ -844,8 +853,9 @@ function rigaComunicazione (classe: Classe, comunicazione: Comunicazione): React
                 azione({ tipo: 'comunicazione.invia', classeId: classe.id, comunicazioneId: comunicazione.id })}
             />
           )}
+      {/* Due gesti opposti, due segni: la spunta segna spedita, la freccia indietro la disfa. */}
       <Pulsante
-        simbolo="spunta"
+        simbolo={comunicazione.stato === 'inviata' ? 'annulla' : 'spunta'}
         variante={comunicazione.stato === 'inviata' ? 'sottile' : 'fantasma'}
         titolo={comunicazione.stato === 'inviata' ? t.riportaABozza : t.segnaSpedita}
         al={() =>

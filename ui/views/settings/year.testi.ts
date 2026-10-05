@@ -36,6 +36,7 @@ const it = {
     'Dichiarandole qui, le lezioni generate dall’orario saltano quei giorni invece di ' +
     'nascere e dover essere cancellate a mano.',
   aggiungiVacanze: 'Aggiungi le vacanze',
+  importaUfficiale: (voci: number) => `Importa dal calendario ufficiale (${voci})`,
   giorni: (giorni: number) => `${giorni} giorni`,
   modificaChiusure: 'Modifica le chiusure dell’anno',
   togliChiusura: (etichetta: string) =>
@@ -108,6 +109,7 @@ export const testi = catalogo(it, {
       'Gibt man sie hier an, überspringen die aus dem Stundenplan erzeugten Stunden ' +
       'diese Tage, statt zu entstehen und von Hand gelöscht werden zu müssen.',
     aggiungiVacanze: 'Ferien hinzufügen',
+    importaUfficiale: (voci) => `Aus dem offiziellen Kalender importieren (${voci})`,
     giorni: (giorni) => plurale(giorni, 'Tag', 'Tage'),
     modificaChiusure: 'Schliessungen des Jahres bearbeiten',
     togliChiusura: (etichetta) =>
@@ -177,6 +179,7 @@ export const testi = catalogo(it, {
       'En les déclarant ici, les leçons générées depuis l’horaire sautent ces jours au lieu de ' +
       'naître et de devoir être supprimées à la main.',
     aggiungiVacanze: 'Ajouter les vacances',
+    importaUfficiale: (voci) => `Importer du calendrier officiel (${voci})`,
     giorni: (giorni) => plurale(giorni, 'jour', 'jours'),
     modificaChiusure: 'Modifier les fermetures de l’année',
     togliChiusura: (etichetta) =>
@@ -246,6 +249,7 @@ export const testi = catalogo(it, {
       'If you set them here, lessons generated from the timetable skip those days instead of ' +
       'being created and having to be deleted by hand.',
     aggiungiVacanze: 'Add the holidays',
+    importaUfficiale: (voci) => `Import from the official calendar (${voci})`,
     giorni: (giorni) => plurale(giorni, 'day', 'days'),
     modificaChiusure: 'Edit the year’s closures',
     togliChiusura: (etichetta) =>

@@ -26,14 +26,14 @@ import {
   type SegnoMappa,
 } from '#core/dominio/map.js'
 import type { Allievo, Classe, ContattoTelefonico } from '#core/dominio/models.js'
-import { CONTATTI, telefoniDi } from '#core/dominio/phones.js'
+import { telefoniDi } from '#core/dominio/phones.js'
 import { scriviIndirizzo } from '#core/dominio/addresses.js'
 import { Pastiglia, Pulsante, Scheda, StatoVuoto } from '#ui/components/base.js'
 import { RecapitoPremibile, type GenereRecapito } from '#ui/components/contacts.js'
 import { notifica } from '#ui/components/notifications.js'
 import { RiquadroMappa } from '#ui/components/map.js'
 import { Icona, type NomeIcona } from '#ui/components/icons.js'
-import { moduloAllievo } from '#ui/forms.js'
+import { moduloAllievo, moduloConsegna } from '#ui/forms.js'
 import { mostraSullaMappa } from '#ui/views/map.js'
 import { azione } from '#ui/bridge.js'
 import { corsiDi, fascicoloDi, stato, uriDato, vai } from '#ui/state.js'
@@ -74,6 +74,43 @@ export function pannelloDocumenti (allievo: Allievo, classe: Classe): ReactNode 
             )
           })}
         </ul>
+      )}
+    />
+  )
+}
+
+/**
+ * La linguetta del docente di classe quando non ha ancora niente: dice che cosa
+ * ci comparirà e offre i due gesti che la riempiono, invece di una riga muta.
+ */
+export function vuotoDocenteClasse (classe: Classe): ReactElement {
+  const t = testi()
+  // Come «Chiedi un documento» del docente di classe: la consegna sta sul primo corso.
+  const corso = corsiDi(classe.id)[0] ?? null
+  return (
+    <StatoVuoto
+      simbolo="firma"
+      titolo={t.nienteDaSeguire}
+      testo={t.cheCosaCompare}
+      azione={(
+        <>
+          <Pulsante
+            testo={t.chiediDocumento}
+            simbolo="documento"
+            variante="sottile"
+            disabilitato={!corso}
+            titolo={corso ? undefined : t.primaUnCorso}
+            al={() => { if (corso) moduloConsegna({ corsoId: corso.id, a: 'classe', documento: true }) }}
+          />
+          <Pulsante
+            testo={t.apriLeAssenze}
+            simbolo="firma"
+            variante="sottile"
+            al={() => {
+              vai({ pagina: 'pagina.classe.assenze', soggetto: { tipo: 'classe', id: classe.id } })
+            }}
+          />
+        </>
       )}
     />
   )
@@ -473,14 +510,20 @@ export function pannelloAnagrafica (classe: Classe, allievo: Allievo): ReactElem
 
   const tutte = [...suoi, ...delRappresentante, ...dellAzienda]
   const scritte = tutte.filter((riga) => Boolean(riga.valore))
-  // Quel che manca, detto una volta sola e sottovoce, per nome.
-  const mancano = [
-    ...tutte.filter((riga) => !riga.valore).map((riga) => t.mancante(riga.etichetta)),
-    // I numeri non hanno righe vuote da segnalare: la mancanza si dice qui.
-    ...CONTATTI.filter((contatto) => telefoniDi(allievo, contatto).length === 0).map(
-      (contatto) => t.telefonoDi[contatto],
-    ),
+  // Quel che manca, detto una volta sola e sottovoce, per nome e per blocco: in
+  // una fila sola tre «e-mail» non direbbero di chi è ognuna.
+  const blocchi: readonly (readonly [string, Riga[], ContattoTelefonico])[] = [
+    [Uno(L.pif), suoi, 'pif'],
+    [Uno(L.rappresentante), delRappresentante, 'rappresentante'],
+    [Uno(L.azienda), dellAzienda, 'datore'],
   ]
+  const mancano = blocchi
+    .map(([chi, righe, contatto]) => [chi, [
+      ...righe.filter((riga) => !riga.valore).map((riga) => t.mancante(riga.etichetta)),
+      // I numeri non hanno righe vuote da segnalare: la mancanza si dice qui.
+      ...(telefoniDi(allievo, contatto).length === 0 ? [t.telefono] : []),
+    ]] as const)
+    .filter(([, voci]) => voci.length > 0)
 
   return (
     <Scheda
@@ -524,7 +567,16 @@ export function pannelloAnagrafica (classe: Classe, allievo: Allievo): ReactElem
                     {gruppoAnagrafica(Uno(L.rappresentante), 'classi', delRappresentante)}
                     {gruppoAnagrafica(Uno(L.azienda), 'azienda', dellAzienda)}
                     {mancano.length > 0
-                      ? <p className="anagrafica__mancano testo-quieto">{t.manca(mancano)}</p>
+                      ? (
+                          <div className="anagrafica__mancano testo-quieto">
+                            <span className="anagrafica__mancano-titolo">{t.manca}</span>
+                            <ul>
+                              {mancano.map(([chi, voci]) => (
+                                <li key={chi}>{t.mancaDi(chi, voci)}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )
                       : null}
                   </div>
                 )}

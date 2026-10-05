@@ -254,7 +254,7 @@ function figuraConfine (): string {
       tono: 'quieto',
       etichetta: s.condotto,
       sotto: s.spentoDiSerie,
-      simbolo: 'presa',
+      simbolo: 'collegamento',
     }),
     freccia([[210, 86], [226, 86]], { doppia: true }),
     // testo-fisso: il nome del servizio, uguale in ogni lingua
@@ -310,7 +310,8 @@ export const SEZIONI_ASSISTENTE: SezioneGuida[] = [
   sezione({
     id: 'privacy-assistente',
     parte: 'programma',
-    simbolo: 'presa',
+    // Lo schermo: quel che si chiede resta su questo computer. La presa (≡) sembrava una maniglia.
+    simbolo: 'schermo',
     figure: [{ vista: '0 0 640 220', disegno: figuraConfine() }],
     note: ['attenzione'],
     vedi: [

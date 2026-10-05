@@ -35,6 +35,8 @@ const it = {
   vociFisse: 'voci fisse',
   rimettiFabbrica: 'Rimetti le voci di fabbrica',
   doveCompare: 'Dove compare: ',
+  nomiDeiTipi: 'Nomi dei tipi',
+  nomiDeiTipiSotto: 'quelli che si danno alle settimane qui sopra',
   vincolo: (colori: boolean) =>
     'Queste voci le usa il programma — decidono quali campi compaiono e come si ' +
     'conta — e non se ne possono aggiungere. Si cambiano la parola che si legge' +
@@ -83,6 +85,8 @@ export const testi = catalogo(it, {
     vociFisse: 'feste Einträge',
     rimettiFabbrica: 'Werkseinträge wiederherstellen',
     doveCompare: 'Wo sie erscheint: ',
+    nomiDeiTipi: 'Namen der Typen',
+    nomiDeiTipiSotto: 'die Namen, die den Wochen oben gegeben werden',
     vincolo: (colori) =>
       'Diese Einträge verwendet das Programm — sie bestimmen, welche Felder erscheinen und ' +
       'wie gezählt wird —, und es lassen sich keine hinzufügen. Ändern lassen sich das Wort, ' +
@@ -131,6 +135,8 @@ export const testi = catalogo(it, {
     vociFisse: 'entrées fixes',
     rimettiFabbrica: 'Remettre les entrées d’origine',
     doveCompare: 'Où elle apparaît : ',
+    nomiDeiTipi: 'Noms des types',
+    nomiDeiTipiSotto: 'ceux qu’on donne aux semaines ci-dessus',
     vincolo: (colori) =>
       'Ces entrées sont utilisées par le programme — elles décident quels champs apparaissent ' +
       'et comment on compte — et on ne peut pas en ajouter. On change le mot qu’on lit' +
@@ -178,6 +184,8 @@ export const testi = catalogo(it, {
     vociFisse: 'fixed entries',
     rimettiFabbrica: 'Restore the factory entries',
     doveCompare: 'Where it appears: ',
+    nomiDeiTipi: 'Type names',
+    nomiDeiTipiSotto: 'the names given to the weeks above',
     vincolo: (colori) =>
       'The program uses these entries — they decide which fields appear and how things are ' +
       'counted — and none can be added. You can change the word that is shown' +

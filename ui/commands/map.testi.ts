@@ -11,6 +11,7 @@ const it = {
     'È l’unico gesto del registro che manda fuori un dato dell’anagrafica, ed è per questo ' +
     'che si preme a mano: la risposta resta scritta, e non si richiede più.',
   tuttiTrovati: 'Ogni indirizzo scritto ha già il suo punto sulla mappa.',
+  nessunoScritto: 'Nessun indirizzo scritto: si scrivono nella scheda della persona, in Persone in formazione.',
   rifaiIndirizzi: 'Rifai gli indirizzi',
   rifaiIndirizziAiuto:
     'Richiede anche quelli che un punto ce l’hanno già: serve quando un indirizzo ' +
@@ -34,6 +35,7 @@ export const testi = catalogo(it, {
       'und deshalb löst man ihn von Hand aus: Die Antwort bleibt gespeichert und wird nicht ' +
       'erneut abgefragt.',
     tuttiTrovati: 'Jede erfasste Adresse hat schon ihren Punkt auf der Karte.',
+    nessunoScritto: 'Keine Adresse erfasst: sie werden im Profil der Person erfasst, unter Lernende.',
     rifaiIndirizzi: 'Adressen neu suchen',
     rifaiIndirizziAiuto:
       'Fragt auch die ab, die schon einen Punkt haben: nützlich, wenn eine unvollständige ' +
@@ -55,6 +57,7 @@ export const testi = catalogo(it, {
       'c’est pourquoi on le lance à la main : la réponse reste enregistrée, et n’est plus ' +
       'redemandée.',
     tuttiTrovati: 'Chaque adresse saisie a déjà son point sur la carte.',
+    nessunoScritto: 'Aucune adresse saisie : elles se saisissent dans la fiche de la personne, dans Personnes en formation.',
     rifaiIndirizzi: 'Refaire les adresses',
     rifaiIndirizziAiuto:
       'Redemande aussi celles qui ont déjà un point : utile quand une adresse incomplète est ' +
@@ -75,6 +78,7 @@ export const testi = catalogo(it, {
       'the register that sends personal data outside, and that is why you press it by hand: ' +
       'the answer stays saved, and is not asked for again.',
     tuttiTrovati: 'Every address entered already has its point on the map.',
+    nessunoScritto: 'No address entered: they are entered on the person’s page, in Learners.',
     rifaiIndirizzi: 'Redo the addresses',
     rifaiIndirizziAiuto:
       'Asks again for those that already have a point too: useful when an incomplete address ' +

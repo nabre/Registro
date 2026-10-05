@@ -13,10 +13,6 @@
   gap: var(--spazio-5);
 }
 
-.oggi-testata .testata__sottotitolo {
-  margin-top: 2px;
-}
-
 /* ------------------------------------------------------------------ tessere */
 
 /* Quattro tessere in fila, due per due se stretta: i numeri si leggono insieme. */

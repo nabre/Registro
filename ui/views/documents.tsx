@@ -79,7 +79,6 @@ function VistaDocumenti (): ReactElement {
       {/* Nella testata solo pagina e corso: schede e «Aggiorna tutto» stanno nella
           riga delle azioni. */}
       <TestataVista
-        compatta
         titolo={Molti(lessico().documento)}
         sottotitolo={scelto ? `${scelto.titolo} · ${nomeSemestreScelto()}` : nomeSemestreScelto()}
         aiuto={t.aiuto}

@@ -386,7 +386,6 @@ function VistaMappa (): ReactElement {
 
   const testata = (
     <TestataVista
-      compatta
       titolo={t.titolo}
       // Come si legge la carta sta dietro la «i»; sotto resta quel che cambia.
       aiuto={t.aiuto(SEDE.nome)}
@@ -408,6 +407,8 @@ function VistaMappa (): ReactElement {
           simbolo="segnaposto"
           titolo={numeri.scritti === 0 ? t.vuotoNessuno : t.vuotoDaTrovare}
           testo={numeri.scritti === 0 ? t.vuotoScrivi : t.vuotoCoordinate}
+          // Senza indirizzi scritti il gesto è andare dove si scrivono: la scheda
+          // della persona, in Persone in formazione.
           azione={daTrovare > 0
             ? (
                 <Pulsante
@@ -417,7 +418,16 @@ function VistaMappa (): ReactElement {
                   al={() => azione({ tipo: 'mappa.geocodifica' })}
                 />
               )
-            : null}
+            : numeri.scritti === 0
+              ? (
+                  <Pulsante
+                    testo={t.apriPersone}
+                    variante="primario"
+                    simbolo="utente"
+                    al={() => { vai({ pagina: 'pagina.persone' }) }}
+                  />
+                )
+              : null}
         />
       </div>
     )
@@ -465,4 +475,9 @@ export function inquadraTutto (): void {
 /** Quanti indirizzi aspettano ancora le coordinate: lo legge il comando. */
 export function indirizziInAttesa (): number {
   return indirizziDaRisolvere(classiDellaMappa(), rubrica()).length
+}
+
+/** Quanti indirizzi sono scritti nelle schede delle persone delle classi in mappa. */
+export function indirizziScritti (): number {
+  return contiDellaMappa(classiDellaMappa(), rubrica()).scritti
 }

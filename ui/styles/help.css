@@ -990,7 +990,9 @@
 
 @media (max-width: 68.75em) {
   .colonne--guida { grid-template-columns: minmax(0, 1fr); }
-  /* Stretta, l'indice torna sopra il testo. */
-  .guida__indice { position: static; max-height: none; order: -1; }
+  /* Stretta, l'indice torna sopra il testo. Basso e con lo scorrimento suo:
+     aperto per intero (una sessantina di voci) spingerebbe il primo capitolo
+     tre schermate più in giù. La voce accesa ci resta in vista da sé. */
+  .guida__indice { position: static; max-height: min(16rem, 40vh); order: -1; }
   .guida__voce { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }

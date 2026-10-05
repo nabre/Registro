@@ -7,7 +7,7 @@ import { catalogo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'
 
 const it = {
-  pagine: (quante: number) => `${quante} pagine`,
+  pagine: (quante: number) => plurale(quante, 'pagina', 'pagine'),
   spostaIn: 'Sposta in…',
 
   // I PDF in attesa, in testa alla matrice
@@ -20,7 +20,7 @@ const it = {
     'restano dove sono, e il registro rifà le proposte con i nomi della classe nuova.',
 
   // I gesti sul PDF intero
-  conferma: (proposte: number) => `Conferma ${proposte} proposte`,
+  conferma: (proposte: number) => proposte === 1 ? 'Conferma la proposta' : `Conferma ${proposte} proposte`,
   confermaTitolo: 'Archivia in un gesto le pagine di cui il registro ha già letto il nome',
   letturaSpenta: 'Lettura spenta',
   /** La chiave è quella dell'impostazione, che non si traduce. */
@@ -33,9 +33,9 @@ const it = {
     'Mette in coda le pagine senza testo: qualche decina di secondi per pagina, e i ' +
     'nomi letti diventano proposte.',
   rileggi: 'Rileggi',
-  rileggiN: (quante: number) => `Rileggi le ${quante} pagine`,
+  rileggiN: (quante: number) => quante === 1 ? 'Rileggi la pagina' : `Rileggi le ${quante} pagine`,
   rileggiTitolo: (quante: number) =>
-    `Rilegge con l’OCR le ${quante} pagine ancora da smistare di questo PDF, ` +
+    `Rilegge con l’OCR ${quante === 1 ? 'la pagina' : `le ${quante} pagine`} ancora da smistare di questo PDF, ` +
     'anche quelle che un testo ce l’hanno già: serve quando quel testo non dice niente ' +
     'di utile, o quando il modello è cambiato. Le pagine già archiviate restano dove sono.',
 
@@ -50,7 +50,7 @@ const it = {
     'pagina, e la coda si può fermare. Le pagine già archiviate restano dove sono, e le ' +
     'proposte di adesso vengono rifatte.',
   inCodaFatto: (pagine: number) =>
-    `${pagine} pagine in coda: i nomi letti diventano proposte, una pagina alla volta.`,
+    `${plurale(pagine, 'pagina', 'pagine')} in coda: i nomi letti diventano proposte, una pagina alla volta.`,
 
   // La coda di lettura
   stoLeggendo: (che: string) => `Sto leggendo ${che}`,
@@ -70,7 +70,7 @@ const it = {
   titolo: 'Da smistare',
   dal: (giorno: string) => `dal ${giorno}`,
   nonSiApre: 'non si apre',
-  daCollocare: (pagine: number) => ` · ${pagine} pagine da collocare`,
+  daCollocare: (pagine: number) => ` · ${plurale(pagine, 'pagina', 'pagine')} da collocare`,
   smista: 'Smista',
   apriNellArchivio: (nome: string, classe: string) => `Apri «${nome}» nell’archivio di ${classe}`,
   nonAttribuiti: 'Non attribuiti a una classe',
@@ -81,7 +81,7 @@ const it = {
   diQualeClasse: 'Di quale classe è?',
   nessunPdf: 'Nessun PDF in attesa.',
   inMucchi: (pagine: number, mucchi: number) =>
-    `${pagine} pagine in ${mucchi === 1 ? 'un mucchio' : `${mucchi} mucchi`}.`,
+    `${plurale(pagine, 'pagina', 'pagine')} in ${mucchi === 1 ? 'un mucchio' : `${mucchi} mucchi`}.`,
   niente: 'Niente da smistare',
   nienteTesto:
     'Qui compaiono i PDF caricati che aspettano di essere divisi, di tutte le classi ' +
@@ -106,7 +106,7 @@ export const testi = catalogo(it, {
       'bleiben, wo sie sind, und das Klassenbuch macht die Vorschläge mit den Namen der neuen ' +
       'Klasse neu.',
 
-    conferma: (proposte) => `${proposte} Vorschläge bestätigen`,
+    conferma: (proposte) => proposte === 1 ? 'Vorschlag bestätigen' : `${proposte} Vorschläge bestätigen`,
     confermaTitolo:
       'Archiviert in einem Schritt die Seiten, deren Namen das Klassenbuch schon gelesen hat',
     letturaSpenta: 'Lesen aus',
@@ -120,9 +120,9 @@ export const testi = catalogo(it, {
       'Stellt die Seiten ohne Text in die Warteschlange: einige Dutzend Sekunden pro Seite, und ' +
       'die gelesenen Namen werden zu Vorschlägen.',
     rileggi: 'Neu lesen',
-    rileggiN: (quante) => `Die ${quante} Seiten neu lesen`,
+    rileggiN: (quante) => quante === 1 ? 'Die Seite neu lesen' : `Die ${quante} Seiten neu lesen`,
     rileggiTitolo: (quante) =>
-      `Liest die ${quante} noch zuzuordnenden Seiten dieses PDF mit OCR neu, auch die, die schon ` +
+      `Liest ${quante === 1 ? 'die noch zuzuordnende Seite' : `die ${quante} noch zuzuordnenden Seiten`} dieses PDF mit OCR neu, auch die, die schon ` +
       'einen Text haben: nützlich, wenn dieser Text nichts Brauchbares sagt oder wenn sich das ' +
       'Modell geändert hat. Bereits archivierte Seiten bleiben, wo sie sind.',
 
@@ -189,7 +189,7 @@ export const testi = catalogo(it, {
       'restent où elles sont, et le registre refait les propositions avec les noms de la ' +
       'nouvelle classe.',
 
-    conferma: (proposte) => `Confirmer ${proposte} propositions`,
+    conferma: (proposte) => proposte === 1 ? 'Confirmer la proposition' : `Confirmer ${proposte} propositions`,
     confermaTitolo: 'Archive d’un geste les pages dont le registre a déjà lu le nom',
     letturaSpenta: 'Lecture désactivée',
     letturaSpentaTitolo: (chiave) =>
@@ -202,9 +202,9 @@ export const testi = catalogo(it, {
       'Met en file d’attente les pages sans texte : quelques dizaines de secondes par page, et ' +
       'les noms lus deviennent des propositions.',
     rileggi: 'Relire',
-    rileggiN: (quante) => `Relire les ${quante} pages`,
+    rileggiN: (quante) => quante === 1 ? 'Relire la page' : `Relire les ${quante} pages`,
     rileggiTitolo: (quante) =>
-      `Relit avec l’OCR les ${quante} pages encore à trier de ce PDF, même celles qui ont déjà ` +
+      `Relit avec l’OCR ${quante === 1 ? 'la page' : `les ${quante} pages`} encore à trier de ce PDF, même celles qui ont déjà ` +
       'un texte : utile quand ce texte ne dit rien d’utile, ou quand le modèle a changé. Les ' +
       'pages déjà archivées restent où elles sont.',
 
@@ -270,7 +270,7 @@ export const testi = catalogo(it, {
       'Sends the remaining pages of this PDF to another class. Those already archived stay ' +
       'where they are, and the register redoes the suggestions with the new class’s names.',
 
-    conferma: (proposte) => `Confirm ${proposte} suggestions`,
+    conferma: (proposte) => proposte === 1 ? 'Confirm the suggestion' : `Confirm ${proposte} suggestions`,
     confermaTitolo: 'Archives in one go the pages whose name the register has already read',
     letturaSpenta: 'Reading off',
     letturaSpentaTitolo: (chiave) =>
@@ -282,9 +282,9 @@ export const testi = catalogo(it, {
       'Queues the pages with no text: a few tens of seconds per page, and the names read ' +
       'become suggestions.',
     rileggi: 'Reread',
-    rileggiN: (quante) => `Reread the ${quante} pages`,
+    rileggiN: (quante) => quante === 1 ? 'Reread the page' : `Reread the ${quante} pages`,
     rileggiTitolo: (quante) =>
-      `Rereads with OCR the ${quante} pages of this PDF still to sort, even those that already ` +
+      `Rereads with OCR ${quante === 1 ? 'the page' : `the ${quante} pages`} of this PDF still to sort, even those that already ` +
       'have text: useful when that text says nothing useful, or when the model has changed. ' +
       'Pages already archived stay where they are.',
 

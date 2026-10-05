@@ -105,6 +105,10 @@ export function moduloClasse (classe?: Classe, dopo?: (classeId: string) => void
     larghezza: 'media',
     corpo: () => (
       <div className="modulo">
+        {/* Nello stesso ordine dei dettagli della classe nella pagina
+            (`views/classes.tsx`): nome e colore, le due spunte, le note. Materia
+            e sede ci sono solo qui: la prima apre un corso, la seconda la pagina
+            non la scrive. */}
         <Riga>
           <Campo
             nome="nome"
@@ -114,28 +118,31 @@ export function moduloClasse (classe?: Classe, dopo?: (classeId: string) => void
             richiesto
             larghezza="meta"
           />
-          {campoMateria()}
+          <Campo nome="colore" etichetta={t.colore} tipo="color" valore={base.colore} larghezza="quarto" classe="campo--colore" />
         </Riga>
         <Riga>
+          {campoMateria()}
           <Campo nome="sede" etichetta={t.sede} valore={base.sede ?? ''} larghezza="meta" />
-          <Campo nome="colore" etichetta={t.colore} tipo="color" valore={base.colore} larghezza="quarto" />
+        </Riga>
+        <Riga>
+          {/* Il mestiere in più: chi non lo fa non vede nemmeno il pannello. */}
+          <Campo
+            nome="docenteDiClasse"
+            tipo="checkbox"
+            etichetta={t.docenteDiClasse}
+            valore={base.docenteDiClasse}
+            aiuto={t.aiutoDocenteDiClasse}
+            larghezza="meta"
+          />
           <Campo
             nome="archiviata"
             tipo="checkbox"
             etichetta={t.archiviata}
             valore={base.archiviata}
             aiuto={t.aiutoArchiviata}
-            larghezza="quarto"
+            larghezza="meta"
           />
         </Riga>
-        {/* Il mestiere in più: chi non lo fa non vede nemmeno il pannello. */}
-        <Campo
-          nome="docenteDiClasse"
-          tipo="checkbox"
-          etichetta={t.docenteDiClasse}
-          valore={base.docenteDiClasse}
-          aiuto={t.aiutoDocenteDiClasse}
-        />
         <Campo nome="note" etichetta={parole().note} tipo="textarea" righe={3} valore={base.note ?? ''} />
       </div>
     ),

@@ -122,12 +122,16 @@ function scelteDellaPosta (posta: typeof stato.posta): ReactNode {
   )
 }
 
-/** La posta: a che punto è la casella, da chi partono le mail, e se partono da sé. */
+/**
+ * La posta: a che punto è la casella, da chi partono le mail, e se partono da
+ * sé. Il nome non è «Posta», che è già la sezione; dove finiscono le
+ * comunicazioni lo dice la riga sua, non anche un sottotitolo.
+ */
 export function schedaPosta (): ReactElement {
   const posta = stato.posta
   const t = testi()
   return (
-    <Scheda titolo={t.posta} sottotitolo={doveFinisce(posta)}>
+    <Scheda titolo={t.casellaEInvio}>
       <div className="posta-corpo">
         {statoCasella(posta)}
         {parametriCasella(posta)}

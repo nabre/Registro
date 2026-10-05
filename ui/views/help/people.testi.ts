@@ -127,7 +127,7 @@ const it = {
       pif: Uno(PERSONE.pif),
       rappresentante: Uno(PERSONE.rappresentante),
       azienda: Uno(PERSONE.azienda),
-      manca: 'Manca: telefono del datore di lavoro.',
+      manca: `Manca · ${Uno(PERSONE.azienda)}: telefono.`,
       doveSta: 'Dove sta',
       distanze: 'casa a 12 km · lavoro 4 km',
       giorno: 'giorno',
@@ -208,7 +208,7 @@ const it = {
         termine: 'Anagrafica',
         testo:
           `Tre blocchi — ${PIF.singolare}, ${PERSONE.rappresentante.singolare}, ` +
-          `${PERSONE.azienda.singolare} — con solo le righe piene, e in fondo «Manca: …». ` +
+          `${PERSONE.azienda.singolare} — con solo le righe piene, e in fondo «Manca», blocco per blocco. ` +
           'Sotto i diciotto anni la data di nascita porta la pastiglia **minorenne**.',
       },
       {
@@ -659,7 +659,7 @@ export const testi = catalogo(it, {
         pif: Uno(DE.pif),
         rappresentante: Uno(DE.rappresentante),
         azienda: Uno(DE.azienda),
-        manca: 'Es fehlt: Telefon des Arbeitgebers.',
+        manca: `Es fehlt · ${Uno(DE.azienda)}: Telefon.`,
         doveSta: 'Wohnort und Lehrbetrieb',
         distanze: 'Wohnort 12 · Arbeit 4 km',
         giorno: 'Tag',
@@ -743,7 +743,7 @@ export const testi = catalogo(it, {
           termine: 'Personalien',
           testo:
             `Drei Blöcke — ${Uno(DE.pif)}, ${Uno(DE.rappresentante)}, ${Uno(DE.azienda)} — ` +
-            'mit nur den ausgefüllten Zeilen, und unten «Es fehlt: …». Unter achtzehn Jahren ' +
+            'mit nur den ausgefüllten Zeilen, und unten «Es fehlt», Block für Block. Unter achtzehn Jahren ' +
             'trägt das Geburtsdatum das Etikett **minderjährig**.',
         },
         {
@@ -1205,7 +1205,7 @@ export const testi = catalogo(it, {
         pif: Uno(FR.pif),
         rappresentante: Uno(FR.rappresentante),
         azienda: Uno(FR.azienda),
-        manca: 'Il manque : téléphone de l’employeur.',
+        manca: `Il manque · ${Uno(FR.azienda)} : téléphone.`,
         doveSta: 'Domicile et entreprise',
         distanze: 'domicile 12 · travail 4 km',
         giorno: 'jour',
@@ -1290,7 +1290,7 @@ export const testi = catalogo(it, {
           testo:
             `Trois blocs — ${FR.pif.singolare}, ${FR.rappresentante.singolare}, ` +
             `${FR.azienda.singolare} — avec seulement les lignes remplies, et en bas « Il ` +
-            'manque : … ». En dessous de dix-huit ans, la date de naissance porte la pastille ' +
+            'manque », bloc par bloc. En dessous de dix-huit ans, la date de naissance porte la pastille ' +
             '**mineur**.',
         },
         {
@@ -1748,7 +1748,7 @@ export const testi = catalogo(it, {
         pif: Uno(EN.pif),
         rappresentante: Uno(EN.rappresentante),
         azienda: Uno(EN.azienda),
-        manca: 'Missing: employer’s phone.',
+        manca: `Missing · ${Uno(EN.azienda)}: phone.`,
         doveSta: 'Home and workplace',
         distanze: 'home 12 km · work 4 km',
         giorno: 'day',
@@ -1831,7 +1831,7 @@ export const testi = catalogo(it, {
           testo:
             `Three blocks — ${EN.pif.singolare}, ${EN.rappresentante.singolare}, ` +
             `${EN.azienda.singolare} — with only the filled-in rows, and at the bottom ` +
-            '“Missing: …”. Under eighteen, the date of birth carries the **under 18** tag.',
+            '“Missing”, block by block. Under eighteen, the date of birth carries the **under 18** tag.',
         },
         {
           termine: 'Calling, writing, copying',

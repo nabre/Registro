@@ -778,7 +778,14 @@ export function Scheda (opzioni: {
    * stessi nodi fra due disegni, e le prove li ritrovano (`<chiave>:corpo`).
    */
   telaio?: string
+  /**
+   * Il gradino del titolo: `h3` sotto la testata della pagina; `h4` quando la
+   * scheda sta sotto un altro titolo `h3` (la panoramica del docente di classe
+   * sotto il suo riquadro). L'aspetto non cambia.
+   */
+  livello?: 'h3' | 'h4'
 }): ReactElement {
+  const Titolo = opzioni.livello ?? 'h3'
   return (
     <section className={classi('scheda', opzioni.classe)} data-telaio={opzioni.telaio}>
       {opzioni.titolo || opzioni.azioni
@@ -787,10 +794,10 @@ export function Scheda (opzioni: {
               <div className="scheda__titoli">
                 {opzioni.titolo
                   ? (
-                      <h3 className="scheda__titolo">
+                      <Titolo className="scheda__titolo">
                         {opzioni.titolo}
                         {opzioni.aiuto ? <Suggerimento testo={opzioni.aiuto} etichetta={opzioni.titolo} /> : null}
-                      </h3>
+                      </Titolo>
                     )
                   : null}
                 {opzioni.sottotitolo ? <p className="scheda__sottotitolo">{opzioni.sottotitolo}</p> : null}
@@ -882,9 +889,10 @@ export function Barra ({ quota, tono = 'informativo', etichetta = testi().avanza
 }
 
 /**
- * Testata di una vista: titolo, contorno e comandi. `compatta` la riduce a una
- * riga (titolo piccolo, numeri in coda) dove la testata non è la prima cosa da
- * leggere, come nel calendario.
+ * Testata di una vista: titolo, contorno e comandi, in una riga sola. Il nome
+ * della pagina sta già nel percorso in cima e nella voce accesa della barra
+ * laterale: un titolo grande lo ripeterebbe e spingerebbe giù il lavoro. Il
+ * titolo resta, piccolo, come àncora per il lettore di schermo e per la «i».
  */
 export function TestataVista (opzioni: {
   titolo: string
@@ -894,30 +902,15 @@ export function TestataVista (opzioni: {
   aiuto?: ReactNode
   azioni?: ReactNode
   contorno?: ReactNode
-  compatta?: boolean
 }): ReactElement {
   const segno = opzioni.aiuto ? <Suggerimento testo={opzioni.aiuto} etichetta={opzioni.titolo} /> : null
-  if (opzioni.compatta) {
-    return (
-      <header className="testata testata--compatta">
-        <h2 className="testata__titolo">{opzioni.titolo}{segno}</h2>
-        {opzioni.sottotitolo ? <p className="testata__sottotitolo">{opzioni.sottotitolo}</p> : null}
-        <span className="testata__spazio" />
-        {opzioni.contorno ? <div className="testata__contorno">{opzioni.contorno}</div> : null}
-        {opzioni.azioni ? <div className="testata__azioni">{opzioni.azioni}</div> : null}
-      </header>
-    )
-  }
   return (
     <header className="testata">
-      <div className="testata__principale">
-        <div>
-          <h2 className="testata__titolo">{opzioni.titolo}{segno}</h2>
-          {opzioni.sottotitolo ? <p className="testata__sottotitolo">{opzioni.sottotitolo}</p> : null}
-        </div>
-        {opzioni.azioni ? <div className="testata__azioni">{opzioni.azioni}</div> : null}
-      </div>
+      <h2 className="testata__titolo">{opzioni.titolo}{segno}</h2>
+      {opzioni.sottotitolo ? <p className="testata__sottotitolo">{opzioni.sottotitolo}</p> : null}
+      <span className="testata__spazio" />
       {opzioni.contorno ? <div className="testata__contorno">{opzioni.contorno}</div> : null}
+      {opzioni.azioni ? <div className="testata__azioni">{opzioni.azioni}</div> : null}
     </header>
   )
 }

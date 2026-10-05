@@ -54,7 +54,6 @@ const it = {
 
   // La pagina.
   classiInUnAnno: 'Le classi appartengono a un anno.',
-  titolo: `Classi e ${PIF.plurale}`,
   anno: (etichetta: string) => `anno ${etichetta}`,
   aiuto: 'recapiti, indirizzi e datori di lavoro',
   archiviataMinuscolo: 'archiviata',
@@ -112,7 +111,6 @@ export const testi = catalogo(it, {
     obbligatori: 'Jahr, Klasse und Name sind Pflicht.',
     importata: (nome) => `Klasse ${nome} importiert.`,
     classiInUnAnno: 'Klassen gehören zu einem Schuljahr.',
-    titolo: 'Klassen und Lernende',
     anno: (etichetta) => `Jahr ${etichetta}`,
     aiuto: 'Kontaktadressen, Wohnadressen und Arbeitgeber',
     archiviataMinuscolo: 'archiviert',
@@ -170,7 +168,6 @@ export const testi = catalogo(it, {
     obbligatori: 'L’année, la classe et le nom sont obligatoires.',
     importata: (nome) => `Classe ${nome} importée.`,
     classiInUnAnno: 'Les classes appartiennent à une année.',
-    titolo: 'Classes et personnes en formation',
     anno: (etichetta) => `année ${etichetta}`,
     aiuto: 'adresses de contact, domiciles et employeurs',
     archiviataMinuscolo: 'archivée',
@@ -222,7 +219,6 @@ export const testi = catalogo(it, {
     obbligatori: 'Year, class and name are required.',
     importata: (nome) => `Class ${nome} imported.`,
     classiInUnAnno: 'Classes belong to a school year.',
-    titolo: 'Classes and learners',
     anno: (etichetta) => `year ${etichetta}`,
     aiuto: 'contact addresses, home addresses and employers',
     archiviataMinuscolo: 'archived',

@@ -307,24 +307,30 @@ function ElencoPersone ({ voci, sceltoId }: { voci: Voce[], sceltoId: string | n
       data-scorrimento="elenco-persone"
       data-telaio="elenco-persone"
     >
+      {/* Niente titolo: «Persone in formazione» lo dicono già il pulsante del
+          menu e la testata della pagina. La casella e quante ne mostra, in riga. */}
       <header className="elenco-laterale__testata">
-        <h3>{Molti(lessico().pif)}</h3>
-        <span className="testo-quieto elenco-laterale__conto">{String(trovate.length)}</span>
+        <Input
+          // Senza `campo--ricerca`: lo stacco sotto lo dà già l'elenco.
+          className="campo__controllo"
+          type="search"
+          valore={cercato}
+          // Corto, che non si tronca nella colonna; dove cerca lo dice il `title`.
+          placeholder={t.segnaposto}
+          title={t.cercaPer}
+          aria-label={t.cercaFra}
+          autoComplete="off"
+          // `data-fuoco` rimette il cursore qui dopo un ridisegno vero (dati dall'host).
+          data-fuoco="ricerca-persone"
+          onInput={(evento) => {
+            cercato = evento.currentTarget.value
+            rifai()
+          }}
+        />
+        <span className="testo-quieto elenco-laterale__conto">
+          {String(trovate.length)}
+        </span>
       </header>
-      <Input
-        className="campo__controllo campo--ricerca"
-        type="search"
-        valore={cercato}
-        placeholder={t.segnaposto}
-        aria-label={t.cercaFra}
-        autoComplete="off"
-        // `data-fuoco` rimette il cursore qui dopo un ridisegno vero (dati dall'host).
-        data-fuoco="ricerca-persone"
-        onInput={(evento) => {
-          cercato = evento.currentTarget.value
-          rifai()
-        }}
-      />
       <GruppiDiClasse voci={trovate} sceltoId={sceltoId} />
     </div>
   )

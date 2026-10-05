@@ -26,6 +26,7 @@ import { apriMomento, vaiAOggi } from '#ui/calendarNavigation.js'
 import { classi } from '#ui/classNames.js'
 import {
   Pastiglia,
+  Pulsante,
   Scheda,
   StatoVuoto,
   type TonoPastiglia,
@@ -131,6 +132,17 @@ function notaDelleOre (ore: readonly OraDiOggi[]): string {
   return prossima ? t.prossimaAlle(inizioDi(prossima.lezione)) : t.tutteFatte
 }
 
+/**
+ * Un giorno detto corto, per la nota di una tessera che non va a capo: «lun 14».
+ * Il mese solo se non è quello di adesso, l'anno mai: le ore aperte sono di
+ * quest'anno scolastico.
+ */
+function giornoCorto (data: string): string {
+  return data.slice(0, 7) === stato.adessoData.slice(0, 7)
+    ? formattaData(data, 'giorno')
+    : `${giorniBrevi()[giornoSettimana(data) - 1]} ${formattaData(data, 'corto')}`
+}
+
 function Tessere ({ oreOggi }: { oreOggi: readonly OraDiOggi[] }): ReactElement {
   const t = testi()
   const tp = testiPagine()
@@ -163,7 +175,7 @@ function Tessere ({ oreOggi }: { oreOggi: readonly OraDiOggi[] }): ReactElement 
         etichetta={t.daCompilare}
         nota={
           buchi.length > 0
-            ? t.laPiuVecchia(formattaData(buchi[0].data, 'settimana'))
+            ? t.laPiuVecchia(giornoCorto(buchi[0].data))
             : t.inPari
         }
         pagina="pagina.corso.registro"
@@ -282,12 +294,9 @@ function RigaOra ({ voce, evidenza }: { voce: OraDiOggi, evidenza: string | null
           {dettagli ? <span className="oggi-ora__dettagli">{dettagli}</span> : null}
         </span>
         <span className="oggi-ora__stato">
-          {accesa
-            ? (
-                <span className="oggi-ora__segnale">
-                  {fase === 'in-corso' ? t.adesso : t.prossima}
-                </span>
-              )
+          {/* L'ora in corso lo dice già la sua pastiglia: il segnale serve alla prossima. */}
+          {accesa && fase !== 'in-corso'
+            ? <span className="oggi-ora__segnale">{t.prossima}</span>
             : null}
           <Pastiglia testo={t.fasi[fase]} tono={TONO_FASE[fase]} />
         </span>
@@ -296,7 +305,10 @@ function RigaOra ({ voce, evidenza }: { voce: OraDiOggi, evidenza: string | null
   )
 }
 
-function SchedaOreOggi ({ ore }: { ore: readonly OraDiOggi[] }): ReactElement {
+function SchedaOreOggi ({ ore, prossima }: {
+  ore: readonly OraDiOggi[]
+  prossima: string | null
+}): ReactElement {
   const t = testi()
   const vive = ore.filter((o) => o.fase !== 'annullata')
   const evidenza = oraInEvidenza(ore)
@@ -315,7 +327,24 @@ function SchedaOreOggi ({ ore }: { ore: readonly OraDiOggi[] }): ReactElement {
       }
       contenuto={
         ore.length === 0
-          ? <StatoVuoto simbolo="sole" titolo={t.nienteOggi} testo={t.nienteOggiTesto} />
+          ? (
+              <StatoVuoto
+                simbolo="sole"
+                titolo={t.nienteOggi}
+                testo={t.nienteOggiTesto(prossima ? formattaData(prossima, 'lungo') : null)}
+                azione={(
+                  <Pulsante
+                    testo={t.portaA(nomeDellaPagina('pagina.calendario'))}
+                    variante="sottile"
+                    simbolo="calendario"
+                    al={() => {
+                      vaiAllaPagina('pagina.calendario')
+                      vaiAOggi()
+                    }}
+                  />
+                )}
+              />
+            )
           : (
               <ol className="oggi-ore">
                 {ore.map((voce) => (
@@ -526,7 +555,9 @@ function VistaOggi (): ReactElement {
       : t.prossimaGiornata(formattaData(dataProssima, 'lungo'))
 
   const testata = (
-    <header className="testata oggi-testata">
+    // La stessa riga delle altre pagine (`TestataVista`), senza «i»: il saluto
+    // e la data fanno da sottotitolo.
+    <header className="testata">
       <h2 className="testata__titolo">{titolo}</h2>
       <p className="testata__sottotitolo">{sottotitolo}</p>
     </header>
@@ -553,7 +584,9 @@ function VistaOggi (): ReactElement {
         <div className="oggi-colonna oggi-colonna--larga">
           <Isola
             chiave={ISOLA_ORE}
-            disegna={() => <SchedaOreOggi ore={oreDiOggiDashboard()} />}
+            disegna={() => (
+              <SchedaOreOggi ore={oreDiOggiDashboard()} prossima={dataProssimaGiornataDashboard()} />
+            )}
             style={IN_LINEA}
           />
           <SchedaOreProssima ore={oreProssima} data={dataProssima} />

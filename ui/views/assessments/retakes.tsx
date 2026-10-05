@@ -439,7 +439,7 @@ function rigaTabella (recupero: Recupero): ReactElement {
   return (
     <tr key={chiaveRecupero(recupero)} className={chiuso ? 'tabella__riga--spenta' : undefined}>
       <td className="tabella__nome"><CellaNome persona={recupero.allievo} nome={nomeAllievo(recupero)} /></td>
-      <td>
+      <td className="recuperi__quando" data-etichetta={t.colonnaSiRifaIl}>
         {recupero.previstoIl
           ? (
               <span className={recupero.stato === 'scaduto' ? 'recupero__data--tardi' : undefined}>
@@ -449,9 +449,9 @@ function rigaTabella (recupero: Recupero): ReactElement {
           : <span className="testo-quieto">—</span>}
       </td>
       {/* Il voto accanto al giorno in cui la prova è stata rifatta. */}
-      <td className="tabella__numero"><CampoVotoRecupero recupero={recupero} /></td>
+      <td className="tabella__numero" data-etichetta={Uno(lessico().voto)}><CampoVotoRecupero recupero={recupero} /></td>
       {/* La riconsegna fra voto e stato: è il passo dopo la correzione. */}
-      <td className="recuperi__riconsegna">
+      <td className="recuperi__riconsegna" data-etichetta={t.colonnaRiconsegnataIl}>
         {campoRiconsegnaRecupero(recupero)}
         {/* La spunta sta nella cella della data: riempie quel campo. */}
         {recupero.stato === 'fatto' && !recupero.riconsegnataIl
@@ -465,8 +465,8 @@ function rigaTabella (recupero: Recupero): ReactElement {
             )
           : null}
       </td>
-      <td>{pastigliaStato(recupero)}</td>
-      <td className="recuperi__scansione">
+      <td className="recuperi__stato">{pastigliaStato(recupero)}</td>
+      <td className="recuperi__scansione" data-etichetta={t.scansione}>
         <PostoAllegato
           momento={recupero.momento}
           ruolo="recupero"
@@ -514,7 +514,8 @@ export function pannelloRecuperi (momento: MomentoValutazione): ReactNode {
           etichetta={L.ruoliAllegato['recupero-soluzione']}
         />
         <Tabella
-          variante="recuperi"
+          // Sotto la griglia è larga; dove non ci sta si impila (`lists.css`).
+          variante={['recuperi', 'impilabile']}
           telaio="recuperi:tabella"
           // testo-fisso: una chiave, non un testo
           scorrimento={`recuperi:${momento.id}`}

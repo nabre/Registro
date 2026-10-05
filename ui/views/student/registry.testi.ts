@@ -32,18 +32,26 @@ const it = {
   tuttoFirmato: 'tutto tornato indietro firmato',
   daChiudere: (aperti: number) => `${aperti} periodo${aperti === 1 ? '' : 'i'} ancora da chiudere`,
   apriLeAssenze: 'Apri le assenze',
+  // La linguetta del docente di classe quando non c'è ancora niente da seguire.
+  nienteDaSeguire: 'Niente da seguire, per ora',
+  cheCosaCompare:
+    'Qui compaiono i documenti chiesti a questa persona e i fogli delle assenze da far ' +
+    'firmare, appena ce ne sono.',
+  chiediDocumento: 'Chiedi un documento',
+  primaUnCorso: 'Un documento si chiede con una consegna: prima serve un corso in questa classe.',
   /** Il nome dell'azienda, nel blocco dell'azienda: non è il nome di battesimo. */
   nomeAzienda: 'Nome',
   emailDatore: `E-mail ${del(PERSONE.datore)}`,
-  /** Quel che manca quando una persona non ha nessun numero, per chi risponde. */
-  telefonoDi: {
-    pif: `telefono ${del(PERSONE.pif)}`,
-    rappresentante: `telefono ${del(PERSONE.rappresentante)}`,
-    datore: `telefono ${del(PERSONE.datore)}`,
-  },
+  /** Quel che manca quando un blocco non ha nessun numero: di chi, lo dice il blocco. */
+  telefono: 'telefono',
   /** Un'etichetta dentro la riga di quel che manca. */
   mancante: (etichetta: string) => etichetta.toLowerCase(),
-  manca: (voci: readonly string[]) => `Manca: ${voci.join(', ')}.`,
+  manca: 'Manca',
+  /**
+   * Quel che manca di un blocco, una riga per blocco: «e-mail, e-mail» in fila
+   * non diceva di chi fosse ognuna.
+   */
+  mancaDi: (chi: string, voci: readonly string[]) => `${chi}: ${voci.join(', ')}.`,
   anagrafica: 'Anagrafica',
   nessunRecapito: 'Nessun recapito',
   comeSiAggiunge: 'Indirizzo, mail e telefoni si aggiungono da «Modifica».',
@@ -78,16 +86,20 @@ export const testi = catalogo(it, {
     tuttoFirmato: 'alles unterschrieben zurück',
     daChiudere: (aperti) => `${plurale(aperti, 'Zeitraum', 'Zeiträume')} noch offen`,
     apriLeAssenze: 'Absenzen öffnen',
+    nienteDaSeguire: 'Im Moment nichts zu verfolgen',
+    cheCosaCompare:
+      'Hier erscheinen die bei dieser Person angeforderten Dokumente und die Absenzenblätter ' +
+      'zum Unterschreiben, sobald es welche gibt.',
+    chiediDocumento: 'Ein Dokument verlangen',
+    primaUnCorso:
+      'Ein Dokument wird mit einem Auftrag verlangt: Zuerst braucht es einen Kurs in dieser Klasse.',
     nomeAzienda: 'Name',
     emailDatore: 'E-Mail des Arbeitgebers',
-    telefonoDi: {
-      pif: 'Telefon der lernenden Person',
-      rappresentante: 'Telefon der gesetzlichen Vertretung',
-      datore: 'Telefon des Arbeitgebers',
-    },
+    telefono: 'Telefon',
     // Im Deutschen bleiben die Nomen gross.
     mancante: (etichetta) => etichetta,
-    manca: (voci) => `Es fehlt: ${voci.join(', ')}.`,
+    manca: 'Es fehlt',
+    mancaDi: (chi, voci) => `${chi}: ${voci.join(', ')}.`,
     anagrafica: 'Personalien',
     nessunRecapito: 'Keine Kontaktadresse',
     comeSiAggiunge: 'Adresse, E-Mail und Telefonnummern fügst du über «Bearbeiten» hinzu.',
@@ -120,15 +132,19 @@ export const testi = catalogo(it, {
     tuttoFirmato: 'tout est revenu signé',
     daChiudere: (aperti) => `${plurale(aperti, 'période', 'périodes')} encore à clore`,
     apriLeAssenze: 'Ouvrir les absences',
+    nienteDaSeguire: 'Rien à suivre pour l’instant',
+    cheCosaCompare:
+      'Ici apparaissent les documents demandés à cette personne et les feuilles d’absences ' +
+      'à faire signer, dès qu’il y en a.',
+    chiediDocumento: 'Demander un document',
+    primaUnCorso:
+      'Un document se demande avec un devoir : il faut d’abord un cours dans cette classe.',
     nomeAzienda: 'Nom',
     emailDatore: 'E-mail de l’employeur',
-    telefonoDi: {
-      pif: 'téléphone de la personne en formation',
-      rappresentante: 'téléphone du représentant légal',
-      datore: 'téléphone de l’employeur',
-    },
+    telefono: 'téléphone',
     mancante: (etichetta) => minuscolo(etichetta),
-    manca: (voci) => `Il manque : ${voci.join(', ')}.`,
+    manca: 'Il manque',
+    mancaDi: (chi, voci) => `${chi} : ${voci.join(', ')}.`,
     anagrafica: 'Données personnelles',
     nessunRecapito: 'Aucune adresse de contact',
     comeSiAggiunge: 'L’adresse, l’e-mail et les téléphones s’ajoutent depuis « Modifier ».',
@@ -161,15 +177,18 @@ export const testi = catalogo(it, {
     tuttoFirmato: 'everything back, signed',
     daChiudere: (aperti) => `${plurale(aperti, 'period', 'periods')} still to close`,
     apriLeAssenze: 'Open absences',
+    nienteDaSeguire: 'Nothing to follow up yet',
+    cheCosaCompare:
+      'Documents requested from this person and absence sheets to get signed appear here ' +
+      'as soon as there are any.',
+    chiediDocumento: 'Request a document',
+    primaUnCorso: 'A document is requested with an assignment: first this class needs a course.',
     nomeAzienda: 'Name',
     emailDatore: 'Employer’s email',
-    telefonoDi: {
-      pif: 'learner’s phone',
-      rappresentante: 'guardian’s phone',
-      datore: 'employer’s phone',
-    },
+    telefono: 'phone',
     mancante: (etichetta) => etichetta.toLowerCase(),
-    manca: (voci) => `Missing: ${voci.join(', ')}.`,
+    manca: 'Missing',
+    mancaDi: (chi, voci) => `${chi}: ${voci.join(', ')}.`,
     anagrafica: 'Personal details',
     nessunRecapito: 'No contact address',
     comeSiAggiunge: 'Add the address, email and phone numbers from “Edit”.',

@@ -72,7 +72,8 @@ const it: { progetti: TestiSezione, integrazione: TestiSezione } = {
       {
         termine: 'La pagina Integrazione progetti',
         testo:
-          'Sta nella progettazione del corso, accanto a **Panoramica** e **Piani lezione**. A ' +
+          'Sta nella progettazione del corso, accanto a **Panoramica** e **Piani lezione**; nella ' +
+          'pagina **Corsi** la scheda del corso dice quanti progetti ha e porta qui. A ' +
           'sinistra i progetti integrati nel corso, con lo stato, il periodo e quanto se n’è ' +
           'fatto; **Integra un progetto…** ne porta uno dalla biblioteca, o ne crea uno nuovo già ' +
           'integrato. A destra la testata, i compiti sempre in vista e tre linguette: **Fasi nei ' +
@@ -241,7 +242,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Die Seite Projekte einbinden',
           testo:
-            'Sie liegt in der Planung des Kurses, neben **Übersicht** und **Unterrichtspläne**. ' +
+            'Sie liegt in der Planung des Kurses, neben **Übersicht** und **Unterrichtspläne**; auf ' +
+            'der Seite **Kurse** sagt die Karte des Kurses, wie viele Projekte er hat, und führt hierher. ' +
             'Links die im Kurs eingebundenen Projekte mit Status, Zeitraum und Fortschritt; ' +
             '**Projekt einbinden…** holt eines aus der Bibliothek oder erstellt ein neues, schon ' +
             'eingebunden. Rechts der Kopf, die Aufgaben immer sichtbar und drei Reiter: **Phasen ' +
@@ -414,7 +416,8 @@ export const testi = catalogo(it, {
           termine: 'La page Intégration des projets',
           testo:
             'Elle est dans la planification du cours, à côté de **Vue d’ensemble** et **Plans de ' +
-            'leçon**. À gauche les projets intégrés au cours, avec l’état, la période et ' +
+            'leçon** ; dans la page **Cours**, la fiche du cours dit combien de projets il a et mène ' +
+            'ici. À gauche les projets intégrés au cours, avec l’état, la période et ' +
             'l’avancement ; **Intégrer un projet…** en apporte un de la bibliothèque, ou en crée ' +
             'un nouveau déjà intégré. À droite l’en-tête, les tâches toujours visibles et trois ' +
             'onglets : **Phases dans les plans**, **Grille** et **Résultats** (appréciations, ' +
@@ -584,7 +587,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The Project integration page',
           testo:
-            'It is in the course’s planning, next to **Overview** and **Lesson plans**. On the ' +
+            'It is in the course’s planning, next to **Overview** and **Lesson plans**; on the ' +
+            '**Courses** page the course card says how many projects it has and leads here. On the ' +
             'left the projects integrated in the course, with status, period and progress; ' +
             '**Integrate a project…** brings one from the library, or creates a new one already ' +
             'integrated. On the right the header, the tasks always in view and three tabs: ' +

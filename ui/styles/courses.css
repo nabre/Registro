@@ -293,7 +293,10 @@
 
 .dettagli-classe__campo--colore { flex: 0 0 auto; min-width: 0; }
 
-.dettagli-classe__colore {
+/* Il colore della classe ha lo stesso campione nei dettagli e nel modulo:
+   chi passa dall'uno all'altro ritrova lo stesso controllo. */
+.dettagli-classe__colore,
+.campo--colore .campo__controllo {
   width: 2.25rem;
   height: 2rem;
   padding: 2px;

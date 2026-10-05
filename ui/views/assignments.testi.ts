@@ -58,7 +58,7 @@ const it = {
   senzaDocumento: (quanti: number) => `${quanti} senza documento`,
   senzaDestinatari: 'senza destinatari',
   togliSpunteAiuto: 'Toglie le spunte e torna a chiederla',
-  spuntaIMancanti: (quanti: number) => `Spunta i ${quanti} che mancano`,
+  spuntaIMancanti: (quanti: number) => quanti === 1 ? 'Spunta chi manca' : `Spunta i ${quanti} che mancano`,
   togliereSpunte: (quanti: number) => `Togliere ${plurale(quanti, 'spunta', 'spunte')}?`,
   togliereSpunteTesto:
     'La consegna torna fra quelle da chiedere. I documenti raccolti restano: ' +

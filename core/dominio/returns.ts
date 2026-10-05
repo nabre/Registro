@@ -5,7 +5,7 @@
 // dicono i voti (mancano: da correggere; ci sono: da riconsegnare). Si scrive
 // solo il giorno in cui il foglio torna all'allievo, che non si deduce.
 
-import { allieviAttivi, nomeCompleto } from './calculations.js'
+import { allieviAttivi, nomeCompleto, ordinaAllievi } from './calculations.js'
 import { rigaDelRecupero } from './retakes.js'
 import { differenzaGiorni } from './dates.js'
 import type { Allievo, Classe, Iso, MomentoValutazione, Registro, Voto } from './models.js'
@@ -203,7 +203,8 @@ export function riconsegneDegliAllievi (
 ): RiconsegnaAllievo[] {
   const esito: RiconsegnaAllievo[] = []
 
-  for (const allievo of classe ? allieviAttivi(classe) : []) {
+  // In ordine di cognome, come la griglia accanto: la classe tiene l'ordine di inserimento.
+  for (const allievo of classe ? ordinaAllievi(allieviAttivi(classe)) : []) {
     if (allievo.iscrittoIl && allievo.iscrittoIl > momento.data) continue
     const voto = momento.voti.find((v) => v.allievoId === allievo.id)
     if (!voto || voto.assente || voto.valore === null) continue

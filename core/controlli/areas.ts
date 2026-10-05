@@ -167,9 +167,10 @@ function raggruppa (voci: readonly VoceProgramma[]): Gruppo[] {
     if (gia) gia.voci.push(voce)
     else gruppi.push({ prefisso, titolo: titoloGruppo(prefisso) ?? null, voci: [voce] })
   }
-  // Un titolo uguale al nome dell'unica voce non aggiunge niente.
+  // Un titolo uguale al nome della prima voce non aggiunge niente: quella
+  // voce, l'interruttore del gruppo, fa già da titolo alle altre.
   return gruppi.map(({ titolo, voci: sue }) => ({
-    titolo: sue.length === 1 && titolo === sue[0]?.etichetta ? null : titolo,
+    titolo: titolo === sue[0]?.etichetta ? null : titolo,
     voci: sue,
   }))
 }

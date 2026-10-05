@@ -5,7 +5,8 @@ import { PERSONE, PIF, un } from '#core/dominio/lexicon.js'
 
 const it = {
   nessunaCorrispondenza: 'Nessun nome corrisponde a quel che hai scritto.',
-  segnaposto: 'cerca per nome, classe, azienda, paese',
+  segnaposto: 'Cerca…',
+  cercaPer: 'Cerca per nome, classe, azienda, paese',
   cercaFra: `Cerca fra le ${PIF.plurale}`,
   inFormazione: (quante: number) => `${quante} in formazione`,
   nonFrequentaPiu: (quante: number) => `${quante} non frequenta più`,
@@ -27,7 +28,8 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     nessunaCorrispondenza: 'Kein Name passt zu dem, was du geschrieben hast.',
-    segnaposto: 'nach Name, Klasse, Lehrbetrieb, Ort suchen',
+    segnaposto: 'Suchen…',
+    cercaPer: 'Nach Name, Klasse, Lehrbetrieb, Ort suchen',
     cercaFra: 'Unter den Lernenden suchen',
     inFormazione: (quante) => `${quante} in Ausbildung`,
     nonFrequentaPiu: (quante) =>
@@ -49,7 +51,8 @@ export const testi = catalogo(it, {
   },
   fr: {
     nessunaCorrispondenza: 'Aucun nom ne correspond à ce que tu as écrit.',
-    segnaposto: 'chercher par nom, classe, entreprise, localité',
+    segnaposto: 'Chercher…',
+    cercaPer: 'Chercher par nom, classe, entreprise, localité',
     cercaFra: 'Rechercher parmi les personnes en formation',
     inFormazione: (quante) => `${quante} en formation`,
     nonFrequentaPiu: (quante) =>
@@ -71,7 +74,8 @@ export const testi = catalogo(it, {
   },
   en: {
     nessunaCorrispondenza: 'No name matches what you typed.',
-    segnaposto: 'search by name, class, company, town',
+    segnaposto: 'Search…',
+    cercaPer: 'Search by name, class, company, town',
     cercaFra: 'Search learners',
     inFormazione: (quante) => `${quante} in training`,
     nonFrequentaPiu: (quante) => `${quante} no longer attending`,

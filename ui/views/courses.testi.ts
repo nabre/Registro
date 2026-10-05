@@ -31,6 +31,10 @@ const it = {
   udASettimana: (ud: number) => `${ud} UD a settimana · `,
   nessunaRicorrente: 'Lezione ricorrente: nessuna.',
   prossimaOra: 'Prossima lezione: ',
+  progettiNelCorso: 'Progetti: ',
+  progettiIntegrati: (n: number) => n === 0 ? 'nessuno integrato' : n === 1 ? 'uno integrato' : `${n} integrati`,
+  apriIntegrazione: 'Apri la pagina Integrazione progetti del corso',
+  panoramica: 'Panoramica',
 
   // La tabella delle persone.
   nessunoFrequenta: `La classe non ha ${PIF.plurale} che frequentano: l’elenco si riempie dalla vista Classi.`,
@@ -91,7 +95,7 @@ const it = {
 
   // La pagina.
   corsoInUnAnno: 'Un corso è una materia data a una classe, dentro un anno.',
-  contiDel: (periodo: string) => `i conti sono del ${periodo}`,
+  contiDel: (periodo: string) => `I conti valgono per: ${periodo}`,
   aiuto: 'una materia a una classe: un incrocio della matrice',
 }
 
@@ -120,6 +124,10 @@ export const testi = catalogo(it, {
     udASettimana: (ud) => `${plurale(ud, 'Lektion', 'Lektionen')} pro Woche · `,
     nessunaRicorrente: 'Regelmässige Stunde: keine.',
     prossimaOra: 'Nächste Stunde: ',
+    progettiNelCorso: 'Projekte: ',
+    progettiIntegrati: (n) => n === 0 ? 'keines eingebunden' : n === 1 ? 'eines eingebunden' : `${n} eingebunden`,
+    apriIntegrazione: 'Die Seite Projekte einbinden des Kurses öffnen',
+    panoramica: 'Übersicht',
     nessunoFrequenta:
       'Die Klasse hat keine Lernenden, die sie besuchen: Die Liste füllst du in der ' +
       'Ansicht Klassen.',
@@ -172,7 +180,7 @@ export const testi = catalogo(it, {
       'Fächer in den Zeilen. Zuerst die Klasse.',
     corsoInUnAnno:
       'Ein Kurs ist ein Fach, das eine Klasse in einem Schuljahr hat.',
-    contiDel: (periodo) => `die Zahlen gelten für: ${periodo}`,
+    contiDel: (periodo) => `Die Zahlen gelten für: ${periodo}`,
     aiuto: 'ein Fach in einer Klasse: ein Feld der Matrix',
   },
   fr: {
@@ -199,6 +207,10 @@ export const testi = catalogo(it, {
       `${plurale(ud, 'période', 'périodes')} par semaine · `,
     nessunaRicorrente: 'Leçon récurrente : aucune.',
     prossimaOra: 'Prochaine leçon : ',
+    progettiNelCorso: 'Projets : ',
+    progettiIntegrati: (n) => n === 0 ? 'aucun intégré' : n === 1 ? 'un intégré' : `${n} intégrés`,
+    apriIntegrazione: 'Ouvrir la page Intégration des projets du cours',
+    panoramica: 'Vue d’ensemble',
     nessunoFrequenta:
       'La classe n’a aucune personne en formation qui la suit : la liste se remplit depuis la ' +
       'vue Classes.',
@@ -249,7 +261,7 @@ export const testi = catalogo(it, {
       'et les branches en lignes. D’abord la classe.',
     corsoInUnAnno:
       'Un cours est une branche donnée à une classe, au sein d’une année.',
-    contiDel: (periodo) => `les chiffres portent sur : ${periodo}`,
+    contiDel: (periodo) => `Les chiffres portent sur : ${periodo}`,
     aiuto: 'une branche donnée à une classe : un croisement de la matrice',
   },
   en: {
@@ -275,6 +287,10 @@ export const testi = catalogo(it, {
     udASettimana: (ud) => `${plurale(ud, 'period', 'periods')} a week · `,
     nessunaRicorrente: 'Recurring lesson: none.',
     prossimaOra: 'Next lesson: ',
+    progettiNelCorso: 'Projects: ',
+    progettiIntegrati: (n) => n === 0 ? 'none integrated' : n === 1 ? 'one integrated' : `${n} integrated`,
+    apriIntegrazione: 'Open the course’s Project integration page',
+    panoramica: 'Overview',
     nessunoFrequenta:
       'The class has no learners attending: the list is filled in from the Classes view.',
     tuttoFatto: 'All done',
@@ -323,7 +339,7 @@ export const testi = catalogo(it, {
       'as rows. The class comes first.',
     corsoInUnAnno:
       'A course is a subject taught to a class, within a school year.',
-    contiDel: (periodo) => `figures for: ${periodo}`,
+    contiDel: (periodo) => `Figures for: ${periodo}`,
     aiuto: 'a subject taught to a class: one cell of the matrix',
   },
 })

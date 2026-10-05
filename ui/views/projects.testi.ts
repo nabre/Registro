@@ -32,7 +32,9 @@ const it = {
   oraChiusa: 'La lezione è conclusa: la matrice di quell’ora si guarda e non si cambia.',
   giudiziAiuto: 'Note datate su una persona o sulla classe intera.',
   nessunaLezione: 'Nessuna attività di un piano è ancora assegnata a questo progetto.',
-  svolto: (n: number) => `Svolto il ${n}% delle attività del progetto.`,
+  svolto: (n: number) => n === 0
+    ? 'Nessuna attività del progetto ancora svolta.'
+    : `Svolto il ${n}% delle attività del progetto.`,
   presenze: 'Presenze nelle ore del progetto',
   presenzeAiuto: 'Con le regole dell’appello, solo sulle lezioni con attività del progetto.',
   udPerse: 'UD perse',
@@ -66,7 +68,8 @@ const it = {
     'Crea il primo progetto: obiettivi, fasi con le attività, criteri e risorse. Poi lo integri nei corsi.',
   biblioteca: 'Biblioteca dell’anno',
   nessunoNellAnno: 'Nessun progetto nell’anno, per ora.',
-  inCorsi: (n: number) => n === 0 ? 'in nessun corso' : n === 1 ? 'in un corso' : `in ${n} corsi`,
+  // «integrato» davanti: «in un corso» da solo si legge come lo stato «In corso».
+  inCorsi: (n: number) => n === 0 ? 'non integrato' : n === 1 ? 'integrato in un corso' : `integrato in ${n} corsi`,
   fasiEAttivita: (fasi: number, attivita: number) =>
     `${fasi === 1 ? 'una fase' : `${fasi} fasi`} · ` +
     `${attivita === 0 ? 'nessuna attività' : attivita === 1 ? 'un’attività' : `${attivita} attività`}`,
@@ -117,7 +120,9 @@ export const testi = catalogo(it, {
     oraChiusa: 'Die Stunde ist abgeschlossen: Das Raster dieser Stunde lässt sich ansehen, nicht ändern.',
     giudiziAiuto: 'Datierte Notizen zu einer Person oder zur ganzen Klasse.',
     nessunaLezione: 'Noch keine Aktivität eines Plans ist diesem Projekt zugewiesen.',
-    svolto: (n) => `${n} % der Aktivitäten des Projekts durchgeführt.`,
+    svolto: (n) => n === 0
+      ? 'Noch keine Aktivität des Projekts durchgeführt.'
+      : `${n} % der Aktivitäten des Projekts durchgeführt.`,
     presenze: 'Anwesenheit in den Stunden des Projekts',
     presenzeAiuto: 'Nach den Regeln der Absenzenkontrolle, nur in den Stunden mit Aktivitäten des Projekts.',
     udPerse: 'Verpasste Lektionen',
@@ -151,7 +156,7 @@ export const testi = catalogo(it, {
       'Erstelle das erste Projekt: Ziele, Phasen mit Aktivitäten, Kriterien und Ressourcen. Danach bindest du es in Kurse ein.',
     biblioteca: 'Bibliothek des Jahres',
     nessunoNellAnno: 'Noch kein Projekt in diesem Jahr.',
-    inCorsi: (n) => n === 0 ? 'in keinem Kurs' : n === 1 ? 'in einem Kurs' : `in ${n} Kursen`,
+    inCorsi: (n) => n === 0 ? 'nicht eingebunden' : n === 1 ? 'in einen Kurs eingebunden' : `in ${n} Kurse eingebunden`,
     fasiEAttivita: (fasi, attivita) =>
       `${fasi === 1 ? 'eine Phase' : `${fasi} Phasen`} · ` +
       `${attivita === 0 ? 'keine Aktivität' : attivita === 1 ? 'eine Aktivität' : `${attivita} Aktivitäten`}`,
@@ -200,7 +205,9 @@ export const testi = catalogo(it, {
     oraChiusa: 'La période est terminée : la grille de cette période se regarde et ne se change pas.',
     giudiziAiuto: 'Des notes datées sur une personne ou sur toute la classe.',
     nessunaLezione: 'Aucune activité d’un plan n’est encore attribuée à ce projet.',
-    svolto: (n) => `${n} % des activités du projet réalisées.`,
+    svolto: (n) => n === 0
+      ? 'Aucune activité du projet réalisée pour l’instant.'
+      : `${n} % des activités du projet réalisées.`,
     presenze: 'Présences dans les périodes du projet',
     presenzeAiuto: 'Avec les règles de l’appel, seulement sur les périodes avec des activités du projet.',
     udPerse: 'Périodes manquées',
@@ -234,7 +241,7 @@ export const testi = catalogo(it, {
       'Crée le premier projet : objectifs, phases avec activités, critères et ressources. Ensuite, intègre-le aux cours.',
     biblioteca: 'Bibliothèque de l’année',
     nessunoNellAnno: 'Aucun projet dans l’année, pour l’instant.',
-    inCorsi: (n) => n === 0 ? 'dans aucun cours' : n === 1 ? 'dans un cours' : `dans ${n} cours`,
+    inCorsi: (n) => n === 0 ? 'non intégré' : n === 1 ? 'intégré dans un cours' : `intégré dans ${n} cours`,
     fasiEAttivita: (fasi, attivita) =>
       `${fasi === 1 ? 'une phase' : `${fasi} phases`} · ` +
       `${attivita === 0 ? 'aucune activité' : attivita === 1 ? 'une activité' : `${attivita} activités`}`,
@@ -282,7 +289,9 @@ export const testi = catalogo(it, {
     oraChiusa: 'The lesson is finished: its grid can be viewed, not changed.',
     giudiziAiuto: 'Dated notes on one person or on the whole class.',
     nessunaLezione: 'No plan activity is assigned to this project yet.',
-    svolto: (n) => `${n}% of the project’s activities done.`,
+    svolto: (n) => n === 0
+      ? 'No project activity done yet.'
+      : `${n}% of the project’s activities done.`,
     presenze: 'Attendance in the project’s lessons',
     presenzeAiuto: 'With the register’s rules, only on lessons with activities of the project.',
     udPerse: 'Periods missed',
@@ -316,7 +325,7 @@ export const testi = catalogo(it, {
       'Create the first project: objectives, phases with activities, criteria and resources. Then build it into courses.',
     biblioteca: 'Library of the year',
     nessunoNellAnno: 'No projects in the year yet.',
-    inCorsi: (n) => n === 0 ? 'in no course' : n === 1 ? 'in one course' : `in ${n} courses`,
+    inCorsi: (n) => n === 0 ? 'not integrated' : n === 1 ? 'integrated in one course' : `integrated in ${n} courses`,
     fasiEAttivita: (fasi, attivita) =>
       `${fasi === 1 ? 'one phase' : `${fasi} phases`} · ` +
       `${attivita === 0 ? 'no activities' : attivita === 1 ? 'one activity' : `${attivita} activities`}`,

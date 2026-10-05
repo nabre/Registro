@@ -266,6 +266,8 @@
 .documento__titolo { align-items: center; gap: var(--spazio-1); }
 .comunicazione__oggetto { flex-direction: column; align-items: flex-start; gap: 0; }
 .comunicazione__oggetto small { color: var(--testo-quieto); }
+/* Il motivo di un invio non riuscito: rosso anche dentro il sottotitolo quieto. */
+.comunicazione__oggetto small.testo-negativo { color: var(--negativo); }
 .documento__titolo:hover span:last-child,
 .comunicazione__oggetto:hover strong { text-decoration: underline; }
 
@@ -403,6 +405,18 @@ tr:hover .cella-documento__modifica,
 .tabella--assenze .tabella__richiesta { min-width: 3.25rem; text-align: center; }
 .tabella--assenze .tabella__richiesta-titolo { max-width: none; }
 .tabella--assenze .tabella__nome small { margin-left: var(--spazio-1); font-weight: 400; }
+/* Chi non frequenta più resta solo per la riga ancora aperta, sotto tono come nel check. */
+.tabella--assenze .tabella__riga--ritirata .cella-nome__testo { color: var(--testo-quieto); font-weight: 400; }
+
+/* Il nome intero di una colonna per chi legge con la voce: a vista basta la sigla. */
+.tabella__per-lettori {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 /* Chi non ha niente da spedire: non è un buco da riempire. */
 .cella-documento--vuota {
@@ -495,9 +509,6 @@ tr:hover .cella-documento__modifica,
 .todo-sintesi__scheda--preme {
   border-color: color-mix(in srgb, var(--negativo) 45%, var(--bordo-tenue));
 }
-
-/* Quella a zero resta, spenta con il colore e non con l'opacità: il numero si legge meglio. */
-.todo-sintesi__scheda--vuota .todo-sintesi__numero { color: var(--testo-quieto); font-weight: 500; }
 
 .todo-sintesi__titolo {
   grid-area: titolo;
@@ -689,7 +700,25 @@ tr:hover .cella-documento__modifica,
   align-items: start;
 }
 .docente-classe__messaggi > * { min-width: 0; }
-.docente-classe__messaggi .recapito { flex-wrap: wrap; overflow-wrap: anywhere; }
+/*
+ * Nella colonna stretta accanto alle comunicazioni ogni recapito ha la stessa
+ * forma, nome sopra e indirizzo sotto, segni a destra: andando a capo solo
+ * quando l'indirizzo è lungo, uno stava in riga e quello sotto impilato.
+ */
+.docente-classe__messaggi .recapito {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "nome segno gesto"
+    "indirizzo segno gesto";
+  column-gap: var(--spazio-2);
+  row-gap: 0;
+  overflow-wrap: anywhere;
+}
+.docente-classe__messaggi .recapito > strong { grid-area: nome; min-width: 0; }
+.docente-classe__messaggi .recapito__indirizzo { grid-area: indirizzo; justify-self: start; }
+.docente-classe__messaggi .recapito > .pastiglia { grid-area: segno; }
+.docente-classe__messaggi .recapito > .pulsante { grid-area: gesto; }
 @media (max-width: 75em) {
   .docente-classe__messaggi { grid-template-columns: minmax(0, 1fr); }
 }
@@ -802,26 +831,30 @@ tr:hover .cella-documento__modifica,
 }
 
 /*
- * Qui la scheda non taglia: `overflow: hidden` fermerebbe la testata `sticky`
- * della matrice sulla scheda invece che sul riquadro che scorre, e senza foglio
- * aperto nasconderebbe le colonne oltre la pagina, senza modo di arrivarci:
- * allora scorre di lato la pagina. La cornice la dà già il contenitore della
- * tabella.
+ * Qui la scheda non taglia: a cornice aperta `overflow: hidden` fermerebbe la
+ * testata `sticky` della matrice sulla scheda invece che sul riquadro che
+ * scorre. La cornice la dà già il contenitore della tabella.
  */
 .archivio__barra .scheda {
   overflow: visible;
 }
 
 /*
- * In queste pagine la matrice (documenti, assenze) non scorre dentro di sé:
- * scorre il riquadro che la contiene, e la testata si appiccica a quello.
+ * A cornice aperta su finestra larga la matrice (documenti, assenze) non scorre
+ * dentro di sé: scorre il riquadro di sinistra, e la testata si appiccica a
+ * quello. Altrove — cornice chiusa, o finestra stretta con la cornice sotto —
+ * scorre nel suo telaio, come ogni griglia: lasciata uscire dalla scheda, una
+ * matrice più larga della finestra faceva scorrere di lato tutta la pagina,
+ * con la barra in fondo al contenuto, lontana dalle righe che si leggono.
  */
-.archivio .tabella-contenitore,
-.archivio .tabella-contenitore--griglia {
-  max-height: none;
-  /* Né in altezza né in larghezza: un contenitore che scorre è quello a cui
-     si aggrappano testata e colonna dei nomi, e deve essere il riquadro. */
-  overflow: visible;
+@media (min-width: 80.0625em) {
+  .archivio--con-foglio .tabella-contenitore,
+  .archivio--con-foglio .tabella-contenitore--griglia {
+    max-height: none;
+    /* Né in altezza né in larghezza: un contenitore che scorre è quello a cui
+       si aggrappano testata e colonna dei nomi, e deve essere il riquadro. */
+    overflow: visible;
+  }
 }
 
 .archivio__corpo {

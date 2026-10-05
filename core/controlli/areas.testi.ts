@@ -44,7 +44,7 @@ const it = {
       sottotitolo: 'la versione, e quando arriva quella nuova',
     },
     condotto: {
-      titolo: 'Avanzate',
+      titolo: 'Sistema e altri programmi',
       sottotitolo:
         'l’integrazione con il sistema operativo, e se altri programmi possono parlare con il ' +
         'registro',
@@ -108,7 +108,7 @@ export const testi = catalogo(it, {
         sottotitolo: 'die Version, und wann die neue kommt',
       },
       condotto: {
-        titolo: 'Erweitert',
+        titolo: 'System und andere Programme',
         sottotitolo:
           'die Einbindung ins Betriebssystem, und ob andere Programme mit dem Klassenbuch ' +
           'sprechen dürfen',
@@ -169,7 +169,7 @@ export const testi = catalogo(it, {
         sottotitolo: 'la version, et quand arrive la nouvelle',
       },
       condotto: {
-        titolo: 'Avancé',
+        titolo: 'Système et autres programmes',
         sottotitolo:
           'l’intégration au système d’exploitation, et si d’autres programmes peuvent parler ' +
           'avec le registre',
@@ -230,7 +230,7 @@ export const testi = catalogo(it, {
         sottotitolo: 'the version, and when the new one arrives',
       },
       condotto: {
-        titolo: 'Advanced',
+        titolo: 'System and other programs',
         sottotitolo:
           'integration with the operating system, and whether other programs may talk to the ' +
           'register',

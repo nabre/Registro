@@ -403,11 +403,12 @@ function GrigliaVoti ({ classe, momenti, opzioni }: {
 
   const intestazione = (
     <>
-      <th className="tabella__nome" aria-colindex={prima}>{Uno(L.pif)}</th>
+      <th className="tabella__nome" scope="col" aria-colindex={prima}>{Uno(L.pif)}</th>
       {colonne((momento, indice) => (
         <th
           key={f.chiave(indice)}
           className={classi('tabella__momento', stato.valutazioneId === momento.id && 'tabella__momento--scelto')}
+          scope="col"
           {...f.testata(indice)}
           aria-colindex={posto(indice)}
         >
@@ -427,8 +428,10 @@ function GrigliaVoti ({ classe, momenti, opzioni }: {
         </th>
       ), 'th', true)}
       {/* Due colonne: la media è il conto, la nota è quel che va in pagella. */}
-      {medie ? <th className="tabella__media" aria-colindex={ultima}>{Uno(L.media)}</th> : null}
-      {medie ? <th className="tabella__media" aria-colindex={dopoUltima}>{corto(L.nota)}</th> : null}
+      {/* Ferme a destra come il nome a sinistra (`lists.css`): con molte prove la
+          media resta in vista accanto ai voti che scorrono. */}
+      {medie ? <th className="tabella__media" scope="col" aria-colindex={ultima}>{Uno(L.media)}</th> : null}
+      {medie ? <th className="tabella__media tabella__nota" scope="col" aria-colindex={dopoUltima}>{corto(L.nota)}</th> : null}
     </>
   )
 
@@ -446,9 +449,10 @@ function GrigliaVoti ({ classe, momenti, opzioni }: {
     const nome = nomeCompleto(allievo)
     return (
       <tr key={allievo.id}>
-        <td className="tabella__nome" aria-colindex={prima}>
+        {/* `th` di riga: lo schermo vocale dice di chi è il voto. */}
+        <th className="tabella__nome" scope="row" aria-colindex={prima}>
           <CellaNome persona={allievo} nome={nome} />
-        </td>
+        </th>
         {colonne((momento, indiceColonna) => {
           const voto = momento.voti.find((v) => v.allievoId === allievo.id)
           const mostrato = voto?.assente
@@ -501,14 +505,14 @@ function GrigliaVoti ({ classe, momenti, opzioni }: {
               </td>
             )
           : null}
-        {medie ? <td className="tabella__media" aria-colindex={dopoUltima}>{notaDi(media)}</td> : null}
+        {medie ? <td className="tabella__media tabella__nota" aria-colindex={dopoUltima}>{notaDi(media)}</td> : null}
       </tr>
     )
   })
 
   const piede = (
     <>
-      <td className="tabella__nome">{t.mediaDellaClasse}</td>
+      <th className="tabella__nome" scope="row">{t.mediaDellaClasse}</th>
       {colonne((momento, indice) => {
         const media = mediaMomento(momento)
         return (
@@ -520,7 +524,7 @@ function GrigliaVoti ({ classe, momenti, opzioni }: {
       {/* Due celle vuote in coda (media e nota): il piede ha la media di ogni prova,
           non di ogni allievo. */}
       {medie ? <td className="tabella__media" /> : null}
-      {medie ? <td className="tabella__media" /> : null}
+      {medie ? <td className="tabella__media tabella__nota" /> : null}
     </>
   )
 

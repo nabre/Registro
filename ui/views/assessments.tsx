@@ -58,7 +58,7 @@ import {
   nelSemestreScelto,
   vai,
 } from '#ui/state.js'
-import { apriLezione } from '#ui/pages.js'
+import { apriLezione, nomeDelPosto } from '#ui/pages.js'
 
 /**
  * I momenti di un corso nel semestre scelto dalla barra (quello in cui cade la
@@ -199,7 +199,8 @@ function dettaglioMomento (momento: MomentoValutazione): ReactElement {
             },
           ]}
         />
-        {/* Lo stesso componente del grafico del PDF e della vista di classe. */}
+        {/* Lo stesso componente del grafico del PDF e della vista di classe, senza
+            la sua riga dei conti: media, estremi e sufficienti sono nelle tessere sopra. */}
         {statistiche.conteggio > 0
           ? (
               <GraficoNote
@@ -207,9 +208,7 @@ function dettaglioMomento (momento: MomentoValutazione): ReactElement {
                 media={formattaVoto(statistiche.media)}
                 sufficienti={statistiche.sufficienti}
                 conteggio={statistiche.conteggio}
-                estremi={statistiche.minimo !== null && statistiche.massimo !== null
-                  ? t.estremi(formattaVoto(statistiche.minimo), formattaVoto(statistiche.massimo))
-                  : null}
+                senzaConti
               />
             )
           : <Quieto>{t.nessunVoto}</Quieto>}
@@ -244,6 +243,8 @@ function riquadroOrfane (corso: Corso | null): ReactNode {
   }
 
   const voti = orfane.reduce((somma, o) => somma + o.voti, 0)
+  // Lo stesso motivo per tutti si dice una volta, in testa, invece che su ogni riga.
+  const comune = orfane.every((o) => o.motivo === orfane[0].motivo) ? orfane[0].motivo : null
 
   const eliminaTutte = async () => {
     const vaBene = await conferma({
@@ -261,13 +262,7 @@ function riquadroOrfane (corso: Corso | null): ReactNode {
       <div className="orfane">
         <div className="orfane__testata">
           <strong>{t.nonAgganciati(orfane.length)}</strong>
-          <Pulsante
-            testo={t.eliminaTutti}
-            simbolo="cestino"
-            variante="sottile"
-            titolo={t.eliminaTuttiAiuto}
-            al={() => void eliminaTutte()}
-          />
+          {comune ? <span className="testo-quieto">{t.motivoDiTutti(comune)}</span> : null}
         </div>
         <p className="testo-quieto">{t.spiegazioneSganciati(altrove)}</p>
         <ul className="orfane__elenco">
@@ -278,7 +273,7 @@ function riquadroOrfane (corso: Corso | null): ReactNode {
                 titolo={t.apriQuestoMomento}
                 al={() => scegliMomento(orfana.momento.id)}
               />
-              <span className="testo-quieto">{t.rigaSganciato(orfana.motivo, orfana.voti)}</span>
+              <span className="testo-quieto">{t.rigaSganciato(comune ? null : orfana.motivo, orfana.voti)}</span>
               <Pulsante
                 simbolo="cestino"
                 variante="fantasma"
@@ -298,6 +293,16 @@ function riquadroOrfane (corso: Corso | null): ReactNode {
             </li>
           ))}
         </ul>
+        {/* In fondo, dopo l'elenco: si decide di buttarli tutti dopo averli visti. */}
+        <div className="orfane__piede">
+          <Pulsante
+            testo={t.eliminaTutti}
+            simbolo="cestino"
+            variante="sottile"
+            titolo={t.eliminaTuttiAiuto}
+            al={() => void eliminaTutte()}
+          />
+        </div>
       </div>
     </Avviso>
   )
@@ -346,7 +351,8 @@ function VistaValutazioni (): ReactElement {
   return (
     <div className="vista vista--valutazioni" data-telaio={telaioVista()}>
       <TestataVista
-        titolo={Molti(lessico().momento)}
+        // Lo stesso nome del percorso e della barra laterale.
+        titolo={nomeDelPosto()}
         sottotitolo={`${classe.nome} · ${nomeSemestreScelto()}`}
         // Niente esportazioni (stanno in Documenti) e niente scelta del corso (la
         // tendina in cima): resta solo come si scrive nelle caselle.

@@ -6,8 +6,6 @@ import { createElement, type ReactElement, type ReactNode } from 'react'
 import { nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
 import type { Allievo, Classe } from '#core/dominio/models.js'
 import { Pulsante, Selettore, StatoVuoto, TestataVista } from '#ui/components/base.js'
-import { parole } from '#core/dominio/words.testi.js'
-import { moduloAllievo } from '#ui/forms.js'
 import { porzionePersona, porzioniPersona } from '#ui/tabs.js'
 import {
   aggiorna,
@@ -27,6 +25,7 @@ import {
   pannelloAssenze,
   pannelloDocumenti,
   pannelloDoveSta,
+  vuotoDocenteClasse,
 } from './student/registry.js'
 import { testi } from './student.testi.js'
 
@@ -59,9 +58,7 @@ export function schedaAllievo (classe: Classe, allievo: Allievo): ReactNode {
         ? corpoScheda(pannelloAnagrafica(classe, allievo), pannelloDoveSta(classe, allievo))
         : null}
       {/* Il lavoro del docente di classe: documenti da riscuotere e fogli da far firmare. */}
-      {quale === 'docenteClasse'
-        ? corpoScheda(pannelloDocumenti(allievo, classe), pannelloAssenze(classe, allievo))
-        : null}
+      {quale === 'docenteClasse' ? corpoDocenteClasse(classe, allievo) : null}
       {/* Materia per materia, un box ciascuna; in cima il quadro del periodo, che è
           di tutte. */}
       {quale === 'materie'
@@ -72,6 +69,14 @@ export function schedaAllievo (classe: Classe, allievo: Allievo): ReactNode {
         : null}
     </div>
   )
+}
+
+/** La linguetta del docente di classe; vuota, dice che cosa ci comparirà e come. */
+function corpoDocenteClasse (classe: Classe, allievo: Allievo): ReactElement {
+  const documenti = pannelloDocumenti(allievo, classe)
+  const assenze = pannelloAssenze(classe, allievo)
+  if (documenti === null && assenze === null) return vuotoDocenteClasse(classe)
+  return corpoScheda(documenti, assenze)
 }
 
 /**
@@ -159,12 +164,9 @@ function VistaAllievo (): ReactElement {
               variante="sottile"
               al={() => { vai({ pagina: 'pagina.persone' }) }}
             />
-            {/* La scheda in PDF si chiede da Documenti, con quelle degli altri. */}
-            <Pulsante
-              testo={parole().modifica}
-              simbolo="matita"
-              al={() => moduloAllievo(classe, allievo)}
-            />
+            {/* «Modifica» sta solo nel riquadro Anagrafica, accanto ai dati che cambia:
+                due tasti uguali a pochi centimetri facevano pensare a due gesti diversi.
+                La scheda in PDF si chiede da Documenti, con quelle degli altri. */}
           </>
         )}
       />

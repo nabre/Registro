@@ -83,6 +83,17 @@ body.con-modale {
   outline-offset: 1px;
 }
 
+/*
+ * Un collegamento vero (`<a href>`: una risorsa di progetto, un indirizzo nella
+ * firma) ha il colore dei collegamenti del pannello, `.collegamento`: non il blu
+ * e il viola del browser, che nel tema scuro non si leggono. La firma esce dal
+ * pannello come HTML suo, e lì decide il programma di posta.
+ */
+a[href],
+a[href]:visited {
+  color: var(--accento);
+}
+
 .app { height: 100vh; }
 
 /* Il filetto attorno alla finestra: la barra del titolo è nostra, e Windows
@@ -232,30 +243,25 @@ body.con-modale {
 /* ------------------------------------------------------------------ testate */
 
 /*
- * La testata della pagina: un titolo grande e una riga quieta sotto, senza
- * filo. Il distacco lo fanno il peso del titolo e lo spazio di `.vista`.
+ * La testata della pagina (`TestataVista`): una riga sola, con titolo piccolo,
+ * sottotitolo quieto e, in coda, numeri e comandi. Una regola per tutte le
+ * pagine: il nome del posto è già nel percorso in cima e nella voce accesa
+ * della barra laterale, il titolo resta come àncora per il lettore di schermo.
+ * Il distacco dal corpo lo fa lo spazio di `.vista`.
  */
 .testata {
   display: flex;
-  flex-direction: column;
-  gap: var(--spazio-3);
-}
-
-.testata__principale {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spazio-4);
+  align-items: baseline;
   flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-3);
 }
 
 .testata__titolo {
   margin: 0;
-  font-size: 1.75em;
+  font-size: var(--corpo-titolo);
   font-weight: 700;
   line-height: 1.2;
-  /* A questa misura il carattere di sistema è troppo largo: stretto di un soffio si legge come una parola. */
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
 }
 
 .testata__sottotitolo,
@@ -264,11 +270,9 @@ body.con-modale {
   color: var(--testo-quieto);
 }
 
-/* Il sottotitolo scende di un gradino: si legge dopo il titolo. */
-.testata__sottotitolo {
-  margin-top: 4px;
-  font-size: 0.95em;
-}
+.testata__sottotitolo { margin: 0; }
+
+.testata__spazio { flex: 1 1 auto; }
 
 .testata__azioni,
 .scheda__azioni {
@@ -281,59 +285,27 @@ body.con-modale {
 .testata__contorno {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spazio-4);
-  flex-wrap: wrap;
-}
-
-/*
- * La testata compatta: una riga sola, con il periodo e i suoi numeri. Il nome
- * della pagina è già nella barra; il titolo resta, piccolo, come àncora per il
- * lettore di schermo.
- */
-.testata--compatta {
-  flex-direction: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--spazio-1) var(--spazio-3);
-}
-
-/* Stesso disegno della testata grande, a una misura che sta in riga con i numeri. */
-.testata--compatta .testata__titolo {
-  font-size: var(--corpo-titolo);
-  letter-spacing: -0.01em;
-}
-
-.testata--compatta .testata__sottotitolo {
-  margin: 0;
-  font-size: 1em;
-}
-
-.testata--compatta .testata__spazio {
-  flex: 1 1 auto;
-}
-
-.testata--compatta .testata__contorno {
   justify-content: flex-end;
   gap: var(--spazio-3);
+  flex-wrap: wrap;
 }
 
 /* I numeri in riga, non incolonnati: «12 lezioni in settimana» si legge come una frase. */
-.testata--compatta .sintesi {
+.testata .sintesi {
   gap: var(--spazio-3);
 }
 
-.testata--compatta .dato {
+.testata .dato {
   flex-direction: row;
   align-items: baseline;
   gap: 5px;
 }
 
-.testata--compatta .dato__valore {
+.testata .dato__valore {
   font-size: 1em;
 }
 
-.testata--compatta .dato__etichetta {
+.testata .dato__etichetta {
   text-transform: none;
   letter-spacing: 0;
 }

@@ -92,6 +92,17 @@ export function righeVive (blocco: BloccoAssenze): RigaAssenze[] {
   return blocco.righe.filter((r) => faseRiga(r) !== 'fuori')
 }
 
+/**
+ * Chi sta nella matrice di un periodo: chi frequenta, e chi si è ritirato ma ha
+ * ancora una riga viva. Quella riga entra nei conti (`avanzamentoAssenze`,
+ * «1 non partita»): senza la sua riga in matrice il conto direbbe di qualcosa
+ * che non si trova da nessuna parte.
+ */
+export function allieviDelPeriodo (classe: Classe, blocco: BloccoAssenze | null): Allievo[] {
+  const vivi = new Set(blocco ? righeVive(blocco).map((r) => r.allievoId) : [])
+  return classe.allievi.filter((a) => a.attivo || vivi.has(a.id))
+}
+
 interface AvanzamentoAssenze {
   /** Quanti allievi hanno qualcosa in questo periodo. */
   interessati: number

@@ -19,7 +19,7 @@ import {
 } from '#core/dominio/todo.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { classi } from '#ui/classNames.js'
-import { Pastiglia, Pulsante, Quieto, Scheda, StatoVuoto, TestataVista } from '#ui/components/base.js'
+import { Pastiglia, Pulsante, Scheda, StatoVuoto, TestataVista } from '#ui/components/base.js'
 import { StatoVuotoAnno } from '#ui/components/filters.js'
 import { Icona, type NomeIcona } from '#ui/components/icons.js'
 import { nomeDelCorso } from '#ui/context.js'
@@ -108,24 +108,36 @@ function schedaFamiglia (
   conto: { aperti: number; urgenti: number },
   famiglia: FamigliaTodo,
 ): ReactElement {
+  // Il nome non è un titolo: le tessere sono numeri da confrontare, e sette
+  // titoli di fila prima delle sezioni romperebbero la scaletta della pagina.
   return (
     <article
       key={famiglia}
-      className={classi(
-        'todo-sintesi__scheda',
-        conto.urgenti > 0 && 'todo-sintesi__scheda--preme',
-        conto.aperti === 0 && 'todo-sintesi__scheda--vuota',
-      )}
+      className={classi('todo-sintesi__scheda', conto.urgenti > 0 && 'todo-sintesi__scheda--preme')}
       title={`${nomeFamiglia(famiglia)}: ${descriviFamiglia(famiglia)}`}
     >
       <Icona nome={simboloFamiglia(famiglia)} classe="icona--minuta" />
-      <h3 className="todo-sintesi__titolo">{nomeFamiglia(famiglia)}</h3>
+      <p className="todo-sintesi__titolo">{nomeFamiglia(famiglia)}</p>
       <span className="todo-sintesi__numero">{String(conto.aperti)}</span>
       {conto.urgenti > 0
         ? <span className="todo-sintesi__ritardo">{testi().inRitardo(conto.urgenti)}</span>
         : null}
     </article>
   )
+}
+
+/**
+ * Le tessere delle tipologie con qualcosa d'aperto, o niente. Quelle a zero
+ * spingevano il lavoro vero sotto la prima schermata senza dire niente: il
+ * conto che manca è zero, e lo stato vuoto lo dice già quando tutto è chiuso.
+ */
+function sintesi (
+  conti: Record<FamigliaTodo, { aperti: number; urgenti: number }>,
+  famiglie: readonly FamigliaTodo[],
+): ReactNode {
+  const piene = famiglie.filter((famiglia) => conti[famiglia].aperti > 0)
+  if (piene.length === 0) return null
+  return <div className="todo-sintesi">{piene.map((famiglia) => schedaFamiglia(conti[famiglia], famiglia))}</div>
 }
 
 interface VoceNavigazione {
@@ -229,16 +241,51 @@ function schedaTodo (opzioni: {
   classe: string
   al: () => void
   fuoco?: string
+  mostraCorso: boolean
+  /** `h4` sotto il riquadro `h3` di un blocco della panoramica. */
+  livello?: 'h3' | 'h4'
 }): ReactElement {
   return (
     <Scheda
       key={opzioni.chiave}
       titolo={opzioni.titolo}
+      livello={opzioni.livello}
       sottotitolo={riassuntoClasse(opzioni.todo)}
       classe={opzioni.classe}
       azioni={<Pulsante testo={parole().apri} variante="sottile" al={opzioni.al} fuoco={opzioni.fuoco} />}
-      contenuto={<div className="todo-classe__corpo">{sezioniTodoClasse(opzioni.todo)}</div>}
+      contenuto={<div className="todo-classe__corpo">{sezioniTodoClasse(opzioni.todo, opzioni.mostraCorso)}</div>}
     />
+  )
+}
+
+/**
+ * Un blocco della panoramica (corsi d'insegnamento, docenza di classe): il
+ * titolo è un capitolo della pagina, sopra le schede. Un blocco senza niente
+ * d'aperto lo dice nella sua testata, non con una riga sciolta sotto.
+ */
+function sezionePanoramica (opzioni: {
+  simbolo: NomeIcona
+  titolo: string
+  aperti: number
+  tutte: string
+  al: () => void
+  schede: ReactElement[]
+}): ReactElement {
+  const t = testi()
+  return (
+    <section className="todo-sezione-blocco">
+      <div className="todo-sezione-banner">
+        <h3 className="todo-sezione-banner__titolo">
+          <Icona nome={opzioni.simbolo} classe="icona--minuta" />
+          <span>{opzioni.titolo}</span>
+          {opzioni.aperti > 0
+            ? <Pastiglia testo={String(opzioni.aperti)} tono="quiete" />
+            : <Pastiglia testo={t.nienteAperto} tono="quiete" simbolo="spunta" />}
+        </h3>
+        <Pulsante testo={opzioni.tutte} variante="sottile" simbolo="destra" al={opzioni.al} />
+      </div>
+      {opzioni.schede.length > 0 ? <div className="todo-sezione-elenco">{opzioni.schede}</div> : null}
+    </section>
   )
 }
 
@@ -429,11 +476,9 @@ function VistaTodo (): ReactElement {
 
     return (
       <div className="vista vista--todo" data-telaio={telaioVista()}>
-        <TestataVista titolo={titolo} sottotitolo={nomeDelCorso(corso)} contorno={contorno(todo.aperti)} compatta />
+        <TestataVista titolo={titolo} sottotitolo={nomeDelCorso(corso)} contorno={contorno(todo.aperti)} />
         {barraNav}
-        <div className="todo-sintesi">
-          {FAMIGLIE_CORSO.map((famiglia) => schedaFamiglia(todo.conti[famiglia], famiglia))}
-        </div>
+        {sintesi(todo.conti, FAMIGLIE_CORSO)}
         {todo.aperti === 0
           ? (
               <StatoVuoto
@@ -443,7 +488,7 @@ function VistaTodo (): ReactElement {
                 azione={assegnaPrima(() => moduloConsegna({ corsoId: corso.id, corsoFisso: true }))}
               />
             )
-          : <div className="todo-classe__corpo">{sezioniTodoClasse(todo)}</div>}
+          : <div className="todo-classe__corpo">{sezioniTodoClasse(todo, false)}</div>}
         {schedaFatto(chiuse, todo.recuperi.chiusi, todo.riconsegne.fatte)}
       </div>
     )
@@ -466,12 +511,9 @@ function VistaTodo (): ReactElement {
           titolo={titolo}
           sottotitolo={t.docenteDiClasseEtichetta(classe.nome)}
           contorno={contorno(todo.aperti)}
-          compatta
         />
         {barraNav}
-        <div className="todo-sintesi">
-          {FAMIGLIE_CLASSE_DOCENTE.map((famiglia) => schedaFamiglia(todo.conti[famiglia], famiglia))}
-        </div>
+        {sintesi(todo.conti, FAMIGLIE_CLASSE_DOCENTE)}
         {todo.aperti === 0
           ? (
               <StatoVuoto
@@ -481,7 +523,7 @@ function VistaTodo (): ReactElement {
                 azione={assegnaPrima(() => moduloConsegna({ classeId: classe.id, ambito: 'classe' }))}
               />
             )
-          : <div className="todo-classe__corpo">{sezioniTodoClasse(todo)}</div>}
+          : <div className="todo-classe__corpo">{sezioniTodoClasse(todo, corsiDi(classe.id).length > 1)}</div>}
         {schedaFatto(chiuse, todo.recuperi.chiusi, todo.riconsegne.fatte)}
       </div>
     )
@@ -507,17 +549,16 @@ function VistaTodo (): ReactElement {
           todo,
           classe: 'todo-corso-scheda',
           al: () => apriPendenzeDelCorso(corso.id),
+          mostraCorso: false,
         }))
       }
     }
 
     return (
       <div className="vista vista--todo" data-telaio={telaioVista()}>
-        <TestataVista titolo={titolo} sottotitolo={t.corsiAiuto} contorno={contorno(totaleCorsiAperti)} compatta />
+        <TestataVista titolo={titolo} sottotitolo={t.corsiAiuto} contorno={contorno(totaleCorsiAperti)} />
         {barraNav}
-        <div className="todo-sintesi">
-          {FAMIGLIE_CORSO.map((famiglia) => schedaFamiglia(contiCorsi[famiglia], famiglia))}
-        </div>
+        {sintesi(contiCorsi, FAMIGLIE_CORSO)}
         {totaleCorsiAperti === 0
           ? (
               <StatoVuoto
@@ -553,6 +594,7 @@ function VistaTodo (): ReactElement {
           todo,
           classe: 'todo-classe-scheda',
           al: () => aggiorna({ schedaTodo: idSchedaClasse(classe.id) }),
+          mostraCorso: corsiDi(classe.id).length > 1,
         }))
       }
     }
@@ -563,12 +605,9 @@ function VistaTodo (): ReactElement {
           titolo={titolo}
           sottotitolo={t.docenteDiClasseAiuto}
           contorno={contorno(totaleClassiAperti)}
-          compatta
         />
         {barraNav}
-        <div className="todo-sintesi">
-          {FAMIGLIE_CLASSE_DOCENTE.map((famiglia) => schedaFamiglia(contiClassi[famiglia], famiglia))}
-        </div>
+        {sintesi(contiClassi, FAMIGLIE_CLASSE_DOCENTE)}
         {totaleClassiAperti === 0
           ? (
               <StatoVuoto
@@ -606,7 +645,9 @@ function VistaTodo (): ReactElement {
         todo,
         classe: 'todo-corso-scheda',
         al: () => apriPendenzeDelCorso(corso.id),
+        mostraCorso: false,
         fuoco: fuocoTabCorso(corso.id),
+        livello: 'h4',
       }))
     }
   }
@@ -621,61 +662,39 @@ function VistaTodo (): ReactElement {
         todo,
         classe: 'todo-classe-scheda',
         al: () => aggiorna({ schedaTodo: idSchedaClasse(classe.id) }),
+        mostraCorso: corsiDi(classe.id).length > 1,
         fuoco: fuocoTabClasse(classe.id),
+        livello: 'h4',
       }))
     }
   }
 
   return (
     <div className="vista vista--todo" data-telaio={telaioVista()}>
-      <TestataVista titolo={titolo} sottotitolo={t.tutteAiuto} contorno={contorno(totaleGlobaleAperti)} compatta />
+      <TestataVista titolo={titolo} sottotitolo={t.tutteAiuto} contorno={contorno(totaleGlobaleAperti)} />
       {barraNav}
-      <div className="todo-sintesi">
-        {FAMIGLIE_TODO.map((famiglia) => schedaFamiglia(contiGlobali[famiglia], famiglia))}
-      </div>
+      {sintesi(contiGlobali, FAMIGLIE_TODO)}
       {totaleGlobaleAperti === 0
         ? <StatoVuoto simbolo="spunta" titolo={t.vuotoTitolo} testo={t.vuotoTestoTutte} />
         : (
             <div className="todo-classi">
-              <section className="todo-sezione-blocco">
-                <div className="todo-sezione-banner">
-                  <div className="todo-sezione-banner__titolo">
-                    <Icona nome="libro" classe="icona--minuta" />
-                    <span>{t.sezioneCorsi}</span>
-                    {totaleCorsiAperti > 0 ? <Pastiglia testo={String(totaleCorsiAperti)} tono="quiete" /> : null}
-                  </div>
-                  <Pulsante
-                    testo={t.tuttiICorsi}
-                    variante="sottile"
-                    simbolo="avanti"
-                    al={() => aggiorna({ schedaTodo: 'corsi' })}
-                  />
-                </div>
-                {schedeCorsi.length > 0
-                  ? <div className="todo-sezione-elenco">{schedeCorsi}</div>
-                  : <Quieto>{t.nessunCorsoConLavoro}</Quieto>}
-              </section>
+              {sezionePanoramica({
+                simbolo: 'libro',
+                titolo: t.sezioneCorsi,
+                aperti: totaleCorsiAperti,
+                tutte: t.tuttiICorsi,
+                al: () => aggiorna({ schedaTodo: 'corsi' }),
+                schede: schedeCorsi,
+              })}
               {classiDocente.length > 0
-                ? (
-                    <section className="todo-sezione-blocco">
-                      <div className="todo-sezione-banner">
-                        <div className="todo-sezione-banner__titolo">
-                          <Icona nome="classi" classe="icona--minuta" />
-                          <span>{t.sezioneDocenteClasse}</span>
-                          {totaleClassiAperti > 0 ? <Pastiglia testo={String(totaleClassiAperti)} tono="quiete" /> : null}
-                        </div>
-                        <Pulsante
-                          testo={t.tutteLeClassi}
-                          variante="sottile"
-                          simbolo="avanti"
-                          al={() => aggiorna({ schedaTodo: 'classi' })}
-                        />
-                      </div>
-                      {schedeDocenteClasse.length > 0
-                        ? <div className="todo-sezione-elenco">{schedeDocenteClasse}</div>
-                        : <Quieto>{t.nessunaClasseConLavoro}</Quieto>}
-                    </section>
-                  )
+                ? sezionePanoramica({
+                    simbolo: 'classi',
+                    titolo: t.sezioneDocenteClasse,
+                    aperti: totaleClassiAperti,
+                    tutte: t.tutteLeClassi,
+                    al: () => aggiorna({ schedaTodo: 'classi' }),
+                    schede: schedeDocenteClasse,
+                  })
                 : null}
             </div>
           )}

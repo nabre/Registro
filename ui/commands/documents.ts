@@ -62,6 +62,7 @@ export const COMANDI_DOCUMENTI: readonly ComandoUI[] = [
     simbolo: ICONE_MODO_PDF[modo.valore],
     dove: ['documenti'] as Ambito,
     gruppo: G.chiLiRifa,
+    etichettaVisibile: true,
     aiuto: modo.spiegazione,
     acceso: () => stato.registro.impostazioni.pdfAutomatici === modo.valore,
     al: () =>

@@ -18,6 +18,8 @@ const it = {
   pendenza: 'Pendenza',
   check: 'Check',
   valutazione: 'Valutazione',
+  nessunProgetto: 'Nessun progetto integrato nel corso.',
+  vaiAllIntegrazione: 'Integrane uno',
 }
 
 export const testi = catalogo(it, {
@@ -31,6 +33,7 @@ export const testi = catalogo(it, {
     scegli: 'Wähle einen Kurs, um die Planung zu sehen', prevista: 'Geplante Beurteilung',
     progetto: 'Projekt', file: 'Dateien und Links', pendenza: 'Pendenz',
     check: 'Check', valutazione: 'Beurteilung',
+    nessunProgetto: 'Kein Projekt in den Kurs eingebunden.', vaiAllIntegrazione: 'Eines einbinden',
   },
   fr: {
     titolo: 'Vue d’ensemble',
@@ -42,6 +45,7 @@ export const testi = catalogo(it, {
     scegli: 'Choisis un cours pour voir la planification', prevista: 'Évaluation prévue',
     progetto: 'Projet', file: 'Fichiers et liens', pendenza: 'Tâche en suspens',
     check: 'Check', valutazione: 'Évaluation',
+    nessunProgetto: 'Aucun projet intégré dans le cours.', vaiAllIntegrazione: 'En intégrer un',
   },
   en: {
     titolo: 'Overview',
@@ -53,5 +57,6 @@ export const testi = catalogo(it, {
     scegli: 'Choose a course to see its planning', prevista: 'Planned assessment',
     progetto: 'Project', file: 'Files and links', pendenza: 'Pending item',
     check: 'Check', valutazione: 'Assessment',
+    nessunProgetto: 'No project integrated in this course.', vaiAllIntegrazione: 'Integrate one',
   },
 })

@@ -59,7 +59,6 @@ const it = {
   // La pagina.
   nessunCorso: 'Nessun corso',
   checkDellaClasse: 'Check della classe',
-  comeDocenteDiClasse: (classe: string) => `${classe} · come docente di classe`,
   suggerimentoClasse:
     'Ogni corso ha il proprio check: colonne e spunte restano separate anche quando hanno lo stesso nome.',
   checkDelCorso: 'Check del corso',
@@ -131,7 +130,6 @@ export const testi = catalogo(it, {
       'Klick: in dieser Stunde erledigt · Rechtsklick: anderer Tag oder entfernen',
     nessunCorso: 'Kein Kurs',
     checkDellaClasse: 'Check der Klasse',
-    comeDocenteDiClasse: (classe) => `${classe} · als Klassenlehrperson`,
     suggerimentoClasse:
       'Jeder Kurs hat seinen eigenen Check: Spalten und Häkchen bleiben auch bei gleichem Namen getrennt.',
     checkDelCorso: 'Check des Kurses',
@@ -202,7 +200,6 @@ export const testi = catalogo(it, {
     aiutoOra: 'clic : fait dans cette leçon · clic droit : un autre jour, ou la retirer',
     nessunCorso: 'Aucun cours',
     checkDellaClasse: 'Check de la classe',
-    comeDocenteDiClasse: (classe) => `${classe} · comme maître de classe`,
     suggerimentoClasse:
       'Chaque cours garde son propre check : colonnes et coches restent séparées, même si elles ont le même nom.',
     checkDelCorso: 'Check du cours',
@@ -273,7 +270,6 @@ export const testi = catalogo(it, {
     aiutoOra: 'click: done in this lesson · right-click: another day, or remove it',
     nessunCorso: 'No course',
     checkDellaClasse: 'Class check',
-    comeDocenteDiClasse: (classe) => `${classe} · as class teacher`,
     suggerimentoClasse:
       'Each course has its own check: columns and ticks stay separate even when they share a name.',
     checkDelCorso: 'Course check',

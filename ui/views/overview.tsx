@@ -12,12 +12,11 @@ import { parole } from '#core/dominio/words.testi.js'
 import { azione } from '#ui/bridge.js'
 import { apriMomento } from '#ui/calendarNavigation.js'
 import { Collegamento, Quieto, StatoVuoto, TestataVista } from '#ui/components/base.js'
-import { Icona } from '#ui/components/icons.js'
 import { corsoDelContesto, nomeDelCorso } from '#ui/context.js'
 import { moduloConsegna } from '#ui/forms.js'
-import { nomeDiPiano, stato, vai } from '#ui/state.js'
+import { lezioneDiPiano, stato, vai } from '#ui/state.js'
 import { telaioVista } from '#ui/viewFrame.js'
-import { apriIntegrazione } from './projects/links.js'
+import { apriIntegrazione, risorsaDelProgetto } from './projects/links.js'
 import { testi } from './overview.testi.js'
 import {
   SchemaOverview,
@@ -67,18 +66,13 @@ function VistaOverview (): ReactElement {
       { contesto: { corsoId, lezioneId: lezione?.id ?? null } })
   }
 
-  function risorsa (voce: Risorsa, piano?: PianoLezione, attivitaId: string | null = null): ReactNode {
-    const titolo = voce.titolo || voce.nome || parole().senzaTitolo
-    if (piano) {
-      return (
-        <Collegamento
-          testo={titolo}
-          al={() => azione({ tipo: 'risorsa.apri', pianoId: piano.id, attivitaId, risorsaId: voce.id })}
-        />
-      )
-    }
-    if (voce.url) return <a href={voce.url} target="_blank" rel="noopener noreferrer">{titolo}</a>
-    return <Quieto>{titolo}</Quieto>
+  function risorsa (voce: Risorsa, piano: PianoLezione, attivitaId: string | null): ReactNode {
+    return (
+      <Collegamento
+        testo={voce.titolo || voce.nome || parole().senzaTitolo}
+        al={() => azione({ tipo: 'risorsa.apri', pianoId: piano.id, attivitaId, risorsaId: voce.id })}
+      />
+    )
   }
 
   function porta (
@@ -177,9 +171,9 @@ function VistaOverview (): ReactElement {
       )))
     return (
       <section key={a.id} className="panoramica__tappa" data-nodo={id}>
-        <h4>
+        <h5>
           <Collegamento testo={a.titolo || parole().senzaTitolo} al={() => apriPiano(piano, lezione)} />
-        </h4>
+        </h5>
         <div className="panoramica__porte">{inFila(porte)}</div>
       </section>
     )
@@ -194,8 +188,9 @@ function VistaOverview (): ReactElement {
     const titolo = lezione ? formattaData(lezione.data) : t.senzaOra
     return (
       <article key={id} className="panoramica__colonna" data-nodo={id}>
+        {/* Sotto il titolo della sezione (h3): la colonna h4, le sue tappe h5. */}
         <header>
-          <h3>
+          <h4>
             <Collegamento
               testo={titolo}
               al={() => {
@@ -203,8 +198,9 @@ function VistaOverview (): ReactElement {
                 else if (lezione) vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id: lezione.id } })
               }}
             />
-          </h3>
-          {piano ? <p title={nomeDiPiano(piano)}>{nomeDiPiano(piano)}</p> : <Quieto>{t.senzaPiano}</Quieto>}
+          </h4>
+          {/* Il corso è già in testata: del piano basta dire di quale lezione è. */}
+          {piano ? <p title={lezioneDiPiano(piano)}>{lezioneDiPiano(piano)}</p> : <Quieto>{t.senzaPiano}</Quieto>}
         </header>
         {piano
           ? (
@@ -232,12 +228,7 @@ function VistaOverview (): ReactElement {
       data-nodo={`progetto:${p.id}`}
     >
       <h4><Collegamento testo={p.titolo} al={() => apriIntegrazione(p.id, corsoId)} /></h4>
-      {p.risorse.map((voce) => (
-        <div key={voce.id} className="panoramica__materiale">
-          <Icona nome="documento" />
-          {risorsa(voce)}
-        </div>
-      ))}
+      {p.risorse.map((voce) => <div key={voce.id}>{risorsaDelProgetto(voce, 'panoramica__materiale')}</div>)}
       {p.fasi.map((fase) => (
         <section
           key={fase.id}
@@ -269,7 +260,18 @@ function VistaOverview (): ReactElement {
     <>
       <section className="panoramica__progetti">
         <h3>{t.progetti}</h3>
-        <div className="panoramica__griglia">{schedeProgetti}</div>
+        {progetti.length > 0
+          ? <div className="panoramica__griglia">{schedeProgetti}</div>
+          : (
+              // Una colonna vuota non dice niente: si dice che manca e dove si rimedia.
+              <Quieto>
+                {`${t.nessunProgetto} `}
+                <Collegamento
+                  testo={t.vaiAllIntegrazione}
+                  al={() => { vai({ pagina: 'pagina.corso.integrazione' }, { contesto: { corsoId } }) }}
+                />
+              </Quieto>
+            )}
       </section>
       <section>
         <h3>{t.lezioni}</h3>

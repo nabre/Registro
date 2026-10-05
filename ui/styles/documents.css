@@ -120,16 +120,25 @@
  * fuoco. Spento è anche fuori dai clic, per non premerlo prima di averlo
  * visto; col tabulatore resta raggiungibile.
  */
-.documenti__gesto-raro {
+.documenti__riga > .pulsante.documenti__gesto-raro {
+  /* Con la riga e `.pulsante` davanti: `.pulsante:disabled` pesa quanto una
+     classe sola più la pseudo-classe, e il cestino spento restava a mezza luce. */
   opacity: 0;
   pointer-events: none;
 }
 
-.documenti__riga:hover .documenti__gesto-raro,
-.documenti__riga:focus-within .documenti__gesto-raro,
-.documenti__riga--aperta .documenti__gesto-raro {
+.documenti__riga:hover > .pulsante.documenti__gesto-raro,
+.documenti__riga:focus-within > .pulsante.documenti__gesto-raro,
+.documenti__riga--aperta > .pulsante.documenti__gesto-raro {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* In vista ma spento quando non c'è niente da buttare, come ogni pulsante spento. */
+.documenti__riga:hover > .pulsante.documenti__gesto-raro:disabled,
+.documenti__riga:focus-within > .pulsante.documenti__gesto-raro:disabled,
+.documenti__riga--aperta > .pulsante.documenti__gesto-raro:disabled {
+  opacity: 0.45;
 }
 
 /*
@@ -138,7 +147,7 @@
  * che segue protegge dal tocco per sbaglio.
  */
 @media (hover: none) {
-  .documenti__gesto-raro {
+  .documenti__riga > .pulsante.documenti__gesto-raro {
     opacity: 0.6;
     pointer-events: auto;
   }
@@ -170,6 +179,15 @@
   font-weight: 500;
 }
 
+/* Il nome di un documento non ancora fatto: testo con il posto e il colore del
+   pulsante fantasma accanto, così le righe restano incolonnate. */
+.documenti__nome--da-fare {
+  padding: var(--dentro-nudo);
+  border: 1px solid transparent;
+  line-height: 1.4;
+  color: var(--testo-quieto);
+}
+
 /*
  * La riga di un documento che c'è si apre dovunque la si prema: non c'è
  * nient'altro da aprire. I pulsanti restano loro, e la lente è il gesto che i
@@ -192,8 +210,10 @@
   box-shadow: inset 2px 0 0 var(--accento);
 }
 
-/* I pulsanti di riga attaccati fra loro e staccati dal testo, altrimenti le icone si leggono come una. */
-.documenti__riga > .pulsante {
+/* I pulsanti di riga attaccati fra loro e staccati dal testo, altrimenti le icone si leggono come una.
+   Il nome, che è anche lui un pulsante, no: prende lo spazio (`flex: 1` sopra) e
+   tiene incolonnate le icone a destra. */
+.documenti__riga > .pulsante:not(.documenti__nome) {
   flex: 0 0 auto;
   margin-left: -2px;
 }

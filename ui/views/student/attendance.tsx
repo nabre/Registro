@@ -510,7 +510,10 @@ export function temaPresenze (riga: RigaCorso | null, storte: GiornataStorta[]):
             valore: percento(riga.presenza),
             tono: tonoPresenza(riga.presenza),
           },
-          { etichetta: t.udPreviste, valore: t.suPreviste(riga.udConAppello, riga.udPreviste) },
+          {
+            etichetta: t.conAppelloSuPreviste,
+            valore: t.suPreviste(riga.udConAppello, riga.udPreviste),
+          },
           riga.ritardi > 0 && {
             etichetta: t.oreConRitardo,
             valore: String(riga.ritardi),

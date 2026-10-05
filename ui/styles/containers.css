@@ -305,5 +305,12 @@
 
 .stato-vuoto__titolo { margin: 0; font-weight: 600; }
 .stato-vuoto__testo { margin: 0; color: var(--testo-quieto); max-width: 46ch; }
-.stato-vuoto__azione { margin-top: var(--spazio-2); }
+/* Due gesti affiancati, non incollati; a capo se non stanno. */
+.stato-vuoto__azione {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-2);
+}
 .stato-vuoto__pulsanti { display: flex; gap: var(--spazio-2); }

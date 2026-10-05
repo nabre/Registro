@@ -34,11 +34,14 @@
   border-top: none;
 }
 
-.modelli-llm__uso-titolo {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-1);
+/* L'interruttore in testa è il nome della riga d'uso: niente rientro da figlia.
+   La dettatura dipende dall'assistente, che sta nella riga sopra, non sopra di
+   lei: rientrata sembrerebbe figlia di quel che non c'è; spenta lo dice la sua
+   pastiglia. */
+.modelli-llm__uso > .voce-opzione:first-child {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
 }
 
 /* Le tendine dei file: il modello e, per le scansioni, il suo proiettore. */
@@ -58,7 +61,35 @@
   color: var(--testo-quieto);
 }
 
-.modelli-llm__lettore,
+/* Il segmentato del lettore vestito come quello dei controlli delle
+   impostazioni (`controllo-segmenti`), che gli sta poco sotto nella dettatura. */
+.modelli-llm__lettore .selettore {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0;
+  border: 1px solid var(--bordo-forte);
+  background: var(--campo-sfondo);
+  overflow: hidden;
+}
+
+.modelli-llm__lettore .selettore__voce {
+  min-height: var(--altezza-controllo);
+  padding: 0 var(--spazio-3);
+  border-left: 1px solid var(--bordo-tenue);
+  border-radius: 0;
+  color: var(--testo);
+}
+
+.modelli-llm__lettore .selettore__voce:first-child { border-left: none; }
+.modelli-llm__lettore .selettore__voce:hover { background: var(--velo-sfiorato); }
+
+.modelli-llm__lettore .selettore__voce--attiva,
+.modelli-llm__lettore .selettore__voce--attiva:hover {
+  background: var(--velo-scelto);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accento);
+}
+
 .modelli-llm__percorso {
   display: flex;
   flex-wrap: wrap;

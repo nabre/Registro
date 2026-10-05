@@ -41,8 +41,9 @@ export const COMANDI_CLASSE: readonly ComandoUI[] = [
     id: 'classe.nuovoAllievo',
     titolo: t.aggiungiAlGruppo,
     simbolo: 'utente',
-    // Anche in Classi, nella riga delle azioni come in ogni pagina.
-    dove: ['classi', 'allievo'],
+    // In Classi, dove l'elenco del gruppo è in vista; non nella scheda di una
+    // persona, che parla di lei.
+    dove: ['classi'],
     gruppo: G.elenco,
     impedimento: senzaClasse,
     al: () => {
@@ -54,7 +55,7 @@ export const COMANDI_CLASSE: readonly ComandoUI[] = [
     id: 'classe.incollaElenco',
     titolo: t.incollaElenco,
     simbolo: 'piano',
-    dove: ['classi', 'allievo'],
+    dove: ['classi'],
     gruppo: G.elenco,
     aiuto: t.incollaElencoAiuto,
     impedimento: senzaClasse,

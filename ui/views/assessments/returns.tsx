@@ -301,7 +301,9 @@ function tabellaRiconsegneAllievi (
 
   return (
     <Tabella
-      variante="riconsegne"
+      // In una colonna stretta ogni riga si impila (`lists.css`): accanto alla
+      // griglia e nell'ora la data, dove si scrive, finiva fuori vista.
+      variante={['riconsegne', 'impilabile']}
       // testo-fisso: chiave di scorrimento
       scorrimento={`riconsegne:${momento.id}:${soloDaFare ? 'da-fare' : 'tutte'}`}
       intestazione={(
@@ -315,8 +317,9 @@ function tabellaRiconsegneAllievi (
       righe={righe.map((riga) => (
         <tr key={riga.allievo.id} className={classi(riga.riconsegnataIl && 'tabella__riga--spenta')}>
           <td className="tabella__nome"><CellaNome persona={riga.allievo} nome={nomeDiAllievo(riga)} /></td>
+          {/* Impilata, il voto sta accanto al nome senza etichetta: si legge da sé. */}
           <td className="tabella__numero">{formattaVoto(riga.voto)}</td>
-          <td className="riconsegne__data">
+          <td className="riconsegne__data" data-etichetta={t.riconsegnataIl}>
             <ControlloData
               nome={`riconsegna-${momento.id}-${riga.allievo.id}`} // testo-fisso: nome del campo
               valore={riga.riconsegnataIl ?? ''}
@@ -475,17 +478,18 @@ export function pannelloRiconsegna (momento: MomentoValutazione): ReactNode {
   const t = testi()
   /** Lo stato della prova, e quanti non l'hanno ancora riavuta. */
   const sottotitolo = (): string => {
-    // Chi non l'ha ancora riavuta conta quanto lo stato della prova.
-    const restano = riconsegna.daRidare
-    const coda = restano > 0 ? ` · ${t.daRidareAChiMancava(restano)}` : ''
     if (riconsegna.stato === 'riconsegnata') {
+      // Solo a prova tornata alla classe chi resta senza è chi mancava; prima,
+      // da ridare sono tutti, e lo dice già «Resa a tutti» nella riga sotto.
+      const restano = riconsegna.daRidare
+      const coda = restano > 0 ? ` · ${t.daRidareAChiMancava(restano)}` : ''
       const quando = formattaData(riconsegna.riconsegnataIl ?? momento.data, 'giorno')
       return `${t.tornataATutti(quando)}${coda}`
     }
     if (riconsegna.stato === 'da-correggere') {
-      return `${t.caselleVuote(riconsegna.attesi - riconsegna.corretti)}${coda}`
+      return t.caselleVuote(riconsegna.attesi - riconsegna.corretti)
     }
-    return `${t.corretta}${coda}`
+    return t.corretta
   }
   return (
     <Scheda titolo={Uno(lessico().riconsegna)} sottotitolo={sottotitolo()} classe="scheda--riconsegna">

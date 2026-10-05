@@ -5,7 +5,7 @@ import { testi as testiComuni } from '#ui/commands.testi.js'
 import { conferma } from '#ui/components/modal.js'
 import { azione } from '#ui/bridge.js'
 // La mappa tiene la sua inquadratura in una variabile di modulo (vedi `views/map.tsx`).
-import { indirizziInAttesa, inquadraTutto } from '#ui/views/map.js'
+import { indirizziInAttesa, indirizziScritti, inquadraTutto } from '#ui/views/map.js'
 import { testi } from './map.testi.js'
 
 // Testi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).
@@ -22,7 +22,9 @@ export const COMANDI_MAPPA: readonly ComandoUI[] = [
     gruppo: G.indirizzi,
     aiuto: t.trovaIndirizziAiuto,
     primario: () => indirizziInAttesa() > 0,
-    impedimento: () => (indirizziInAttesa() > 0 ? null : t.tuttiTrovati),
+    // Senza indirizzi scritti «tutti trovati» sarebbe falso: dice dove si scrivono.
+    impedimento: () =>
+      indirizziInAttesa() > 0 ? null : indirizziScritti() === 0 ? t.nessunoScritto : t.tuttiTrovati,
     // Tutte le classi dell'anno: la mappa non ha un filtro per classe.
     al: () => azione({ tipo: 'mappa.geocodifica' }),
   },

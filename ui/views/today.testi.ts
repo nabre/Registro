@@ -44,19 +44,21 @@ const it = {
   quanteOreData: (data: string, n: number, dalle: string, alle: string) =>
     `${data} · ${plurale(n, 'lezione', 'lezioni')}, dalle ${dalle} alle ${alle}`,
   nienteOggi: 'Oggi niente lezioni',
-  nienteOggiTesto:
-    'Il calendario non ha lezioni per oggi: quelle dei prossimi giorni sono nel calendario.',
+  /** Sotto «Oggi niente lezioni»: dove sta la prossima, se c'è. */
+  nienteOggiTesto: (prossima: string | null) =>
+    prossima
+      ? `La prossima giornata di lezione è ${prossima}: la trovi qui sotto.`
+      : 'Nel calendario non ci sono altre lezioni in programma.',
   nessunaProssimaGiornata: 'Nessuna lezione futura',
   nessunaProssimaGiornataTesto:
     'Non ci sono altre lezioni in programma per questo semestre.',
-  adesso: 'Adesso',
   prossima: 'Prossima',
   apriLOra: (classe: string, inizio: string) =>
     `Apri la lezione di ${classe} delle ${inizio}`,
   /** Le fasi di un'ora, dette su una pastiglia (vedi `faseDellOra`). */
   fasi: {
     'in-corso': 'In corso',
-    'da-chiudere': 'Da chiudere',
+    'da-chiudere': 'Da compilare',
     svolta: 'Conclusa',
     'da-preparare': 'Da preparare',
     futura: 'In programma',
@@ -95,7 +97,7 @@ export const testi = catalogo(it, {
     prossimaAlle: (ora) => `Die nächste um ${ora}`,
     inCorsoFinoAlle: (ora) => `Läuft bis ${ora}`,
     tutteFatte: 'Für heute ist alles erledigt',
-    daCompilare: 'Nachzutragen',
+    daCompilare: 'Auszufüllen',
     inPari: 'Das Klassenbuch ist nachgeführt',
     laPiuVecchia: (data) => `Die älteste: ${data}`,
     urgenti: (n) => (n === 0 ? 'Keine dringend' : `${n} dringend`),
@@ -111,18 +113,19 @@ export const testi = catalogo(it, {
     quanteOreData: (data, n, dalle, alle) =>
       `${data} · ${plurale(n, 'Stunde', 'Stunden')}, von ${dalle} bis ${alle}`,
     nienteOggi: 'Heute kein Unterricht',
-    nienteOggiTesto:
-      'Der Kalender hat für heute keine Stunden: die der nächsten Tage findest du im Kalender.',
+    nienteOggiTesto: (prossima) =>
+      prossima
+        ? `Der nächste Unterrichtstag ist ${prossima}: du findest ihn hier unten.`
+        : 'Im Kalender sind keine weiteren Stunden geplant.',
     nessunaProssimaGiornata: 'Keine weiteren Stunden',
     nessunaProssimaGiornataTesto:
       'In diesem Semester sind keine weiteren Stunden geplant.',
-    adesso: 'Jetzt',
     prossima: 'Als Nächstes',
     apriLOra: (classe, inizio) =>
       `Die Stunde der ${classe} um ${inizio} öffnen`,
     fasi: {
       'in-corso': 'Läuft',
-      'da-chiudere': 'Abzuschliessen',
+      'da-chiudere': 'Auszufüllen',
       svolta: 'Abgeschlossen',
       'da-preparare': 'Vorzubereiten',
       futura: 'Geplant',
@@ -150,7 +153,7 @@ export const testi = catalogo(it, {
     prossimaAlle: (ora) => `La prochaine à ${ora}`,
     inCorsoFinoAlle: (ora) => `En cours jusqu’à ${ora}`,
     tutteFatte: 'C’est tout pour aujourd’hui',
-    daCompilare: 'À compléter',
+    daCompilare: 'À remplir',
     inPari: 'Le registre est à jour',
     laPiuVecchia: (data) => `La plus ancienne : ${data}`,
     urgenti: (n) =>
@@ -165,17 +168,18 @@ export const testi = catalogo(it, {
     quanteOreData: (data, n, dalle, alle) =>
       `${data} · ${plurale(n, 'leçon', 'leçons')}, de ${dalle} à ${alle}`,
     nienteOggi: 'Pas de leçons aujourd’hui',
-    nienteOggiTesto:
-      'Le calendrier n’a aucune leçon aujourd’hui : celles des prochains jours sont au calendrier.',
+    nienteOggiTesto: (prossima) =>
+      prossima
+        ? `La prochaine journée de cours est le ${prossima} : tu la trouves ci-dessous.`
+        : 'Le calendrier n’a plus aucune leçon prévue.',
     nessunaProssimaGiornata: 'Aucun autre cours',
     nessunaProssimaGiornataTesto:
       'Aucune autre leçon n’est planifiée pour ce semestre.',
-    adesso: 'Maintenant',
     prossima: 'Ensuite',
     apriLOra: (classe, inizio) => `Ouvrir la leçon de ${classe} à ${inizio}`,
     fasi: {
       'in-corso': 'En cours',
-      'da-chiudere': 'À clôturer',
+      'da-chiudere': 'À remplir',
       svolta: 'Terminée',
       'da-preparare': 'À préparer',
       futura: 'Prévue',
@@ -225,17 +229,18 @@ export const testi = catalogo(it, {
     quanteOreData: (data, n, dalle, alle) =>
       `${data} · ${plurale(n, 'lesson', 'lessons')}, from ${dalle} to ${alle}`,
     nienteOggi: 'No lessons today',
-    nienteOggiTesto:
-      'The calendar has no lessons for today: the coming days are in the calendar.',
+    nienteOggiTesto: (prossima) =>
+      prossima
+        ? `The next teaching day is ${prossima}: you’ll find it below.`
+        : 'There are no more lessons scheduled in the calendar.',
     nessunaProssimaGiornata: 'No upcoming lessons',
     nessunaProssimaGiornataTesto:
       'There are no further lessons scheduled in this term.',
-    adesso: 'Now',
     prossima: 'Next',
     apriLOra: (classe, inizio) => `Open the ${classe} lesson at ${inizio}`,
     fasi: {
       'in-corso': 'In progress',
-      'da-chiudere': 'To close',
+      'da-chiudere': 'To fill in',
       svolta: 'Completed',
       'da-preparare': 'To prepare',
       futura: 'Planned',

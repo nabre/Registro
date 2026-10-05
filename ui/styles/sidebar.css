@@ -64,12 +64,13 @@
    passaggio si vede che si preme. */
 .sidebar__titolo-scelta {
   display: flex; align-items: center; gap: 6px; width: calc(100% + 12px);
+  /* 24 px: il bersaglio minimo, anche se il titolo sembra solo un titolo. */
+  min-height: 24px;
   margin: -3px -6px; padding: 3px 6px; border: 0; border-radius: 6px;
   background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
   transition: background-color var(--durata-svelta) var(--curva);
 }
 .sidebar__titolo-scelta:hover { background: var(--sfondo-alto-2); color: var(--testo); }
-.sidebar__titolo-scelta:focus-visible { outline: 2px solid var(--accento); outline-offset: 1px; }
 .sidebar__titolo-righe { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .sidebar__titolo-freccia { flex: none; width: 12px; height: 12px; }
 .sidebar__pagina {
@@ -99,15 +100,16 @@
 .sidebar__pagina[aria-current="page"] .sidebar__conto {
   border-color: transparent; background: var(--velo-scelto); color: var(--accento);
 }
-/* Ridotta, il conto diventa un pallino sull'icona: dice che c'è qualcosa (per
-   esempio la quarantena, che si vede solo in `pagine.ts`). Il selettore è più
-   stretto di `.sidebar--compatta .sidebar__pagina > span`, che spegne le etichette. */
+/* Ridotta, il conto resta un numero, piccolo, sull'angolo dell'icona: un
+   pallino direbbe che c'è qualcosa ma non quanto. Il selettore è più stretto di
+   `.sidebar--compatta .sidebar__pagina > span`, che spegne le etichette. */
 .sidebar--compatta .sidebar__pagina { position: relative; }
 .sidebar--compatta .sidebar__pagina > .sidebar__conto {
-  display: block; position: absolute; top: 6px; right: 6px;
-  min-width: 0; width: 8px; height: 8px; padding: 0; margin: 0;
-  border-radius: var(--raggio-pastiglia); background: var(--accento);
-  overflow: hidden; color: transparent; font-size: 0;
+  display: block; position: absolute; top: 1px; right: 1px;
+  min-width: 15px; height: 15px; padding: 0 3px; margin: 0;
+  border: 0; border-radius: var(--raggio-pastiglia);
+  background: var(--accento); color: var(--su-tinta);
+  font-size: 10px; line-height: 15px;
 }
 .sidebar__pagina:hover { background: var(--sfondo-alto-2); }
 /* La voce accesa è una pillola: velo appena percettibile, testo pieno, icona

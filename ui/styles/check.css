@@ -7,7 +7,30 @@
  * Stessa forma della matrice del comportamento: scorre di lato e il nome resta
  * fermo. La casella ha due stati, e quando è fatta dice il giorno.
  */
-.check__telaio { overflow-x: auto; }
+.check__telaio {
+  overflow-x: auto;
+  /*
+   * Quando la griglia scorre di lato, le colonne oltre il bordo destro
+   * sfumano: si vede che ce ne sono altre. La sfumatura segue lo scorrimento e
+   * sparisce arrivati in fondo; se la griglia ci sta, la linea del tempo dello
+   * scorrimento non c'è, l'animazione non parte e `--check-sfuma` resta zero.
+   */
+  mask-image: linear-gradient(to left, transparent, #000 var(--check-sfuma));
+  animation: check-sfuma linear both;
+  animation-timeline: scroll(self inline);
+}
+
+@property --check-sfuma {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes check-sfuma {
+  from { --check-sfuma: 3rem; }
+  97% { --check-sfuma: 3rem; }
+  to { --check-sfuma: 0px; }
+}
 
 .check {
   /* Larga quanto le sue colonne: stirata, il nome finirebbe lontano dalle caselle. */
@@ -29,17 +52,21 @@
   position: sticky;
   top: 0;
   z-index: var(--piano-incollato);
-  background: var(--sfondo-alto);
+  /* Il fondo delle testate delle tabelle (`lists.css`), opaco sopra le righe che scorrono. */
+  background: color-mix(in srgb, var(--testo) 3%, var(--sfondo-scheda, var(--sfondo-alto)));
   vertical-align: bottom;
 }
 
+/* La testata dei nomi come in ogni matrice (`.tabella thead th`): etichetta piccola, maiuscoletto. */
 .check .check__angolo {
   left: 0;
   z-index: var(--piano-incollato-2);
   text-align: left;
-  font-size: 0.78em;
+  font-size: var(--corpo-minore);
   font-weight: 600;
   color: var(--testo-quieto);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .check__testata {
@@ -86,10 +113,20 @@
   z-index: var(--piano-incollato);
   min-width: 9rem;
   padding-right: var(--spazio-2);
-  background: var(--sfondo-alto);
+  background: var(--sfondo-scheda, var(--sfondo-alto));
   font-weight: 500;
   text-align: left;
-  white-space: nowrap;
+}
+
+/* Le misure del nome di ogni matrice (`lists.css`): mai più stretto del nome,
+   al più 12rem e due righe, così le caselle restano in vista. */
+.check__nome {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  width: max-content;
+  max-width: 12rem;
 }
 
 /* Chi non frequenta più resta solo per le spunte che ha, sotto tono. */
@@ -146,13 +183,20 @@
 /* Spuntata in un altro giorno: il clic sinistro non fa niente, c'è il menu. */
 .casella-check--ferma { cursor: context-menu; }
 
-/* Nell'ora, un corso senza colonne: una riga sola, non una scheda vuota. */
+/*
+ * Nell'ora, un corso senza colonne: una riga sola, non una scheda vuota. Il
+ * filo tratteggiato e il raggio delle schede accanto la tengono in colonna con
+ * loro; il tratteggio dice che è un posto ancora da riempire.
+ */
 .check-assente {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spazio-1);
-  margin: var(--spazio-2) 0;
+  margin: 0;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px dashed var(--bordo-tenue);
+  border-radius: var(--raggio-scheda, 12px);
   font-size: 0.9em;
 }
 

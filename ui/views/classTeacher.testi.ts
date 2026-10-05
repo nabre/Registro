@@ -41,7 +41,7 @@ const it = {
     'Una bozza a testa, con il suo documento in allegato. Finiscono in una ' +
     'cartella che si apre da sé: le mandi una a una dal programma di posta.',
   prepara: 'Prepara',
-  suoi: 'Suoi',
+  suoi: 'Consegnati',
   // Le raccolte proprie.
   guarda: (nome: string) => `Guarda ${nome}`,
   nonAncoraRaccolto: 'Non ancora raccolto',
@@ -80,7 +80,8 @@ const it = {
   // I recapiti.
   recapiti: 'Recapiti',
   aiutoRecapiti: `gli indirizzi fissi; quelli delle ${PIF.plurale} stanno nelle loro schede`,
-  raggiungibili: `${PIF.plurale} raggiungibili`,
+  // Corto: sta sopra un conto «12/15», e il resto lo dice l'aiuto della scheda.
+  raggiungibili: 'con e-mail',
   recapitiFissi: 'recapiti fissi',
   nessunRecapito: 'Nessun recapito fisso: segreteria, sede, capoclasse.',
   predefinito: 'predefinito',
@@ -163,7 +164,7 @@ export const testi = catalogo(it, {
       'Ein Entwurf pro Person, mit dem eigenen Dokument im Anhang. Sie landen in einem ' +
       'Ordner, der sich von selbst öffnet: Du verschickst sie einzeln aus dem Mailprogramm.',
     prepara: 'Vorbereiten',
-    suoi: 'Eigene',
+    suoi: 'Abgegeben',
     guarda: (nome) => `${nome} ansehen`,
     nonAncoraRaccolto: 'Noch nicht eingesammelt',
     raccolto: 'eingesammelt',
@@ -199,7 +200,7 @@ export const testi = catalogo(it, {
     etichettaFamiglia: (nome) => nome,
     recapiti: 'Kontaktadressen',
     aiutoRecapiti: 'die festen Adressen; jene der Lernenden stehen auf ihren Personenblättern',
-    raggiungibili: 'erreichbare Lernende',
+    raggiungibili: 'mit E-Mail',
     recapitiFissi: 'feste Kontaktadressen',
     nessunRecapito: 'Keine festen Kontaktadressen: Sekretariat, Schule, Klassenchef.',
     predefinito: 'Standard',
@@ -280,7 +281,7 @@ export const testi = catalogo(it, {
       'Un brouillon par personne, avec son document en pièce jointe. Ils arrivent dans un ' +
       'dossier qui s’ouvre tout seul : tu les envoies un à un depuis ta messagerie.',
     prepara: 'Préparer',
-    suoi: 'Les siens',
+    suoi: 'Remis',
     guarda: (nome) => `Voir ${nome}`,
     nonAncoraRaccolto: 'Pas encore collecté',
     raccolto: 'collecté',
@@ -316,7 +317,7 @@ export const testi = catalogo(it, {
     recapiti: 'Adresses de contact',
     aiutoRecapiti:
       'les adresses fixes ; celles des personnes en formation sont dans leurs fiches',
-    raggiungibili: 'personnes en formation joignables',
+    raggiungibili: 'avec e-mail',
     recapitiFissi: 'adresses de contact fixes',
     nessunRecapito: 'Aucune adresse de contact fixe : secrétariat, école, délégué de classe.',
     predefinito: 'par défaut',
@@ -397,7 +398,7 @@ export const testi = catalogo(it, {
       'One draft each, with their document attached. They land in a folder that opens by ' +
       'itself: you send them one by one from your email program.',
     prepara: 'Prepare',
-    suoi: 'Theirs',
+    suoi: 'Handed in',
     guarda: (nome) => `View ${nome}`,
     nonAncoraRaccolto: 'Not yet collected',
     raccolto: 'collected',
@@ -431,7 +432,7 @@ export const testi = catalogo(it, {
     etichettaFamiglia: (nome) => nome.toLowerCase(),
     recapiti: 'Contact addresses',
     aiutoRecapiti: 'the fixed addresses; learners’ addresses are in their records',
-    raggiungibili: 'learners reachable',
+    raggiungibili: 'with e-mail',
     recapitiFissi: 'fixed contact addresses',
     nessunRecapito: 'No fixed contact addresses: office, school, class representative.',
     predefinito: 'default',

@@ -20,6 +20,11 @@ interface DatiGraficoNote {
   conteggio: number
   /** «da 3 a 5.5», quando serve dirlo. */
   estremi?: string | null
+  /**
+   * Senza la riga dei conti: dove gli stessi numeri stanno già accanto, in
+   * tessere (la scheda della prova), ripeterli sopra il grafico li raddoppia.
+   */
+  senzaConti?: boolean
 }
 
 /** Dove cade un valore sull'asse, in percentuale: lo stesso disegno a ogni misura. */
@@ -34,6 +39,19 @@ function ancoraggio (quanto: number): CSSProperties {
   if (quanto < 12) return { left: '0', transform: 'none' }
   if (quanto > 88) return { left: '100%', transform: 'translateX(-100%)' }
   return { left: `${quanto}%`, transform: 'translateX(-50%)' }
+}
+
+/**
+ * Le tacche dell'asse: solo la prima e l'ultima si appoggiano al bordo. Con la
+ * regola delle etichette (`ancoraggio`) anche la seconda, se cade nel primo
+ * decimo, finirebbe appoggiata al bordo sopra la prima.
+ */
+function ancoraggioTacca (quanto: number, indice: number, quante: number): CSSProperties {
+  if (indice === 0) return { left: '0', transform: 'none' }
+  if (indice === quante - 1) return { left: '100%', transform: 'translateX(-100%)' }
+  // Il punto d'appoggio scivola col valore, dal bordo sinistro dell'etichetta a
+  // quello destro: vicina a un estremo resta dentro l'asse, a metà è centrata.
+  return { left: `${quanto}%`, transform: `translateX(${-quanto}%)` } // testo-fisso: misura CSS
 }
 
 /** Il numero di una tacca: 4.5 col decimale, 4 senza. */
@@ -59,14 +77,18 @@ export function GraficoNote (dati: DatiGraficoNote): ReactElement | null {
 
   return (
     <div className="note-grafico">
-      <div className="note-grafico__conti">
-        <span className="conto"><strong>{dati.media}</strong>{t.media}</span>
-        <span className="conto">
-          <strong>{String(dati.sufficienti)}</strong>
-          {t.sufficienti(dati.sufficienti, dati.conteggio)}
-        </span>
-        {dati.estremi ? <span className="conto conto--quieto">{dati.estremi}</span> : null}
-      </div>
+      {dati.senzaConti
+        ? null
+        : (
+            <div className="note-grafico__conti">
+              <span className="conto"><strong>{dati.media}</strong>{t.media}</span>
+              <span className="conto">
+                <strong>{String(dati.sufficienti)}</strong>
+                {t.sufficienti(dati.sufficienti, dati.conteggio)}
+              </span>
+              {dati.estremi ? <span className="conto conto--quieto">{dati.estremi}</span> : null}
+            </div>
+          )}
       {/* Le etichette dei segni su righe diverse: media e sufficienza possono cadere nello stesso punto. */}
       {segni.length > 0
         ? (
@@ -115,8 +137,12 @@ export function GraficoNote (dati: DatiGraficoNote): ReactElement | null {
             style={{ left: `${posizione(grafico, valore)}%` }}
           />
         ))}
-        {grafico.tacche.map((tacca) => (
-          <span key={tacca} className="note-grafico__tacca" style={ancoraggio(posizione(grafico, tacca))}>
+        {grafico.tacche.map((tacca, indice) => (
+          <span
+            key={tacca}
+            className="note-grafico__tacca"
+            style={ancoraggioTacca(posizione(grafico, tacca), indice, grafico.tacche.length)}
+          >
             {formattaTacca(tacca)}
           </span>
         ))}

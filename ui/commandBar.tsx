@@ -865,6 +865,9 @@ function riquadro (gruppo: {
 }): ReactElement {
   return (
     <div key={gruppo.titolo} className="barra-comandi__gruppo" role="group" aria-label={gruppo.titolo}>
+      {gruppo.comandi.some((comando) => comando.etichettaVisibile)
+        ? <span className="barra-comandi__etichetta" aria-hidden="true">{gruppo.titolo}</span>
+        : null}
       <div className="barra-comandi__comandi">
         {gruppo.comandi.map(pulsanteComando)}
       </div>
@@ -889,10 +892,11 @@ function rigaNavigazione (nascoste: boolean, conAzioni: boolean): ReactElement {
         {sceltaClasseMappa()}
         {sceltaClasseDellaPagina()}
         {sceltaCorso()}
+        {/* Dopo il corso: dice dell'ora di quel corso, e va a capo con le scelte. */}
+        {tempoDellOra()}
         {filtriAgenda()}
       </div>
       {schedaProiezione()}
-      {tempoDellOra()}
       <span className="barra-comandi__spazio" />
       {interruttoreModifica()}
       {interruttoreProiezione()}

@@ -34,6 +34,12 @@ const it = {
   assenzaSoglia: (soglia: number) => `assenza · soglia ${soglia}%`,
   assenza: 'assenza',
   presenza: 'presenza',
+  /**
+   * L'etichetta di «4 su 12» nel riquadro di una materia: le due misure, nell'ordine
+   * in cui le dice il numero. «UD previste» da sola chiamava 4 quel che nel quadro
+   * del periodo è 12.
+   */
+  conAppelloSuPreviste: 'UD con appello / previste',
   suPreviste: (fatte: number, previste: number) => `${fatte} su ${previste}`,
   semprePresente: 'Sempre presente: niente da segnalare.',
 }
@@ -70,6 +76,7 @@ export const testi = catalogo(it, {
     assenzaSoglia: (soglia) => `Absenz · Grenze ${soglia}%`,
     assenza: 'Absenz',
     presenza: 'Anwesenheit',
+    conAppelloSuPreviste: 'Lektionen mit Präsenzkontrolle / vorgesehen',
     suPreviste: (fatte, previste) => `${fatte} von ${previste}`,
     semprePresente: 'Immer anwesend: nichts zu melden.',
   },
@@ -104,6 +111,7 @@ export const testi = catalogo(it, {
     assenzaSoglia: (soglia) => `absence · seuil ${soglia}%`,
     assenza: 'absence',
     presenza: 'présence',
+    conAppelloSuPreviste: 'périodes avec appel / prévues',
     suPreviste: (fatte, previste) => `${fatte} sur ${previste}`,
     semprePresente: 'Toujours présent : rien à signaler.',
   },
@@ -138,6 +146,7 @@ export const testi = catalogo(it, {
     assenzaSoglia: (soglia) => `absence · threshold ${soglia}%`,
     assenza: 'absence',
     presenza: 'attendance',
+    conAppelloSuPreviste: 'periods with attendance taken / scheduled',
     suPreviste: (fatte, previste) => `${fatte} of ${previste}`,
     semprePresente: 'Always present: nothing to report.',
   },

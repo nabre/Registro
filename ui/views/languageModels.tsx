@@ -322,7 +322,11 @@ function voceDi (chiave: string): VoceProgramma | undefined {
   return stato.programma.find((voce) => voce.chiave === chiave)
 }
 
-/** La riga di un'impostazione dentro una riga d'uso: la stessa dell'elenco, con la sua ancora. */
+/**
+ * La riga di un'impostazione dentro una riga d'uso: la stessa dell'elenco, con
+ * la sua ancora. L'interruttore in testa fa da titolo della riga d'uso: si
+ * chiama come l'uso, e un titolo sopra lo ripeterebbe.
+ */
 function voceQui (chiave: string): ReactNode {
   const voce = voceDi(chiave)
   return voce ? vociProgramma(voce) : null
@@ -371,16 +375,6 @@ function statoDellUso (uso: StatoUso): ReactElement {
   )
 }
 
-/** La testata di una riga d'uso: il nome, e dietro la «i» a che cosa serve. */
-function testataUso (titolo: string, spiegazione: string): ReactElement {
-  return (
-    <h4 className="modelli-llm__uso-titolo">
-      {titolo}
-      <Suggerimento testo={spiegazione} etichetta={titolo} />
-    </h4>
-  )
-}
-
 /**
  * La riga dell'assistente: l'interruttore, il modello che conversa, e com'è.
  * `data-voce` porta qui chi cerca `assistente.modello`.
@@ -389,7 +383,6 @@ function rigaAssistente (uso: StatoUso, modelli: ModelloLocale[]): ReactElement 
   const t = testi()
   return (
     <section className="modelli-llm__uso" data-voce="assistente">
-      {testataUso(t.assistente, t.assistenteAiuto)}
       {voceQui('registroDocenti.assistente.attivo')}
       <div className="modelli-llm__campi" data-voce="registroDocenti.assistente.modello">
         {tendinaModelli(
@@ -426,11 +419,16 @@ function sceltaLettore (): ReactNode {
       rifai()
     })
   return (
-    <div className="modelli-llm__lettore" data-voce={voce.chiave}>
-      <span className="voce-opzione__nome">
-        {voce.etichetta}
-        <Suggerimento testo={voce.descrizione} etichetta={voce.etichetta} />
-      </span>
+    // Vestita come le righe delle impostazioni, e il segmentato come quello
+    // della taglia della dettatura: due scelte a segmenti di fila non devono
+    // sembrare due controlli diversi.
+    <div className="voce-opzione modelli-llm__lettore" data-voce={voce.chiave}>
+      <div className="voce-opzione__testata">
+        <span className="voce-opzione__nome">
+          {voce.etichetta}
+          <Suggerimento testo={voce.descrizione} etichetta={voce.etichetta} />
+        </span>
+      </div>
       <Selettore<Modo>
         valore={modo}
         voci={[
@@ -474,7 +472,6 @@ function rigaScansioni (uso: StatoUso, modelli: ModelloLocale[]): ReactElement {
   const t = testi()
   return (
     <section className="modelli-llm__uso" data-voce="scansioni">
-      {testataUso(t.lettura, t.letturaAiuto)}
       {voceQui('registroDocenti.ocr.attivo')}
       <div className="modelli-llm__campi">
         <div data-voce="registroDocenti.ocr.modello">
@@ -515,7 +512,6 @@ function rigaDettatura (): ReactElement {
   const vale = acceso?.valore === true && !acceso.sospesa
   return (
     <section className="modelli-llm__uso" data-voce="dettatura">
-      {testataUso(t.dettatura, t.dettaturaAiuto)}
       {voceQui('registroDocenti.dettatura.attivo')}
       {voceQui('registroDocenti.dettatura.taglia')}
       <div className="modelli-llm__stato">

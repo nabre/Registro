@@ -11,7 +11,8 @@ import { TitoloGruppo } from '#ui/components/base.js'
 export function riquadroTema (titolo: string, quante: number, contenuto: ReactNode): ReactElement {
   return (
     <section className="riquadro-tema">
-      <TitoloGruppo titolo={titolo} quante={quante} livello="h5" />
+      {/* h4: sta dentro la scheda della materia (h3); un h5 saltava un livello. */}
+      <TitoloGruppo titolo={titolo} quante={quante} />
       {contenuto}
     </section>
   )

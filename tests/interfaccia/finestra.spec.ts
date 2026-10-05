@@ -156,8 +156,9 @@ test('archivio_ultima_colonna', async ({ browser }) => {
   await expect(tabella).toHaveAttribute('aria-colcount', '127')
   expect(await tabella.locator('thead th.tabella__richiesta').count()).toBeLessThan(40)
 
-  // Senza foglio aperto scorre di lato la pagina: si porta in fondo.
-  await valutaSu(page.locator('main.contenuto'), '(el) => { el.scrollLeft = el.scrollWidth }')
+  // Senza foglio aperto la matrice scorre di lato nel suo telaio, non la pagina:
+  // si porta in fondo quello.
+  await valutaSu(page.locator('.archivio .tabella-contenitore'), '(el) => { el.scrollLeft = el.scrollWidth }')
   await assesta(page)
   // Le richieste senza termine vanno per titolo: l'ultima è «Certificato 99».
   const ultima = tabella.locator('thead th.tabella__richiesta').last()

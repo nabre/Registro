@@ -13,7 +13,7 @@ export const SEZIONI_PROGETTI: readonly SezioneGuida[] = [
   sezione({
     id: 'integrazioneProgetti',
     parte: 'registro',
-    simbolo: 'progetto',
+    simbolo: 'innesto',
     note: ['meccanismo', 'attenzione', 'consiglio'],
     vedi: ['progetti', 'piani', 'valutazioni', 'lezione'],
   }, T.integrazione),

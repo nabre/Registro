@@ -133,11 +133,11 @@ export function vociProgramma (
 
 /**
  * Un gruppo di impostazioni con il suo titolo, scritto solo quando aggiunge
- * qualcosa (non per una voce sola con lo stesso nome).
+ * qualcosa: non quando la prima voce si chiama già così, e fa lei da titolo
+ * alle altre (come in `core/controlli/areas.ts`).
  */
 function disegnaGruppo (gruppo: GruppoVoci): ReactElement {
-  const titoloUtile =
-    gruppo.voci.length > 1 || nomeVoce(gruppo.voci[0]?.chiave ?? '') !== gruppo.titolo
+  const titoloUtile = nomeVoce(gruppo.voci[0]?.chiave ?? '') !== gruppo.titolo
 
   return (
     <section key={gruppo.prefisso} className="gruppo-opzioni">

@@ -31,7 +31,7 @@ const it = {
     'account Microsoft dal browser; il registro ha solo il permesso di spedire, nel portachiavi',
   comunicazioni: 'Comunicazioni',
   quandoParte: 'Quando parte',
-  posta: 'Posta',
+  casellaEInvio: 'Casella e invio',
   ricollega: 'Ricollega la casella',
   collega: 'Collega la casella',
   collegaAiuto:
@@ -95,7 +95,7 @@ export const testi = catalogo(it, {
       'Schlüsselbund',
     comunicazioni: 'Mitteilungen',
     quandoParte: 'Wann es verschickt wird',
-    posta: 'E-Mail',
+    casellaEInvio: 'Postfach und Versand',
     ricollega: 'Postfach neu verbinden',
     collega: 'Postfach verbinden',
     collegaAiuto:
@@ -161,7 +161,7 @@ export const testi = catalogo(it, {
       'dans le trousseau',
     comunicazioni: 'Communications',
     quandoParte: 'Quand ça part',
-    posta: 'Messagerie',
+    casellaEInvio: 'Boîte et envoi',
     ricollega: 'Reconnecter la boîte',
     collega: 'Connecter la boîte',
     collegaAiuto:
@@ -224,7 +224,7 @@ export const testi = catalogo(it, {
       'keychain',
     comunicazioni: 'Communications',
     quandoParte: 'When it goes out',
-    posta: 'Mail',
+    casellaEInvio: 'Mailbox and sending',
     ricollega: 'Reconnect the mailbox',
     collega: 'Connect the mailbox',
     collegaAiuto:

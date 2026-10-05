@@ -368,8 +368,12 @@ const ISOLA = 'liste-sistema'
 const LISTA_DELLE_SETTIMANE: ChiaveLista = 'tipoSettimana'
 const LISTE_DELLA_DIDATTICA = CHIAVI_LISTA.filter((chiave) => chiave !== LISTA_DELLE_SETTIMANE)
 
-/** Una lista intera: il suo nome, dove si vede, e le voci. */
-function BloccoLista ({ chiave }: { chiave: ChiaveLista }): ReactElement {
+/**
+ * Una lista intera: il suo nome, dove si vede, e le voci. `sola` è la lista
+ * che vive in una scheda sua accanto a quel che nomina: il nome lo dice la
+ * scheda, e «Dove compare» rimanderebbe alla pagina stessa.
+ */
+function BloccoLista ({ chiave, sola = false }: { chiave: ChiaveLista, sola?: boolean }): ReactElement {
   const definizione = definizioneLista(chiave)
   const voci = vociDiLista(stato.registro.impostazioni, chiave)
   const cambiata = listaCambiata(stato.registro.impostazioni, chiave)
@@ -382,7 +386,7 @@ function BloccoLista ({ chiave }: { chiave: ChiaveLista }): ReactElement {
   return (
     <section className="lista-sistema" aria-label={definizione.etichetta}>
       <header className="lista-sistema__testata">
-        <h4>{definizione.etichetta}</h4>
+        {sola ? null : <h4>{definizione.etichetta}</h4>}
         {definizione.aperta
           ? <Pastiglia testo={t.vociLibere} tono="quiete" />
           : <Pastiglia testo={t.vociFisse} tono="neutro" />}
@@ -398,11 +402,15 @@ function BloccoLista ({ chiave }: { chiave: ChiaveLista }): ReactElement {
           : null}
       </header>
       {/* Dove si vede la lista, sotto il titolo. */}
-      <p className="lista-sistema__dove testo-quieto">
-        <strong>{t.doveCompare}</strong>
-        {definizione.descrizione}
-        {'.'}
-      </p>
+      {sola
+        ? null
+        : (
+            <p className="lista-sistema__dove testo-quieto">
+              <strong>{t.doveCompare}</strong>
+              {definizione.descrizione}
+              {'.'}
+            </p>
+          )}
       {/* Nelle liste chiuse si cambiano solo parola e ordine: lo si dice. */}
       {definizione.aperta
         ? null
@@ -446,9 +454,17 @@ function linguetteListe (): ReactElement {
   )
 }
 
-/** La lista dei tipi di settimana da sola, sotto la griglia delle settimane. */
+/**
+ * La lista dei tipi di settimana, in una scheda sua sotto la griglia delle
+ * settimane: con un nome diverso da quella, che si chiama già «Tipi di settimana».
+ */
 export function listaTipiSettimana (): ReactElement {
-  return <div className="liste-sistema"><BloccoLista chiave={LISTA_DELLE_SETTIMANE} /></div>
+  const t = testi()
+  return (
+    <Scheda titolo={t.nomiDeiTipi} sottotitolo={t.nomiDeiTipiSotto}>
+      <div className="liste-sistema"><BloccoLista chiave={LISTA_DELLE_SETTIMANE} sola /></div>
+    </Scheda>
+  )
 }
 
 /** La scheda intera: una lista alla volta, scelta da una fila di linguette. */

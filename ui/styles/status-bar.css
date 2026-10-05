@@ -94,6 +94,8 @@
   align-items: center;
   gap: var(--vicino);
   min-width: 0;
+  /* 24 px: il bersaglio minimo, anche a testo piccolo. */
+  min-height: 24px;
   padding: var(--respiro-y) var(--respiro-x);
   border: 1px solid transparent;
   border-radius: var(--raggio);

@@ -63,6 +63,12 @@ export interface ComandoUI {
   schedaDocente?: SchedaDocente
   /** Il riquadro dentro la riga: i comandi che si fanno per lo stesso motivo. */
   gruppo: string
+  /**
+   * Il nome del riquadro si scrive sopra i comandi, non solo a voce: per gli
+   * interruttori le cui parole da sole non dicono che cosa scelgono («Mano»,
+   * «Alla chiusura», «Sempre»). Basta su un comando del gruppo.
+   */
+  etichettaVisibile?: boolean
   /** La riga che si legge fermandosi sopra: dice che cosa succede davvero. */
   aiuto?: Testo
   /** Nella grafia che si legge sul tasto: `Ctrl+S`. La ascolta `installaScorciatoie` (`shortcuts.ts`). */
@@ -120,8 +126,10 @@ export function aiutoDi (comando: ComandoUI): string | null {
 function fuoriPosto (comando: ComandoUI): string | null {
   if (comando.dove.includes('app') || comando.dove.includes('schermo')) return null
   if (vive(comando, stato.vista)) return null
-  // La pagina è la sua, ma non quel che mostra (altra scheda, altro modo).
-  return comando.dove.includes(stato.vista) ? t.nonConQuelCheMostra : t.dallaSuaPagina
+  // La pagina è la sua, ma non quel che mostra (altra scheda, altro modo, o
+  // manca quel su cui lavora): il motivo del comando, se lo sa, è più preciso.
+  if (comando.dove.includes(stato.vista)) return comando.impedimento?.() ?? t.nonConQuelCheMostra
+  return t.dallaSuaPagina
 }
 
 export function impedimentoDi (comando: ComandoUI): string | null {

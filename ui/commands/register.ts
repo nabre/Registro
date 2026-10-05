@@ -32,6 +32,19 @@ function calendarioIcsAcceso (): boolean {
   return stato.mostraCalendarioEsterno && haCalendarioEsterno()
 }
 
+/**
+ * Perché «Lezione da compilare» non porta da nessuna parte, o `null`: nessuna
+ * ora aspetta, o quella che aspetta è già aperta.
+ */
+function impedimentoOra (): string | null {
+  const ora = oraDaFare()
+  if (!ora) return t.nessunOraDaCompilare
+  // Nella pagina dell'ora, quella che aspetta è spesso quella che si sta già
+  // compilando. Solo lì: `lezioneId` resta scritto anche lasciando la pagina.
+  if (stato.vista === 'lezione' && ora.lezione.id === stato.lezioneId) return t.stai
+  return null
+}
+
 export const COMANDI_REGISTRO: readonly ComandoUI[] = [
   // ------------------------------------------------------------- Registro
   {
@@ -159,16 +172,11 @@ export const COMANDI_REGISTRO: readonly ComandoUI[] = [
     dove: ['calendario', 'lezione'],
     gruppo: G.adesso,
     aiuto: t.oraDaCompilareAiuto,
-    impedimento: () => {
-      const ora = oraDaFare()
-      if (!ora) return t.nessunOraDaCompilare
-      // Nella pagina dell'ora, quella che aspetta è spesso quella che si sta già
-      // compilando. Solo lì: `lezioneId` resta scritto anche lasciando la pagina.
-      if (stato.vista === 'lezione' && ora.lezione.id === stato.lezioneId) {
-        return t.stai
-      }
-      return null
-    },
+    // Senza un'ora che aspetta, o se è quella aperta, il pulsante spento in testa
+    // alla riga non porterebbe da nessuna parte: non c'è. La palette dice il
+    // perché con l'impedimento.
+    soloSe: () => impedimentoOra() === null,
+    impedimento: () => impedimentoOra(),
     al: () => {
       const ora = oraDaFare()
       if (!ora) return

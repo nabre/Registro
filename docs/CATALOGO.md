@@ -359,8 +359,8 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 Sezioni con chiavi (`DIVISIONI` in
 [`core/controlli/areas.ts`](../core/controlli/areas.ts), le stesse per pannello e
 finestra nativa): Utente › Posta; Programma › Aspetto, Avvio e promemoria,
-Assistente e modelli, Aggiornamenti, Avanzate (id `condotto`: integrazione di
-sistema e condotto). Utente › Account non ha chiavi: gli account stanno nel
+Assistente e modelli, Aggiornamenti, Sistema e altri programmi (id `condotto`:
+integrazione di sistema e condotto). Utente › Account non ha chiavi: gli account stanno nel
 portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 | chiave `registroDocenti.…` | tipo, predefinito | che cosa regola |
@@ -370,7 +370,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 | `vassoio.attivo` | bool; `true` | icona accanto all'orologio (`alProssimoAvvio`) |
 | `vassoio.chiusuraNelVassoio` | bool; `true` | chiudendo resta nel vassoio; dipende da `vassoio.attivo` |
 | `avvio.conWindows` | bool; `false` | avvio con il computer: senza finestre con l'icona, con la finestra senza |
-| `avvio.integrazioneSistema` | bool; `true` | associazione `.regi`, `regi` nel PATH, identità delle notifiche (`alProssimoAvvio`; Programma › Avanzate) |
+| `avvio.integrazioneSistema` | bool; `true` | associazione `.regi`, `regi` nel PATH, identità delle notifiche (`alProssimoAvvio`; Programma › Sistema e altri programmi) |
 | `avvio.soloVassoio` | bool; `false` | parte senza aprire il registro; dipende da `vassoio.attivo` |
 | `promemoria.avviso` | `nessuno` \| `0` \| `2` \| `5` \| `10` \| `15`; `5` | notifica prima di una lezione, minuti di anticipo; `nessuno` la spegne |
 | `proiezione.schermoIntero` | bool; `false` | proiezione a schermo intero |

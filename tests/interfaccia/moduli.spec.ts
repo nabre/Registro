@@ -626,6 +626,13 @@ test('calendario: aggiungere un indirizzo e applicare le spunte del confronto', 
   await expect(dialogo).toContainText('Da creare')
   const voce = dialogo.getByRole('checkbox', { name: /08:20$/ })
   await expect(voce).toBeChecked()
+  // La data dell'ora porta il giorno in tre lettere: minuscole nel testo (si
+  // leggono, si copiano, si cercano così), maiuscoletto dal foglio di stile, che
+  // il DOM sintetico non vede.
+  const quando = dialogo.locator('.confronto-calendario__quando .data-lezione')
+  await expect(quando).toHaveText('lun 21.09.2026')
+  expect(await quando.locator('.data-lezione__giorno')
+    .evaluate((nodo) => getComputedStyle(nodo).fontVariantCaps)).toBe('all-small-caps')
   await tasto(dialogo, 'Applica le spunte').click()
   const applica = await partita(page, 'calendario.applica')
   const corsoId = await valuta<string>(page, 'prova.stato.registro.corsi[0].id')

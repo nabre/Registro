@@ -28,7 +28,6 @@ const it = {
   minimo: 'minimo',
   massimo: 'massimo',
   sufficienti: 'sufficienti',
-  estremi: (minimo: string, massimo: string) => `da ${minimo} a ${massimo}`,
   nessunVoto: 'Nessun voto ancora inserito.',
   inserimento: 'Inserimento',
   sganciatiAltrove: (quanti: number) =>
@@ -54,8 +53,11 @@ const it = {
     (altrove > 0 ? ` Altri ${altrove} in altri corsi.` : ''),
   apriQuestoMomento: 'Apri questo momento',
   /** Accanto a un momento sganciato: perché, e quanti voti porta. */
-  rigaSganciato: (motivo: MotivoOrfano, voti: number) =>
-    `${motivi.in('it')[motivo]}${voti > 0 ? ` · ${plurale(voti, 'voto', 'voti')}` : ' · nessun voto'}`,
+  /** Accanto al titolo dell'avviso, quando il motivo è lo stesso per tutti. */
+  motivoDiTutti: (motivo: MotivoOrfano) => `Per tutti: ${motivi.in('it')[motivo]}.`,
+  /** Senza motivo quando è già detto una volta per tutti in testa. */
+  rigaSganciato: (motivo: MotivoOrfano | null, voti: number) =>
+    (motivo ? `${motivi.in('it')[motivo]} · ` : '') + (voti > 0 ? plurale(voti, 'voto', 'voti') : 'nessun voto'),
   eliminaQuesto: (titolo: string) => `Elimina «${titolo}»`,
   nessunCorso: 'Nessun corso',
   nessunCorsoTesto:
@@ -91,7 +93,6 @@ export const testi = catalogo(it, {
     minimo: 'Minimum',
     massimo: 'Maximum',
     sufficienti: 'genügend',
-    estremi: (minimo, massimo) => `von ${minimo} bis ${massimo}`,
     nessunVoto: 'Noch keine Note eingetragen.',
     inserimento: 'Erfassung',
     sganciatiAltrove: (quanti) =>
@@ -119,8 +120,9 @@ export const testi = catalogo(it, {
       'weiter für die Durchschnitte, aber man weiss nicht mehr, woraus sie entstanden sind.' +
       (altrove > 0 ? ` Weitere ${altrove} in anderen Kursen.` : ''),
     apriQuestoMomento: 'Diese Beurteilung öffnen',
+    motivoDiTutti: (motivo) => `Bei allen: ${motivi.in('de')[motivo]}.`,
     rigaSganciato: (motivo, voti) =>
-      `${motivi.in('de')[motivo]}${voti > 0 ? ` · ${plurale(voti, 'Note', 'Noten')}` : ' · keine Note'}`,
+      (motivo ? `${motivi.in('de')[motivo]} · ` : '') + (voti > 0 ? plurale(voti, 'Note', 'Noten') : 'keine Note'),
     eliminaQuesto: (titolo) => `«${titolo}» löschen`,
     nessunCorso: 'Kein Kurs',
     nessunCorsoTesto:
@@ -153,7 +155,6 @@ export const testi = catalogo(it, {
     minimo: 'minimum',
     massimo: 'maximum',
     sufficienti: 'suffisantes',
-    estremi: (minimo, massimo) => `de ${minimo} à ${massimo}`,
     nessunVoto: 'Aucune note saisie pour l’instant.',
     inserimento: 'Saisie',
     sganciatiAltrove: (quanti) =>
@@ -180,8 +181,9 @@ export const testi = catalogo(it, {
       'ne sait plus d’où elles viennent.' +
       (altrove > 0 ? ` ${altrove} ${perNumero(altrove, 'autre', 'autres')} dans d’autres cours.` : ''),
     apriQuestoMomento: 'Ouvrir cette évaluation',
+    motivoDiTutti: (motivo) => `Pour tous : ${motivi.in('fr')[motivo]}.`,
     rigaSganciato: (motivo, voti) =>
-      `${motivi.in('fr')[motivo]}${voti > 0 ? ` · ${plurale(voti, 'note', 'notes')}` : ' · pas de note'}`,
+      (motivo ? `${motivi.in('fr')[motivo]} · ` : '') + (voti > 0 ? plurale(voti, 'note', 'notes') : 'pas de note'),
     eliminaQuesto: (titolo) => `Supprimer « ${titolo} »`,
     nessunCorso: 'Aucun cours',
     nessunCorsoTesto:
@@ -214,7 +216,6 @@ export const testi = catalogo(it, {
     minimo: 'lowest',
     massimo: 'highest',
     sufficienti: 'passes',
-    estremi: (minimo, massimo) => `from ${minimo} to ${massimo}`,
     nessunVoto: 'No grades entered yet.',
     inserimento: 'Entry',
     sganciatiAltrove: (quanti) =>
@@ -239,8 +240,9 @@ export const testi = catalogo(it, {
       'knows any more where they came from.' +
       (altrove > 0 ? ` ${altrove} more in other courses.` : ''),
     apriQuestoMomento: 'Open this assessment',
+    motivoDiTutti: (motivo) => `All: ${motivi.in('en')[motivo]}.`,
     rigaSganciato: (motivo, voti) =>
-      `${motivi.in('en')[motivo]}${voti > 0 ? ` · ${plurale(voti, 'grade', 'grades')}` : ' · no grade'}`,
+      (motivo ? `${motivi.in('en')[motivo]} · ` : '') + (voti > 0 ? plurale(voti, 'grade', 'grades') : 'no grade'),
     eliminaQuesto: (titolo) => `Delete “${titolo}”`,
     nessunCorso: 'No course',
     nessunCorsoTesto:

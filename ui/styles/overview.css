@@ -2,11 +2,13 @@
 
 .panoramica__schema {
   position: relative;
-  width: max-content;
-  min-width: 100%;
+  /* Le colonne prendono la larghezza che c'è, fino a un tetto oltre il quale le
+     righe diventano troppo lunghe; sotto i minimi il tavolo scorre di lato. */
+  min-width: min-content;
+  max-width: 1320px;
   padding: 16px;
   display: grid;
-  grid-template-columns: 220px 280px 200px;
+  grid-template-columns: minmax(220px, 1fr) minmax(280px, 1.5fr) minmax(200px, 1fr);
   align-items: start;
   gap: 48px;
   isolation: isolate;
@@ -22,7 +24,9 @@
 }
 
 .panoramica__schema h3 { margin: 0 0 8px; font-size: 13px; color: var(--testo-quieto); }
-.panoramica__schema h4 { margin: 0; }
+.panoramica__schema h4,
+.panoramica__schema h5 { margin: 0; font-size: 1em; }
+.panoramica__colonna > header h4 { font-size: 13px; }
 .panoramica__schema p { margin: 4px 0; overflow-wrap: anywhere; }
 
 .panoramica__collegamenti {
@@ -45,7 +49,7 @@
 .panoramica__filo--progetto { stroke: var(--accento); }
 .panoramica__filo--file { stroke: var(--informativo); }
 .panoramica__filo--valutazione { stroke: var(--attenzione); }
-.panoramica__filo--check { stroke: var(--positivo); }
+.panoramica__filo--check { stroke: var(--tinta-check); }
 .panoramica__filo--acceso { stroke-width: 3; opacity: 1; }
 .panoramica__schema--selezione .panoramica__filo:not(.panoramica__filo--acceso) { opacity: 0.12; }
 
@@ -119,11 +123,21 @@
 .panoramica__nodo--progetto { --tinta-nodo: var(--accento); }
 .panoramica__nodo--file { --tinta-nodo: var(--informativo); }
 .panoramica__nodo--valutazione { --tinta-nodo: var(--attenzione); }
-.panoramica__nodo--check { --tinta-nodo: var(--positivo); }
+.panoramica__nodo--check { --tinta-nodo: var(--tinta-check); }
 .panoramica__nodo--pendenza { --tinta-nodo: var(--testo-quieto); }
 .panoramica__fase-progetto { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--bordo-tenue); }
 .panoramica__fase-progetto p { color: var(--testo-quieto); font-size: 11px; }
 .panoramica__fase-progetto ul { margin: 4px 0 0; padding-left: 14px; }
+
+/*
+ * Il check non prende `--positivo`: verde accanto al verde mela del progetto,
+ * i due fili non si distinguerebbero. Un viola che regge chiaro e scuro.
+ */
+.panoramica { --tinta-check: #7c3aed; }
+
+@media (prefers-color-scheme: dark) {
+  .panoramica { --tinta-check: #b197fc; }
+}
 
 .panoramica {
   display: flex;

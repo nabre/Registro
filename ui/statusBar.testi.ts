@@ -9,16 +9,18 @@ import { lessico } from '#core/dominio/lexicon.testi.js'
 const it = {
   /** «oggi», detto a voce: sta dentro la voce dell'ora. */
   oggi: 'oggi',
-  nessunaOra: 'nessuna lezione in programma',
+  nessunaOra: 'nessuna lezione in arrivo',
+  // Solo le ore che vengono: quelle da compilare hanno la loro voce accanto.
   nessunaOraTitolo:
-    'Non ci sono lezioni da fare né da compilare, fra quelle che i filtri qui accanto lasciano ' +
-    'vedere',
+    'Non ci sono altre lezioni in arrivo, fra quelle che i filtri qui accanto lasciano vedere',
   prossima: (classe: string, quando: string, inizio: string) =>
     `prossima: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-  daChiudere: (quante: number) => `${quante} da chiudere`,
+  /** L'ora che si sta facendo: quando finisce conta più di quando è cominciata. */
+  adesso: (classe: string, fine: string) => `adesso: ${classe} fino alle ${fine}`,
+  daChiudere: (quante: number) => `${quante} da compilare`,
   daChiudereTitolo:
     'Lezioni passate con il registro non a posto (appello, argomenti, consuntivo).\nScegli quale aprire',
-  daChiudereMenu: 'Da chiudere',
+  daChiudereMenu: 'Da compilare',
   /** Una riga della tendina: numero dell'ora nel corso, giorno, corso. */
   oraDaChiudere: (numero: number | null, giorno: string, corso: string) =>
     `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
@@ -89,17 +91,17 @@ Apri i modelli linguistici`,
 export const testi = catalogo(it, {
   de: {
     oggi: 'heute',
-    nessunaOra: 'keine Stunde geplant',
+    nessunaOra: 'keine Stunde mehr in Sicht',
     nessunaOraTitolo:
-      'Unter denen, die die Filter daneben zeigen, gibt es keine Stunden zu halten oder ' +
-      'auszufüllen',
+      'Unter denen, die die Filter daneben zeigen, kommen keine weiteren Stunden',
     prossima: (classe, quando, inizio) =>
       `nächste: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-    daChiudere: (quante) => `${quante} abzuschliessen`,
+    adesso: (classe, fine) => `jetzt: ${classe} bis ${fine}`,
+    daChiudere: (quante) => `${quante} auszufüllen`,
     daChiudereTitolo:
       'Vergangene Stunden mit unvollständigem Eintrag (Präsenzkontrolle, Themen, Rückblick).\n' +
       'Wähle, welche du öffnest',
-    daChiudereMenu: 'Abzuschliessen',
+    daChiudereMenu: 'Auszufüllen',
     oraDaChiudere: (numero, giorno, corso) => `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
     prossimaTitolo: (giorno, inizio) =>
       `Nächste Stunde: ${giorno}${inizio ? `, um ${inizio}` : ''}.\n` +
@@ -161,17 +163,17 @@ ${perche}
   },
   fr: {
     oggi: 'aujourd’hui',
-    nessunaOra: 'aucune leçon prévue',
+    nessunaOra: 'aucune leçon à venir',
     nessunaOraTitolo:
-      'Il n’y a pas de leçons à donner ni à remplir, parmi celles que les filtres ci-contre ' +
-      'laissent voir',
+      'Il n’y a plus de leçons à venir, parmi celles que les filtres ci-contre laissent voir',
     prossima: (classe, quando, inizio) =>
       `prochaine : ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-    daChiudere: (quante) => `${quante} à clôturer`,
+    adesso: (classe, fine) => `maintenant : ${classe} jusqu’à ${fine}`,
+    daChiudere: (quante) => `${quante} à remplir`,
     daChiudereTitolo:
       'Leçons passées dont le registre n’est pas en ordre (appel, sujets, bilan).\n' +
       'Choisis laquelle ouvrir',
-    daChiudereMenu: 'À clôturer',
+    daChiudereMenu: 'À remplir',
     oraDaChiudere: (numero, giorno, corso) => `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
     prossimaTitolo: (giorno, inizio) =>
       `Prochaine leçon : ${giorno}${inizio ? `, à ${inizio}` : ''}.\nOuvre le registre de la leçon`,
@@ -231,16 +233,17 @@ Ouvre les modèles de langage`,
   },
   en: {
     oggi: 'today',
-    nessunaOra: 'no lessons scheduled',
+    nessunaOra: 'no lessons coming up',
     nessunaOraTitolo:
-      'There are no lessons to teach or to fill in, among those the filters alongside let you see',
+      'There are no more lessons coming up, among those the filters alongside let you see',
     prossima: (classe, quando, inizio) =>
       `next: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-    daChiudere: (quante) => `${quante} to close`,
+    adesso: (classe, fine) => `now: ${classe} until ${fine}`,
+    daChiudere: (quante) => `${quante} to fill in`,
     daChiudereTitolo:
       'Past lessons whose register is not complete (roll call, topics, review).\n' +
       'Choose which one to open',
-    daChiudereMenu: 'To close',
+    daChiudereMenu: 'To fill in',
     oraDaChiudere: (numero, giorno, corso) => `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
     prossimaTitolo: (giorno, inizio) =>
       `Next lesson: ${giorno}${inizio ? `, at ${inizio}` : ''}.\nOpen the lesson’s register`,

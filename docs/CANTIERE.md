@@ -197,6 +197,9 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       («Ctrl+D non copia un’ora ancorata», «Canc due volte»), cadono anche sul
       codice di prima della conversione a React: la prima non ancora l'ora
       all'ICS, la seconda non risponde alla conferma dell'eliminazione.
+- [ ] Chromium cade sotto carico in `npm run ui-tests` completo («Target
+      crashed», worker uscito con 0xC0000409) su spec diverse a ogni giro;
+      rilanciate da sole passano. Visto il 2026-10-06 con Node 26.7.
 - [ ] Etichette del piano (`CampoEtichette` in `ui/forms/plan.tsx`) senza
       prova fissa: provate solo a mano. Caso in
       `tests/interfaccia/plansNavigator.spec.ts`: Invio, virgola, incolla con
@@ -258,6 +261,32 @@ alti e i medi sono corretti; qui restano le scelte e i bassi.
       trascinamento messe con `classList` su nodi di React
       (`views/sorting.tsx`, `sorting/pageDrop.tsx`), innocuo finché il
       `className` non cambia durante il volo.
+
+### Giro interfaccia del 2026-10-06
+
+Sei esplorazioni con foto (1280/800, chiaro/scuro), ~100 reperti; alti e
+medi corretti. Restano:
+
+- [ ] Scala tipografica: 285 `font-size` fissi in em su 369, 7 gradini fra
+      0.86 e 1.1em, maiuscoletti con 3 misure e 4 spaziature
+      (`metrics.css:51-57`). Scala a 4 gradini e token `--maiuscoletto`;
+      da fare da soli, con foto di tutte le pagine.
+- [ ] Impostazioni: il titolo di sezione h3 («Anno») è più grande del
+      titolo compatto h2 «Impostazioni» dopo l'unificazione di
+      `TestataVista`.
+- [ ] 7 `outline: 2px solid var(--accento)` locali (calendar, class-teacher,
+      courses): selezione o fuoco? Se fuoco, via a favore di `--fuoco`.
+- [ ] Calendario settimana: testo del blocco lezione tagliato.
+- [ ] Scheda persona: «Nuova comunicazione» e «Nuovo periodo assenze» sono
+      comandi di classe (`ui/commands/classes.ts`), unica strada per chi non
+      è docente di classe: decidere. «Chiedi un documento» prepara la
+      richiesta per tutta la classe, non per la persona sola.
+- [ ] Guida: la mini-barra della figura della finestra
+      (`help/start.testi.ts`, `stato`) mostra ancora la barra a voce unica.
+- [ ] Valutazioni a 1280: nome fino a 12rem e Media/Nota ferme lasciano due
+      prove in vista; valutare 10rem. `formattaTacca` scrive 5.75 come «5.8».
+- [ ] `.tabella-contenitore` scorre di lato senza segnale (la sfumatura del
+      check, `check.css`, maschererebbe anche il bordo).
 
 ### Modelli e assistente
 

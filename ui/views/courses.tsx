@@ -23,6 +23,7 @@ import {
 import { oltreSoglia, percentoAssenza } from '#core/dominio/alerts.js'
 import { checkDelCorso, riepilogoDelCheck } from '#core/dominio/check.js'
 import { siglaMateria } from '#core/dominio/courses.js'
+import { progettiDelCorso } from '#core/dominio/projects.js'
 import { creaMateria } from '#core/dominio/factories.js'
 import { validaMateria } from '#core/dominio/validation.js'
 import { notifica } from '#ui/components/notifications.js'
@@ -203,13 +204,15 @@ function numeriDelCorso (dati: DatiCorso): ReactElement {
 function schedaCorso (corso: Corso, dati: DatiCorso): ReactElement {
   const materia = materiaPerId(corso.materiaId)
   const t = testi()
+  const sottotitolo = `${dati.classe?.nome ?? t.classeSparita} · ${materia?.nome ?? t.materiaSparita}`
+  const progetti = progettiDelCorso(stato.registro, corso.id).length
 
   return (
     <Scheda
       classe="corso-scheda"
       titolo={corso.titolo}
-      // Classe prima di materia, come nel titolo.
-      sottotitolo={`${dati.classe?.nome ?? t.classeSparita} · ${materia?.nome ?? t.materiaSparita}`}
+      // Classe prima di materia, come nel titolo; se il titolo è già quello, non si ripete.
+      sottotitolo={sottotitolo === corso.titolo ? undefined : sottotitolo}
       azioni={(
         <div className="corso-scheda__comandi">
           <Pulsante
@@ -292,6 +295,20 @@ function schedaCorso (corso: Corso, dati: DatiCorso): ReactElement {
               </p>
             )
           : null}
+        {/* I progetti stanno nella progettazione del corso: di qui ci si arriva. */}
+        <p className="testo-quieto">
+          {t.progettiNelCorso}
+          <Collegamento
+            testo={t.progettiIntegrati(progetti)}
+            titolo={t.apriIntegrazione}
+            al={() => { vai({ pagina: 'pagina.corso.integrazione' }, { contesto: { corsoId: corso.id } }) }}
+          />
+          {' · '}
+          <Collegamento
+            testo={t.panoramica}
+            al={() => { vai({ pagina: 'pagina.corso.overview', soggetto: { tipo: 'corso', id: corso.id } }) }}
+          />
+        </p>
         {/* Il programma d'insegnamento del corso. */}
         {corso.note ? <p className="corso-scheda__note">{corso.note}</p> : null}
       </div>

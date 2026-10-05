@@ -10,6 +10,7 @@ import type { MouseEvent as EventoMouse, ReactElement, ReactNode } from 'react'
 
 import { numeroDellaLezione } from '#core/dominio/courses.js'
 import { formattaData } from '#core/dominio/dates.js'
+import { fineLezione, momentoLezione } from '#core/dominio/calculations.js'
 import { Icona, type NomeIcona } from './components/icons.js'
 import { alternaMenuSotto, tendinaAperta } from './components/menu.js'
 import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/updates.js'
@@ -108,7 +109,10 @@ function vociDelRegistro (): ReactElement[] {
     voci.push(voce({
       chiave: 'prossima',
       simbolo: 'lezione',
-      testo: t.prossima(nomeClasseDiLezione(lezione), quando(lezione.data), inizio),
+      // L'ora in corso dice fino a quando; le altre quando cominciano.
+      testo: momentoLezione(lezione, stato.adessoData, stato.adessoOra) === 'in-corso'
+        ? t.adesso(nomeClasseDiLezione(lezione), fineLezione(lezione) ?? '')
+        : t.prossima(nomeClasseDiLezione(lezione), quando(lezione.data), inizio),
       titolo: t.prossimaTitolo(formattaData(lezione.data, 'lungo'), inizio),
       tono: 'quiete',
       al: () => apriLezione(lezione.id),

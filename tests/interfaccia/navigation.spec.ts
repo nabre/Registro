@@ -321,9 +321,11 @@ test('navigation', async ({ browser }) => {
   }
   expect(await valuta(page,
     "document.querySelectorAll('.vista--todo .testata .selettore').length")).toBe(0)
-  // Il riepilogo è compatto: una riga per famiglia, la spiegazione nel titolo.
-  // Una scheda per tipologia, quante ne dichiara il dominio.
-  await expect(page.locator('.todo-sintesi__scheda')).toHaveCount(7)
+  // Il riepilogo è compatto: una scheda per tipologia con qualcosa d'aperto,
+  // la spiegazione nel titolo. Quelle a zero non occupano la prima schermata.
+  const tessere = await page.locator('.todo-sintesi__scheda').count()
+  expect(tessere).toBeGreaterThan(0)
+  expect(tessere).toBeLessThanOrEqual(7)
   expect(await valuta(page, "document.querySelector('.todo-sintesi__scheda')" +
     '.getBoundingClientRect().height < 64')).toBeTruthy()
   expect(await valuta(page, "!!document.querySelector('.todo-sintesi__scheda').title"))

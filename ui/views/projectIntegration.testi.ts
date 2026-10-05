@@ -49,6 +49,8 @@ const it = {
     'Per ogni fase, le attività della scaletta: dove sono già programmate nei piani del corso ' +
     'e quali restano da programmare; sotto, le lezioni con il loro consuntivo.',
   programma: 'Programma in un piano…',
+  /** Le altre date oltre la prima, in coda alla pastiglia «Pianificata»: il titolo le elenca. */
+  eAltre: (n: number) => `+${n}`,
   oraSenzaPiano: 'senza piano: se ne prepara uno',
   pianoSciolto: 'piano non ancora in una lezione',
   nienteDaProgrammare: 'Nessuna lezione a venire né piano libero nel corso',
@@ -93,6 +95,7 @@ export const testi = catalogo(it, {
       'Für jede Phase die Aktivitäten des Ablaufs: wo sie in den Plänen des Kurses schon stehen ' +
       'und welche noch einzuplanen sind; darunter die Stunden mit ihrem Stand.',
     programma: 'In einem Plan einplanen…',
+    eAltre: (n) => `+${n}`,
     oraSenzaPiano: 'ohne Plan: Es wird einer vorbereitet',
     pianoSciolto: 'Plan noch in keiner Stunde',
     nienteDaProgrammare: 'Keine kommende Stunde und kein freier Plan im Kurs',
@@ -135,6 +138,7 @@ export const testi = catalogo(it, {
       'Pour chaque phase, les activités du déroulé : où elles sont déjà programmées dans les plans ' +
       'du cours et lesquelles restent à programmer ; dessous, les périodes avec leur bilan.',
     programma: 'Programmer dans un plan…',
+    eAltre: (n) => `+${n}`,
     oraSenzaPiano: 'sans plan : on en prépare un',
     pianoSciolto: 'plan pas encore dans une période',
     nienteDaProgrammare: 'Aucune période à venir ni plan libre dans le cours',
@@ -177,6 +181,7 @@ export const testi = catalogo(it, {
       'For each phase, the outline’s activities: where they are already scheduled in the course’s ' +
       'plans and which are still to schedule; below, the lessons with their record.',
     programma: 'Schedule in a plan…',
+    eAltre: (n) => `+${n}`,
     oraSenzaPiano: 'no plan: one is prepared',
     pianoSciolto: 'plan not in a lesson yet',
     nienteDaProgrammare: 'No upcoming lesson or free plan in the course',

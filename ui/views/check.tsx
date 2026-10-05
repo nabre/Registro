@@ -26,7 +26,7 @@ import type {
   Lezione,
   SpuntaCheck,
 } from '#core/dominio/models.js'
-import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { Uno } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { classi } from '#ui/classNames.js'
@@ -473,7 +473,7 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
       data-chiave={allievo.id}
     >
       <th className="check__chi" scope="row">
-        {nomeCompleto(allievo)}
+        <span className="check__nome">{nomeCompleto(allievo)}</span>
         {/* Chi non frequenta più resta solo se ha qualcosa di spuntato, e lo si dice. */}
         {allievo.attivo ? null : <small className="check__nota">{t.nonFrequentaPiu}</small>}
       </th>
@@ -496,7 +496,8 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
       <table className="check" aria-label={t.checkDi(nomeDelCorso(corso))}>
         <thead>
           <tr>
-            <th className="check__angolo" scope="col">{Molti(lessico().pif)}</th>
+            {/* Al singolare, come la testata dei nomi di ogni altra matrice. */}
+            <th className="check__angolo" scope="col">{Uno(lessico().pif)}</th>
             {colonne.map(testata)}
           </tr>
         </thead>
@@ -522,6 +523,9 @@ export function pannelloCheckDellOra (lezione: Lezione): ReactElement | null {
 
   const t = testi()
   if (!check || check.colonne.length === 0) {
+    // Una riga sola, non una scheda vuota: in quest'ora non c'è niente da fare.
+    // Ha però il filo e il margine di una scheda (`check.css`): nuda, fra le
+    // schede della colonna, sembrava un testo rimasto lì per caso.
     return (
       <p className="check-assente testo-quieto">
         <Icona nome="check" classe="icona--minuta" />
@@ -613,8 +617,10 @@ function VistaCheck (): ReactElement {
       <div className="vista vista--check vista--check-classe" data-telaio={telaioVista()}>
         <TestataVista
           titolo={t.checkDellaClasse}
-          sottotitolo={t.comeDocenteDiClasse(classe.nome)}
-          contorno={<p className="suggerimento">{t.suggerimentoClasse}</p>}
+          // Il ruolo lo dice già il titolo; il suggerimento sta nell'aiuto della
+          // testata, non in un paragrafo sciolto sotto.
+          sottotitolo={classe.nome}
+          aiuto={t.suggerimentoClasse}
         />
         {corsi.length > 0
           ? (

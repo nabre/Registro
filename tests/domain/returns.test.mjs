@@ -18,6 +18,7 @@ import {
   riconsegnaDelMomento,
   riconsegneAperte,
   riconsegneDaFare,
+  riconsegneDegliAllievi,
   riconsegneUrgenti,
 } from '../../dist-tests/domain.mjs'
 import { scuolaMinima } from '../helpers/register.mjs'
@@ -285,5 +286,20 @@ describe('i mucchi del todo', () => {
 
     assert.equal(riconsegneAperte(riconsegneDaFare(registro, [], '2026-10-13')), 0)
     assert.equal(riconsegneAperte(riconsegneDaFare(registro, [corso], '2026-10-13')), 1)
+  })
+})
+
+describe('la riconsegna nome per nome', () => {
+  it('in ordine di cognome, come la griglia dei voti', () => {
+    // La classe tiene l'ordine in cui le persone sono state inserite (Rossi,
+    // Bianchi, Verdi): la tabella della scheda Riconsegna sta accanto alla
+    // griglia, che è in ordine di cognome, e lo stesso nome va trovato allo
+    // stesso posto.
+    const { classe, prova, rossi, bianchi, verdi } = scuola()
+    correggiTutto(prova, [rossi, bianchi, verdi])
+
+    const righe = riconsegneDegliAllievi(prova, classe)
+
+    assert.deepEqual(righe.map((r) => r.allievo.cognome), ['Bianchi', 'Rossi', 'Verdi'])
   })
 })

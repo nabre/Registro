@@ -5,7 +5,7 @@
 // corsi in cui è integrato, con il rimando alla loro pagina Integrazione
 // progetti. Il lavoro con una classe (compiti, matrice, giudizi) sta lì.
 
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactElement } from 'react'
 
 import { minutiDiAttivita } from '#core/dominio/calculations.js'
 import { formattaDurata } from '#core/dominio/dates.js'
@@ -41,7 +41,7 @@ import { moduloScalettaProgetto } from '#ui/forms/projectPlan.js'
 import { testi as testiScaletta } from '#ui/forms/projectPlan.testi.js'
 import { annoCorrente, corsiDellAnnoAperto, progettoPerId, stato } from '#ui/state.js'
 import { telaioVista } from '#ui/viewFrame.js'
-import { apriIntegrazione, apriProgetto, pastigliaStato } from './projects/links.js'
+import { apriIntegrazione, apriProgetto, pastigliaStato, risorsaDelProgetto } from './projects/links.js'
 import { legendaLivelli } from './projects/matrix.js'
 import { testi } from './projects.testi.js'
 
@@ -70,12 +70,17 @@ function elencoProgetti (progetti: Progetto[], attivo: Progetto | null): ReactEl
     >
       <header className="elenco-laterale__testata">
         <h3>{Molti(lessico().progetto)}</h3>
-        <Pulsante
-          simbolo="piu"
-          variante="fantasma"
-          titolo={t.nuovo}
-          al={() => moduloProgetto({ dopo: apriProgetto })}
-        />
+        {/* Senza progetti il gesto lo offre lo stato vuoto accanto: uno solo in vista. */}
+        {progetti.length > 0
+          ? (
+              <Pulsante
+                simbolo="piu"
+                variante="fantasma"
+                titolo={t.nuovo}
+                al={() => moduloProgetto({ dopo: apriProgetto })}
+              />
+            )
+          : null}
       </header>
       {progetti.length === 0
         ? <Quieto>{t.nessunoNellAnno}</Quieto>
@@ -94,7 +99,8 @@ function elencoProgetti (progetti: Progetto[], attivo: Progetto | null): ReactEl
                     <Icona nome="progetto" />
                     <span className="voce-laterale__testo">
                       <strong>{progetto.titolo}</strong>
-                      <small>{`${t.fasiEAttivita(progetto.fasi.length, attivitaDi(progetto))} · ${t.inCorsi(progetto.integrazioni.length)}`}</small>
+                      {/* Prima dove lavora: il fondo della riga si tronca. */}
+                      <small>{`${t.inCorsi(progetto.integrazioni.length)} · ${t.fasiEAttivita(progetto.fasi.length, attivitaDi(progetto))}`}</small>
                     </span>
                   </button>
                 </li>
@@ -106,14 +112,6 @@ function elencoProgetti (progetti: Progetto[], attivo: Progetto | null): ReactEl
 }
 
 // ------------------------------------------------------------------ le schede
-
-/** Una risorsa del progetto: il collegamento si apre, il file si nomina. */
-function risorsaDetta (risorsa: Progetto['risorse'][number]): ReactNode {
-  const titolo = risorsa.titolo || risorsa.nome || risorsa.url || parole().senzaTitolo
-  return risorsa.url
-    ? <a href={risorsa.url} target="_blank" rel="noopener">{titolo}</a>
-    : <span><Icona nome="documento" classe="icona--minuta" />{` ${titolo}`}</span>
-}
 
 function schedaTestata (progetto: Progetto): ReactElement {
   const t = testi()
@@ -145,7 +143,7 @@ function schedaTestata (progetto: Progetto): ReactElement {
           ? (
               <>
                 <h4>{t.risorse}</h4>
-                <ul>{progetto.risorse.map((r, i) => <li key={i}>{risorsaDetta(r)}</li>)}</ul>
+                <ul className="risorse-progetto">{progetto.risorse.map((r, i) => <li key={i}>{risorsaDelProgetto(r)}</li>)}</ul>
               </>
             )
           : null}
@@ -186,10 +184,11 @@ function schedaScaletta (progetto: Progetto): ReactElement {
             <section key={fase.id} className="fase-progetto fase-progetto--aperta" data-fase-id={fase.id}>
               <h4 className="fase-progetto__titolo">
                 <span className="fase-progetto__nome">{`${indice + 1}. ${fase.titolo}`}</span>
+                {/* Sottile come nell'integrazione: lo stesso gesto ha lo stesso aspetto. */}
                 <Pulsante
                   testo={ts.modificaScaletta}
                   simbolo="matita"
-                  variante="fantasma"
+                  variante="sottile"
                   al={() => moduloScalettaProgetto(progetto.id, fase.id)}
                 />
               </h4>

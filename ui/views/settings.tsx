@@ -147,8 +147,10 @@ function idSezione (id: SezioneImpostazioni): string {
 }
 
 /**
- * Una sezione: la testata con il nome, il riassunto e la pastiglia se l'ambito
- * è uno solo; poi i blocchi, ognuno con la sua pastiglia se sono di due ambiti.
+ * Una sezione: la testata con il nome e il riassunto; poi i blocchi, con la
+ * pastiglia d'ambito su una riga sua sopra il primo, e sopra ognuno se sono di
+ * due ambiti. Sempre nello stesso posto: accanto al titolo in una sezione e su
+ * una riga nell'altra, l'occhio la cercherebbe in due posti.
  */
 function disegnaSezione (sezione: Sezione): ReactElement {
   const blocchi = BLOCCHI[sezione.id]
@@ -165,13 +167,14 @@ function disegnaSezione (sezione: Sezione): ReactElement {
     >
       <header className="impostazioni__sezione-testa">
         <h2 className="impostazioni__sezione-titolo" id={idTitolo}>{sezione.titolo}</h2>
-        {!misto && blocchi[0] ? pastigliaAmbito(blocchi[0].ambito) : null}
         <p className="impostazioni__sezione-sotto">{sezione.sottotitolo}</p>
       </header>
       {blocchi.map((blocco, indice) => (
         // Blocchi fissi per sezione: la chiave è il posto.
         <div key={indice} className="impostazioni__blocco" data-ambito={blocco.ambito} data-voce={blocco.voce}>
-          {misto ? <div className="impostazioni__blocco-ambito">{pastigliaAmbito(blocco.ambito)}</div> : null}
+          {misto || indice === 0
+            ? <div className="impostazioni__blocco-ambito">{pastigliaAmbito(blocco.ambito)}</div>
+            : null}
           {blocco.disegna()}
         </div>
       ))}
@@ -560,9 +563,18 @@ let osservatore: IntersectionObserver | null = null
 function dopoIlDisegno (): void {
   const vista = document.querySelector<HTMLElement>('.vista--impostazioni')
   if (!vista) return
-  const alto = vista.querySelector<HTMLElement>('.impostazioni__fascia')?.offsetHeight ?? 0
+  const fasciaAlta = vista.querySelector<HTMLElement>('.impostazioni__fascia')?.offsetHeight ?? 0
   // testo-fisso: una misura CSS
-  vista.style.setProperty('--impostazioni-fascia-alto', `${alto}px`)
+  vista.style.setProperty('--impostazioni-fascia-alto', `${fasciaAlta}px`)
+  // Su schermo stretto l'indice è una tendina appiccicata sotto la testata:
+  // anche lei copre il titolo di una sezione raggiunta. Largo sta di fianco e
+  // non conta.
+  const tendina = vista.querySelector<HTMLElement>('.impostazioni__indice-tendina')
+  const indice = tendina && tendina.offsetParent ? tendina.closest<HTMLElement>('.impostazioni__indice') : null
+  const indiceAlto = indice?.offsetHeight ?? 0
+  // testo-fisso: una misura CSS
+  vista.style.setProperty('--impostazioni-indice-alto', `${indiceAlto}px`)
+  const alto = fasciaAlta + indiceAlto
 
   osservatore?.disconnect()
   osservatore = null

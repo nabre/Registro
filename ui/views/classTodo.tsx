@@ -17,8 +17,11 @@ import { gruppoRecuperi } from './assessments/retakes.js'
 import { gruppoRiconsegne, gruppoRiconsegneAllievi } from './assessments/returns.js'
 import { testi } from './classTodo.testi.js'
 
-/** Di che corso è ogni riga si dice sempre: sotto una classe ci sono più materie. */
-const CON_CORSO = { mostraCorso: true } as const
+/**
+ * Se ogni riga dice di che corso è. Sotto una classe con più materie serve;
+ * sotto un corso solo lo dice già la testata, e ripeterlo su ogni riga è rumore.
+ */
+interface OpzioniCorso { mostraCorso: boolean }
 
 /**
  * Il segno di una tipologia: il gesto, non la categoria. Lo portano sia la riga
@@ -60,7 +63,7 @@ function gruppo (chiave: string, disegna: () => ReactNode): ReactElement {
 }
 
 /** Una famiglia con dentro i suoi gruppi, o niente se è vuota. */
-function famiglia (todo: TodoClasse, quale: FamigliaTodo): ReactNode {
+function famiglia (todo: TodoClasse, quale: FamigliaTodo, conCorso: OpzioniCorso): ReactNode {
   if (todo.conti[quale].aperti === 0) return null
 
   const t = testi()
@@ -86,17 +89,17 @@ function famiglia (todo: TodoClasse, quale: FamigliaTodo): ReactNode {
         : quale === 'valutazioni'
           ? [
               // Prima quel che nessun automatismo chiude, poi le prove ferme in mano.
-              gruppo('recuperiDaFissare', () => gruppoRecuperi(t.recuperiDaFissare, todo.recuperi.daFissare, CON_CORSO)),
-              gruppo('recuperiScaduti', () => gruppoRecuperi(t.recuperiNonRifatti, todo.recuperi.scaduti, CON_CORSO)),
-              gruppo('recuperiOggi', () => gruppoRecuperi(t.recuperiOggi, todo.recuperi.oggi, CON_CORSO)),
-              gruppo('recuperiPresto', () => gruppoRecuperi(t.recuperiSettimana, todo.recuperi.presto, CON_CORSO)),
-              gruppo('recuperiAvanti', () => gruppoRecuperi(t.recuperiAvanti, todo.recuperi.avanti, CON_CORSO)),
-              gruppo('daCorreggere', () => gruppoRiconsegne(t.daCorreggere, todo.riconsegne.daCorreggere, CON_CORSO)),
-              gruppo('daRiconsegnare', () => gruppoRiconsegne(t.daRiconsegnare, todo.riconsegne.daRiconsegnare, CON_CORSO)),
-              gruppo('recuperiDaRiconsegnare', () => gruppoRecuperi(t.recuperiDaRiconsegnare, todo.recuperi.daRiconsegnare, CON_CORSO)),
-              gruppo('singoli', () => gruppoRiconsegneAllievi(t.daRidareA, todo.singoli, CON_CORSO)),
+              gruppo('recuperiDaFissare', () => gruppoRecuperi(t.recuperiDaFissare, todo.recuperi.daFissare, conCorso)),
+              gruppo('recuperiScaduti', () => gruppoRecuperi(t.recuperiNonRifatti, todo.recuperi.scaduti, conCorso)),
+              gruppo('recuperiOggi', () => gruppoRecuperi(t.recuperiOggi, todo.recuperi.oggi, conCorso)),
+              gruppo('recuperiPresto', () => gruppoRecuperi(t.recuperiSettimana, todo.recuperi.presto, conCorso)),
+              gruppo('recuperiAvanti', () => gruppoRecuperi(t.recuperiAvanti, todo.recuperi.avanti, conCorso)),
+              gruppo('daCorreggere', () => gruppoRiconsegne(t.daCorreggere, todo.riconsegne.daCorreggere, conCorso)),
+              gruppo('daRiconsegnare', () => gruppoRiconsegne(t.daRiconsegnare, todo.riconsegne.daRiconsegnare, conCorso)),
+              gruppo('recuperiDaRiconsegnare', () => gruppoRecuperi(t.recuperiDaRiconsegnare, todo.recuperi.daRiconsegnare, conCorso)),
+              gruppo('singoli', () => gruppoRiconsegneAllievi(t.daRidareA, todo.singoli, conCorso)),
             ]
-          : consegneDella(todo, quale)
+          : consegneDella(todo, quale, conCorso)
 
   return (
     <section
@@ -114,24 +117,30 @@ function famiglia (todo: TodoClasse, quale: FamigliaTodo): ReactNode {
 }
 
 /** I mucchi per scadenza di una tipologia di consegne, uguali per tutte e quattro. */
-function consegneDella (todo: TodoClasse, quale: FamigliaTodo): ReactElement[] {
+function consegneDella (
+  todo: TodoClasse,
+  quale: FamigliaTodo,
+  conCorso: OpzioniCorso,
+): ReactElement[] {
   if (quale === 'assenze' || quale === 'segnalazioni' || quale === 'valutazioni') return []
   const t = testi()
   const gruppi = todo.consegne[quale]
   return [
-    gruppo('arretrate', () => gruppoConsegne(t.rimasteIndietro, gruppi.arretrate, 'arretrata', CON_CORSO)),
-    gruppo('oggi', () => gruppoConsegne(t.scadonoOggi, gruppi.oggi, 'scade', CON_CORSO)),
-    gruppo('presto', () => gruppoConsegne(t.entroSettimana, gruppi.presto, 'aperta', CON_CORSO)),
-    gruppo('avanti', () => gruppoConsegne(t.piuAvanti, gruppi.avanti, 'aperta', CON_CORSO)),
+    gruppo('arretrate', () => gruppoConsegne(t.rimasteIndietro, gruppi.arretrate, 'arretrata', conCorso)),
+    gruppo('oggi', () => gruppoConsegne(t.scadonoOggi, gruppi.oggi, 'scade', conCorso)),
+    gruppo('presto', () => gruppoConsegne(t.entroSettimana, gruppi.presto, 'aperta', conCorso)),
+    gruppo('avanti', () => gruppoConsegne(t.piuAvanti, gruppi.avanti, 'aperta', conCorso)),
   ]
 }
 
 /**
  * Le tipologie di una classe, nell'ordine del dominio (`FAMIGLIE_TODO`). Chi
- * chiama le mette in una scheda con il nome della classe o nude.
+ * chiama le mette in una scheda con il nome della classe o nude, e sa se il
+ * corso di ogni riga va detto (`mostraCorso`, di regola sì).
  */
-export function sezioniTodoClasse (todo: TodoClasse): ReactNode[] {
-  return FAMIGLIE_TODO.map((quale) => famiglia(todo, quale))
+export function sezioniTodoClasse (todo: TodoClasse, mostraCorso = true): ReactNode[] {
+  const conCorso = { mostraCorso }
+  return FAMIGLIE_TODO.map((quale) => famiglia(todo, quale, conCorso))
 }
 
 /** Com'è messa una classe, detto in una riga: è il sottotitolo della sua scheda. */

@@ -290,12 +290,20 @@ function temaCheck (allievo: Allievo, corso: Corso): ReactNode {
     Uno(lessico().check),
     caselle.length,
     <div>
+      {/* Il totale lo dice già il titolo: qui le due parti, non «4/12» accanto a «12». */}
       <SintesiIncassata
-        campi={[{
-          etichetta: t.fatte,
-          valore: `${fatte}/${caselle.length}`,
-          tono: fatte === caselle.length ? 'positivo' : undefined,
-        }]}
+        campi={[
+          {
+            etichetta: t.fatte,
+            valore: String(fatte),
+            tono: fatte === caselle.length ? 'positivo' : undefined,
+          },
+          fatte < caselle.length && {
+            etichetta: t.daFare,
+            valore: String(caselle.length - fatte),
+            tono: 'attenzione' as const,
+          },
+        ]}
       />
       <ul className="check-allievo">
         {caselle.map(({ colonna, spunta, data }) => (

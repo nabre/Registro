@@ -61,10 +61,10 @@ const it = {
         termine: 'Le lezioni di oggi',
         testo:
           'In ordine di calendario: inizio e fine, classe e materia, argomento e aula. La ' +
-          'pastiglia dice la fase — **In corso**, **Da chiudere**, **Conclusa**, **Da ' +
-          'preparare**, **In programma**, **Annullata**. La lezione in corso porta la scritta ' +
-          '«Adesso»; fra una lezione e l’altra è la prossima ad accendersi, con «Prossima». Un clic ' +
-          'apre la lezione.',
+          'pastiglia dice la fase — **In corso**, **Da compilare**, **Conclusa**, **Da ' +
+          'preparare**, **In programma**, **Annullata**. La lezione in corso è accesa; fra una ' +
+          'lezione e l’altra è la prossima ad accendersi, con «Prossima». Un clic apre la lezione. ' +
+          'Senza lezioni oggi il riquadro dice quando è la prossima giornata e porta al calendario.',
       },
       {
         termine: 'Prossime valutazioni',
@@ -107,7 +107,7 @@ const it = {
       anno: 'Anno',
       agenda: 'Agenda',
       nuovaOra: 'Nuova lezione',
-      striscia: 'Settimane dell’anno · 34 su 38 con lezioni',
+      striscia: 'Settimane dell’anno · 34 settimane con lezioni su 38',
       lun: 'lun 14',
       mar: 'mar 15',
       mer: 'mer 16',
@@ -242,8 +242,9 @@ const it = {
       {
         termine: 'I numeri in testata',
         testo:
-          'Accanto al titolo il periodo e il semestre in cui cade; sotto, quattro conti della ' +
-          'settimana scelta: lezioni, UD, ore effettive e quante restano da svolgere.',
+          'Accanto al titolo il periodo e il semestre in cui cade; sotto, quattro conti del ' +
+          'periodo mostrato — la settimana, il mese o l’anno; in Agenda la settimana scelta: ' +
+          'lezioni, UD, ore effettive e quante restano da svolgere.',
       },
       {
         termine: 'Filtro per corso',
@@ -885,7 +886,7 @@ export const testi = catalogo(it, {
             'Beim ersten Start öffnet sich das Klassenbuch hier. Auf der Seite selbst tut man ' +
             'nichts: Jedes Feld führt dorthin, wo man die Sache erledigt.',
           legenda: [
-            'Die vier Kacheln: die Stunden von heute, die nachzutragenden, die offenen ' +
+            'Die vier Kacheln: die Stunden von heute, die auszufüllenden, die offenen ' +
               `${DE.pendenza.plurale}, die zuzuordnenden Seiten. Ein Klick führt zu ihrer Seite.`,
             'Die laufende Stunde — oder, zwischen zwei Stunden, die nächste — ist ' +
               'hervorgehoben. Jede Stunde zeigt ihren Stand, und ein Klick öffnet sie.',
@@ -906,7 +907,7 @@ export const testi = catalogo(it, {
           termine: 'Die vier Kacheln',
           testo:
             '**Stunden heute** führt zum Kalender auf heute und sagt darunter, wann die nächste ' +
-            'ist oder wie lange die laufende dauert. **Nachzutragen** zählt die Stunden ohne ' +
+            'ist oder wie lange die laufende dauert. **Auszufüllen** zählt die Stunden ohne ' +
             'Eintrag im gewählten Zeitraum und öffnet die älteste — oder die nächste, wenn alles ' +
             `in Ordnung ist. **${Molti(DE.pendenza)}** und **Zuzuordnen** führen zu ihren Seiten, ` +
             'mit derselben Zahl wie die Seitenleiste und die Leiste unten.',
@@ -915,10 +916,11 @@ export const testi = catalogo(it, {
           termine: 'Die Stunden von heute',
           testo:
             'In der Reihenfolge des Kalenders: Beginn und Ende, Klasse und Fach, Thema und ' +
-            'Zimmer. Die Plakette zeigt den Stand — **Läuft**, **Abzuschliessen**, **Abgeschlossen**, ' +
-            '**Vorzubereiten**, **Geplant**, **Ausgefallen**. Die laufende Stunde trägt «Jetzt»; ' +
-            'zwischen zwei Stunden ist die nächste hervorgehoben, mit «Als Nächstes». Ein Klick ' +
-            'öffnet die Stunde.',
+            'Zimmer. Die Plakette zeigt den Stand — **Läuft**, **Auszufüllen**, **Abgeschlossen**, ' +
+            '**Vorzubereiten**, **Geplant**, **Ausgefallen**. Die laufende Stunde ist hervorgehoben; ' +
+            'zwischen zwei Stunden ist es die nächste, mit «Als Nächstes». Ein Klick öffnet die ' +
+            'Stunde. Ohne Stunden heute sagt das Feld, wann der nächste Unterrichtstag ist, und ' +
+            'führt zum Kalender.',
         },
         {
           termine: 'Nächste Beurteilungen',
@@ -962,7 +964,7 @@ export const testi = catalogo(it, {
         anno: 'Jahr',
         agenda: 'Agenda',
         nuovaOra: 'Neue Stunde',
-        striscia: 'Wochen des Schuljahrs · 34 von 38 mit Stunden',
+        striscia: 'Wochen des Schuljahrs · 34 Wochen mit Stunden von 38',
         lun: 'Mo 14',
         mar: 'Di 15',
         mer: 'Mi 16',
@@ -1106,7 +1108,8 @@ export const testi = catalogo(it, {
           termine: 'Die Zahlen im Kopf',
           testo:
             'Neben dem Titel der Zeitraum und das Semester, in das er fällt; darunter vier ' +
-            'Zählungen der gewählten Woche: Stunden, Lektionen, effektive Zeitstunden und ' +
+            'Zählungen des gezeigten Zeitraums — Woche, Monat oder Schuljahr; in der Agenda die ' +
+            'gewählte Woche: Stunden, Lektionen, effektive Zeitstunden und ' +
             'wie viele noch zu halten sind.',
         },
         {
@@ -1779,7 +1782,7 @@ export const testi = catalogo(it, {
             'Au premier démarrage, le registre s’ouvre ici. Sur la page, on ne fait rien : ' +
             'chaque cadre mène là où la chose se fait.',
           legenda: [
-            'Les quatre tuiles : les leçons du jour, celles à compléter, les ' +
+            'Les quatre tuiles : les leçons du jour, celles à remplir, les ' +
               `${FR.pendenza.plurale} ouvertes, les pages à trier. Un clic mène à leur page.`,
             'La leçon en cours — ou, entre deux leçons, la prochaine — est mise en évidence. ' +
               'Chaque leçon dit où elle en est, et un clic l’ouvre.',
@@ -1800,7 +1803,7 @@ export const testi = catalogo(it, {
           termine: 'Les quatre tuiles',
           testo:
             '**Leçons du jour** mène au calendrier sur aujourd’hui, et dit dessous à quelle ' +
-            'heure est la prochaine ou jusqu’à quand dure celle en cours. **À compléter** compte ' +
+            'heure est la prochaine ou jusqu’à quand dure celle en cours. **À remplir** compte ' +
             'les leçons restées sans registre dans la période choisie et ouvre la plus ' +
             'ancienne — ou la prochaine, si tout est en ordre. ' +
             `**${Molti(FR.pendenza)}** et **À trier** mènent à leurs pages, avec le même nombre ` +
@@ -1810,10 +1813,11 @@ export const testi = catalogo(it, {
           termine: 'Les leçons d’aujourd’hui',
           testo:
             'Dans l’ordre du calendrier : début et fin, classe et branche, sujet et salle. La ' +
-            'pastille dit où en est la leçon — **En cours**, **À clôturer**, **Terminée**, ' +
-            '**À préparer**, **Prévue**, **Annulée**. La leçon en cours porte « Maintenant » ; ' +
+            'pastille dit où en est la leçon — **En cours**, **À remplir**, **Terminée**, ' +
+            '**À préparer**, **Prévue**, **Annulée**. La leçon en cours est mise en évidence ; ' +
             'entre deux leçons, c’est la prochaine qui s’allume, avec « Ensuite ». Un clic ouvre ' +
-            'la leçon.',
+            'la leçon. Sans leçons aujourd’hui, le cadre dit quand est la prochaine journée de ' +
+            'cours et mène au calendrier.',
         },
         {
           termine: 'Prochaines évaluations',
@@ -1857,7 +1861,7 @@ export const testi = catalogo(it, {
         anno: 'Année',
         agenda: 'Agenda',
         nuovaOra: 'Nouvelle leçon',
-        striscia: 'Semaines de l’année · 34 sur 38 avec des leçons',
+        striscia: 'Semaines de l’année · 34 semaines avec des leçons sur 38',
         lun: 'lun 14',
         mar: 'mar 15',
         mer: 'mer 16',
@@ -1996,7 +2000,8 @@ export const testi = catalogo(it, {
           termine: 'Les chiffres de l’en-tête',
           testo:
             'À côté du titre, la période et le semestre où elle tombe ; dessous, quatre comptes ' +
-            'de la semaine choisie : leçons, périodes, heures effectives et combien il en reste ' +
+            'de la période affichée — la semaine, le mois ou l’année ; dans l’agenda la semaine ' +
+            'choisie : leçons, périodes, heures effectives et combien il en reste ' +
             'à donner.',
         },
         {
@@ -2689,9 +2694,10 @@ export const testi = catalogo(it, {
           termine: 'Today’s lessons',
           testo:
             'In calendar order: start and end, class and subject, topic and room. The badge ' +
-            'shows the stage — **In progress**, **To close**, **Completed**, **To prepare**, ' +
-            '**Planned**, **Cancelled**. The lesson in progress is marked “Now”; between lessons ' +
-            'the next one lights up, marked “Next”. A click opens the lesson.',
+            'shows the stage — **In progress**, **To fill in**, **Completed**, **To prepare**, ' +
+            '**Planned**, **Cancelled**. The lesson in progress is highlighted; between lessons ' +
+            'the next one lights up, marked “Next”. A click opens the lesson. With no lessons ' +
+            'today the box says when the next teaching day is and takes you to the calendar.',
         },
         {
           termine: 'Upcoming assessments',
@@ -2733,7 +2739,7 @@ export const testi = catalogo(it, {
         anno: 'Year',
         agenda: 'Agenda',
         nuovaOra: 'New lesson',
-        striscia: 'Weeks of the year · 34 of 38 with lessons',
+        striscia: 'Weeks of the year · 34 weeks with lessons out of 38',
         lun: 'Mon 14',
         mar: 'Tue 15',
         mer: 'Wed 16',
@@ -2869,7 +2875,8 @@ export const testi = catalogo(it, {
           termine: 'The figures in the header',
           testo:
             'Next to the title, the period and the semester it falls in; below, four counts for ' +
-            'the chosen week: lessons, periods, actual hours and how many are still to be held.',
+            'the period shown — the week, the month or the year; in Agenda the chosen week: ' +
+            'lessons, periods, actual hours and how many are still to be held.',
         },
         {
           termine: 'Filter by course',

@@ -8,6 +8,7 @@
 import type { MouseEvent as EventoMouse, ReactElement, ReactNode } from 'react'
 
 import {
+  allieviDelPeriodo,
   avanzamentoAssenze,
   daSpedire,
   destinatariAssenze,
@@ -21,7 +22,7 @@ import {
   vergini,
   type RichiestaFirma,
 } from '#core/dominio/absences.js'
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
 import type { SegnalazioneAssenza } from '#core/dominio/alerts.js'
 import { Uno } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
@@ -424,24 +425,32 @@ function tabellaAssenze (classe: Classe, blocco: BloccoAssenze, allievi: Allievo
       scorrimento={`assenze:${classe.id}:${blocco.id}`} // testo-fisso: chiave di scorrimento
       intestazione={(
         <>
-          <th className="tabella__nome">{Uno(lessico().pif)}</th>
+          <th className="tabella__nome" scope="col">{Uno(lessico().pif)}</th>
+          {/* A vista la sigla, che tiene strette le colonne; al lettore di schermo
+              il nome intero: «ass. ✓» letto ad alta voce non vuol dire niente. */}
           {colonne().map((colonna) => (
-            <th key={colonna.chiave} className="tabella__richiesta" title={colonna.titolo}>
-              <span className="tabella__richiesta-titolo">{colonna.breve}</span>
+            <th key={colonna.chiave} className="tabella__richiesta" scope="col" title={colonna.titolo}>
+              <span className="tabella__richiesta-titolo" aria-hidden="true">{colonna.breve}</span>
+              <span className="tabella__per-lettori">{colonna.titolo}</span>
             </th>
           ))}
-          <th className="tabella__media">{parole().stato}</th>
+          <th className="tabella__media" scope="col">{parole().stato}</th>
         </>
       )}
       righe={allievi.map((allievo) => (
         <tr
           key={allievo.id}
-          className={faseRiga(rigaDi(blocco, allievo.id)) === 'fuori' ? 'tabella__riga--spenta' : undefined}
+          className={classi(
+            faseRiga(rigaDi(blocco, allievo.id)) === 'fuori' && 'tabella__riga--spenta',
+            !allievo.attivo && 'tabella__riga--ritirata',
+          )}
         >
           {/* `th scope="row"` e non `td`: lo schermo vocale legge di chi è la riga
               dall'intestazione. Lo stile è già comune (`.tabella th, .tabella td`). */}
           <th className="tabella__nome" scope="row">
             <CellaNome persona={allievo} nome={<span>{nomeCompleto(allievo)}</span>}>
+              {/* Chi si è ritirato resta solo per la riga ancora aperta, e lo si dice. */}
+              {allievo.attivo ? null : <small className="testo-quieto">{t.ritirato}</small>}
               {raggiungibile(allievo)
                 ? null
                 : <small className="testo-negativo" title={t.senzaDatoreAiuto}>{t.senzaDatore}</small>}
@@ -591,9 +600,10 @@ export function schedaAssenze (classe: Classe): ReactElement {
   const blocchi = toccaIlSemestreScelto([...fascicolo.assenze]).sort((a, b) =>
     b.dal.localeCompare(a.dal),
   )
-  const allievi = ordinaAllievi(allieviAttivi(classe))
   const scelto =
     blocchi.find((b) => b.id === stato.bloccoAssenzeId) ?? blocchi[0] ?? null
+  // Anche chi si è ritirato con una riga ancora aperta: i conti lo contano.
+  const allievi = ordinaAllievi(allieviDelPeriodo(classe, scelto))
   const conto = scelto ? avanzamentoAssenze(scelto) : null
   const pronte = scelto ? daSpedire(scelto) : []
 

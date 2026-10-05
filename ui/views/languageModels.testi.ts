@@ -30,9 +30,6 @@ const it = {
   lettoreNessuno: 'Non scaricare',
   lettoreNonScelto: 'Nessun programma scelto: finché non se ne sceglie uno, vale la scelta di prima.',
   dettatura: 'Dettatura',
-  dettaturaAiuto:
-    'Scrive nella casella dell’assistente quel che si dice al microfono. La voce la riconosce ' +
-    'voicebox, un programma a parte, su questo computer.',
   statoAcceso: 'acceso',
   dettaturaNota: 'Mentre si detta, voicebox deve essere aperto su questo computer.',
   scaricaModelli: 'Scarica modelli',
@@ -40,10 +37,7 @@ const it = {
     'I consigliati e la ricerca su Hugging Face. Quel che scende finisce nella cartella qui ' +
     'sopra, e si sceglie nelle righe in testa.',
   assistente: 'Assistente',
-  assistenteAiuto: 'Risponde alle domande sul registro leggendo i dati veri.',
   lettura: 'Lettura delle scansioni',
-  letturaAiuto:
-    'Legge i nomi sulle pagine che testo non ne hanno. Vuole anche il suo proiettore.',
 
   // I file sul computer.
   scesoAMeta: 'sceso a metà',
@@ -138,9 +132,6 @@ export const testi = catalogo(it, {
     lettoreNessuno: 'Nicht herunterladen',
     lettoreNonScelto: 'Kein Programm gewählt: bis eines gewählt ist, gilt die bisherige Wahl.',
     dettatura: 'Diktat',
-    dettaturaAiuto:
-      'Schreibt ins Feld des Assistenten, was man ins Mikrofon sagt. Die Stimme erkennt ' +
-      'voicebox, ein eigenes Programm, auf diesem Computer.',
     statoAcceso: 'ein',
     dettaturaNota: 'Während man diktiert, muss voicebox auf diesem Computer geöffnet sein.',
     scaricaModelli: 'Modelle herunterladen',
@@ -148,10 +139,7 @@ export const testi = catalogo(it, {
       'Die empfohlenen und die Suche auf Hugging Face. Was herunterkommt, landet im Ordner ' +
       'oben und wird in den Zeilen zuoberst gewählt.',
     assistente: 'Assistent',
-    assistenteAiuto: 'Beantwortet Fragen zum Klassenbuch anhand der echten Daten.',
     lettura: 'Lesen der Scans',
-    letturaAiuto:
-      'Liest die Namen auf Seiten, die keinen Text enthalten. Braucht auch seinen Projektor.',
     scesoAMeta: 'halb heruntergeladen',
     riprendibile:
       'Der Download ist nicht zu Ende gekommen. «Fortsetzen» macht hier weiter und nicht von '
@@ -238,9 +226,6 @@ export const testi = catalogo(it, {
     lettoreNessuno: 'Ne pas télécharger',
     lettoreNonScelto: 'Aucun programme choisi : tant qu’on n’en choisit pas, le choix précédent vaut.',
     dettatura: 'Dictée',
-    dettaturaAiuto:
-      'Écrit dans la case de l’assistant ce qu’on dit au micro. La voix est reconnue par ' +
-      'voicebox, un programme à part, sur cet ordinateur.',
     statoAcceso: 'activé',
     dettaturaNota: 'Pendant la dictée, voicebox doit être ouvert sur cet ordinateur.',
     scaricaModelli: 'Télécharger des modèles',
@@ -248,10 +233,7 @@ export const testi = catalogo(it, {
       'Les recommandés et la recherche sur Hugging Face. Ce qui descend va dans le dossier ' +
       'ci-dessus, et se choisit dans les lignes en tête.',
     assistente: 'Assistant',
-    assistenteAiuto: 'Répond aux questions sur le registre en lisant les vraies données.',
     lettura: 'Lecture des scans',
-    letturaAiuto:
-      'Lit les noms sur les pages qui n’ont pas de texte. Il lui faut aussi son projecteur.',
     scesoAMeta: 'téléchargé à moitié',
     riprendibile:
       'Le téléchargement n’est pas allé jusqu’au bout. « Reprendre » repart d’ici et non du '
@@ -338,9 +320,6 @@ export const testi = catalogo(it, {
     lettoreNessuno: 'Do not download',
     lettoreNonScelto: 'No program chosen: until one is chosen, the previous choice applies.',
     dettatura: 'Dictation',
-    dettaturaAiuto:
-      'Writes into the assistant’s box what you say into the microphone. Speech is recognised ' +
-      'by voicebox, a separate program, on this computer.',
     statoAcceso: 'on',
     dettaturaNota: 'While dictating, voicebox must be open on this computer.',
     scaricaModelli: 'Download models',
@@ -348,10 +327,7 @@ export const testi = catalogo(it, {
       'The recommended ones and the search on Hugging Face. What comes down goes into the ' +
       'folder above, and is chosen in the rows at the top.',
     assistente: 'Assistant',
-    assistenteAiuto: 'Answers questions about the register by reading the real data.',
     lettura: 'Scan reading',
-    letturaAiuto:
-      'Reads the names on pages that have no text in them. It also needs its projector.',
     scesoAMeta: 'half downloaded',
     riprendibile:
       'The download did not finish. “Resume” carries on from here, not from the start; '

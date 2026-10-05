@@ -220,6 +220,11 @@ export function schedaChiusure (): ReactElement {
     (conto, sospensione) => conto + differenzaGiorni(sospensione.dal, sospensione.al) + 1,
     0,
   )
+  const vuoto = anno.sospensioni.length === 0
+  // Senza chiusure il gesto più svelto è prenderle dal calendario ufficiale,
+  // quando ne ha: si scelgono nel modulo dell'anno. Un anno che lo segue già
+  // le riceve da lì, e lo dice l'avviso dell'anno.
+  const daImportare = vuoto && !anno.calendarioUfficiale ? vociUfficialiDaImportare(anno) : 0
 
   return (
     <Scheda
@@ -229,17 +234,34 @@ export function schedaChiusure (): ReactElement {
         ? undefined
         : t.periodiGiorni(anno.sospensioni.length, giorniChiusi)}
       aiuto={t.chiusureAiuto}
-      azioni={<Pulsante testo={parole().aggiungi} simbolo="piu" variante="primario" al={() => moduloPause(anno)} />}
+      // Un primario solo: vuota, il gesto principale è quello dello stato vuoto.
+      azioni={(
+        <Pulsante
+          testo={parole().aggiungi}
+          simbolo="piu"
+          variante={vuoto ? 'sottile' : 'primario'}
+          al={() => moduloPause(anno)}
+        />
+      )}
     >
-      {anno.sospensioni.length === 0
+      {vuoto
         ? (
             <StatoVuoto
               simbolo="calendario"
               titolo={t.nessunaChiusura}
               testo={t.nessunaChiusuraTesto}
-              azione={(
-                <Pulsante testo={t.aggiungiVacanze} variante="primario" simbolo="piu" al={() => moduloPause(anno)} />
-              )}
+              azione={daImportare > 0
+                ? (
+                    <Pulsante
+                      testo={t.importaUfficiale(daImportare)}
+                      variante="primario"
+                      simbolo="calendario"
+                      al={() => moduloAnno(anno)}
+                    />
+                  )
+                : (
+                    <Pulsante testo={t.aggiungiVacanze} variante="primario" simbolo="piu" al={() => moduloPause(anno)} />
+                  )}
             />
           )
         : (

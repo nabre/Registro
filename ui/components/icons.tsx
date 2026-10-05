@@ -8,7 +8,9 @@ import type { ReactElement } from 'react'
 
 import { Svg } from '#ui/svg.js'
 
-const TRACCIATI: Record<string, string> = {
+// `as const satisfies`: i nomi diventano un'unione, e un simbolo che non c'è
+// (prima ripiegava in silenzio sulla «i») è un errore di compilazione.
+const TRACCIATI = {
   sidebar:
     '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.5 8h1M5.5 12h1M5.5 16h1"/>',
   // L'interruttore della barra laterale, un'icona per stato: la freccia dice
@@ -43,6 +45,16 @@ const TRACCIATI: Record<string, string> = {
   // porta già la pagina accanto. Tracciato di Lucide («user-x», licenza ISC).
   assenze:
     '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
+  // Le colonne di altezza diversa: la Panoramica, le lezioni in colonne con le
+  // loro tappe. Distinta dalla Dashboard. Tracciato di Lucide («square-kanban»,
+  // licenza ISC).
+  colonne: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 7v7"/><path d="M12 7v4"/><path d="M16 7v9"/>',
+  // Un pezzo che entra accanto agli altri: un progetto della biblioteca messo al
+  // lavoro nel corso. Distinto dalla pila dei progetti. Tracciato di Lucide
+  // («blocks», licenza ISC).
+  innesto:
+    '<rect width="7" height="7" x="14" y="3" rx="1"/>' +
+    '<path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3"/>',
   // Tre fogli impilati: un lavoro fatto di più pezzi.
   progetto: '<path d="m12 3 9 4.5-9 4.5-9-4.5z"/><path d="m3 12 9 4.5 9-4.5"/><path d="m3 16.5 9 4.5 9-4.5"/>',
   piano:
@@ -108,6 +120,15 @@ const TRACCIATI: Record<string, string> = {
     '<path d="m12.5 14.6 1.9 1.9 3.6-3.8"/>',
   documento:
     '<path d="M6 3h7l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M13 3v5h5"/>',
+  // La persona spuntata: il check della classe, che raccoglie le persone di
+  // tutti i corsi; fa coppia con quella cancellata delle assenze, accanto.
+  // Tracciato di Lucide («user-check», licenza ISC).
+  checkClasse:
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
+  // La scatola dell'archivio: quel che la classe ha chiesto e ricevuto, distinto
+  // dal foglio dei documenti del corso. Tracciato di Lucide («archive», licenza ISC).
+  archivio:
+    '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
   // La stella dei preferiti nei due stati. La piena si riempie a mano: il foglio
   // mette `fill: none` su tutte le icone.
   stella:
@@ -172,7 +193,7 @@ const TRACCIATI: Record<string, string> = {
   // da distinguere dal documento già archiviato. Tracciato di Lucide («inbox», licenza ISC).
   vassoio:
     '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
-}
+} as const satisfies Record<string, string>
 
 export type NomeIcona = keyof typeof TRACCIATI
 

@@ -28,7 +28,6 @@ import {
   type TonoPastiglia,
 } from '#ui/components/base.js'
 import { classi } from '#ui/classNames.js'
-import { DataDiLezione } from '#ui/components/lessonDate.js'
 import { pannelloConsegne } from './assignments.js'
 import { pannelloCheckDellOra } from './check.js'
 import { pannelloRiconsegneDellOra } from './assessments/returns.js'
@@ -216,8 +215,9 @@ export function oreDelCorso (lezione: Lezione): Array<{ id: string, etichetta: s
 
 /**
  * La testata della lezione: il titolo è il navigatore delle ore del corso
- * (prima, tendina, dopo), in riga con la classe, il giorno e l'orario. Il
- * corso si sceglie solo dalla barra in cima.
+ * (prima, tendina, dopo), in riga con la classe, l'orario e l'aula. Il giorno
+ * lo dice già la tendina (e il percorso in cima): ripetuto nel sottotitolo
+ * sarebbe la terza volta. Il corso si sceglie solo dalla barra in cima.
  */
 function testataLezione (lezione: Lezione): ReactElement {
   const sorelle = lezioniDiCorso(lezione.corsoId)
@@ -233,7 +233,7 @@ function testataLezione (lezione: Lezione): ReactElement {
   }
 
   return (
-    <header className="testata testata--compatta testata--lezione">
+    <header className="testata testata--lezione">
       <h2 className="testata__titolo navigatore-registro">
         <Pulsante
           simbolo="sinistra"
@@ -260,15 +260,20 @@ function testataLezione (lezione: Lezione): ReactElement {
       <p className="testata__sottotitolo">
         <strong className="testata__classe">{classe?.nome ?? t.classeEliminata}</strong>
         {/* testo-fisso: separatore */}
-        {' · '}
-        <DataDiLezione iso={lezione.data} />
         {` · ${inizioLezione(lezione) ?? ''}–${fineLezione(lezione) ?? ''}` +
           (lezione.aula ? t.aula(lezione.aula) : '')}
       </p>
       <span className="testata__spazio" />
-      <span className="navigatore-registro__conta">
-        {posizione >= 0 ? t.posizione(posizione + 1, sorelle.length) : t.lezioni(sorelle.length)}
-      </span>
+      {/* Con un'ora sola «1 di 1» non dice niente. */}
+      {sorelle.length > 1
+        ? (
+            <span className="navigatore-registro__conta">
+              {posizione >= 0
+                ? t.posizione(posizione + 1, sorelle.length)
+                : t.lezioni(sorelle.length)}
+            </span>
+          )
+        : null}
     </header>
   )
 }

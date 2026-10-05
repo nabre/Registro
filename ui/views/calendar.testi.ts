@@ -19,10 +19,14 @@ const it = {
   restano: 'Valutazioni, consegne e spunte legate restano, senza la lezione. Ctrl+Z le riporta.',
   /** Il nome del pulsante che accende la modifica, fra le virgolette. */
   inModifica: (pulsante: string) => ` In «${pulsante}» si tolgono con un clic.`,
-  lezioniSettimana: 'lezioni in settimana',
-  udSettimana: 'UD in settimana',
+  /** I conti della testata, del periodo che la vista mostra. */
+  lezioniNel: { settimana: 'lezioni in settimana', mese: 'lezioni nel mese', anno: 'lezioni nell’anno' },
+  udNel: { settimana: 'UD in settimana', mese: 'UD nel mese', anno: 'UD nell’anno' },
   oreEffettive: 'ore effettive',
   daSvolgere: 'da svolgere',
+  /** La testata della striscia (`calendar/weekStrip.tsx`): «34 su 38» non diceva di che cosa. */
+  settimaneConLezioni: (piene: number, tutte: number) =>
+    `Settimane dell’anno · ${plurale(piene, 'settimana', 'settimane')} con lezioni su ${tutte}`,
 }
 
 export const testi = catalogo(it, {
@@ -43,10 +47,12 @@ export const testi = catalogo(it, {
       'Beurteilungen, Aufträge und verknüpfte Häkchen bleiben, ohne die Stunde. ' +
       'Ctrl+Z holt sie zurück.',
     inModifica: (pulsante) => ` Unter «${pulsante}» entfernt man sie mit einem Klick.`,
-    lezioniSettimana: 'Stunden diese Woche',
-    udSettimana: 'Lektionen diese Woche',
+    lezioniNel: { settimana: 'Stunden diese Woche', mese: 'Stunden im Monat', anno: 'Stunden im Schuljahr' },
+    udNel: { settimana: 'Lektionen diese Woche', mese: 'Lektionen im Monat', anno: 'Lektionen im Schuljahr' },
     oreEffettive: 'effektive Zeitstunden',
     daSvolgere: 'noch zu halten',
+    settimaneConLezioni: (piene, tutte) =>
+      `Wochen des Schuljahrs · ${plurale(piene, 'Woche', 'Wochen')} mit Stunden von ${tutte}`,
   },
   fr: {
     titolo: 'Calendrier',
@@ -64,10 +70,12 @@ export const testi = catalogo(it, {
     restano:
       'Les évaluations, devoirs et coches liés restent, sans la leçon. Ctrl+Z les rétablit.',
     inModifica: (pulsante) => ` En mode « ${pulsante} », on les retire d’un clic.`,
-    lezioniSettimana: 'leçons cette semaine',
-    udSettimana: 'périodes cette semaine',
+    lezioniNel: { settimana: 'leçons cette semaine', mese: 'leçons du mois', anno: 'leçons de l’année' },
+    udNel: { settimana: 'périodes cette semaine', mese: 'périodes du mois', anno: 'périodes de l’année' },
     oreEffettive: 'heures effectives',
     daSvolgere: 'à donner',
+    settimaneConLezioni: (piene, tutte) =>
+      `Semaines de l’année · ${plurale(piene, 'semaine', 'semaines')} avec des leçons sur ${tutte}`,
   },
   en: {
     titolo: 'Calendar',
@@ -86,9 +94,11 @@ export const testi = catalogo(it, {
       'Linked assessments, assignments and ticks stay, without the lesson. Ctrl+Z brings ' +
       'them back.',
     inModifica: (pulsante) => ` In “${pulsante}” mode they go with one click.`,
-    lezioniSettimana: 'lessons this week',
-    udSettimana: 'periods this week',
+    lezioniNel: { settimana: 'lessons this week', mese: 'lessons this month', anno: 'lessons this year' },
+    udNel: { settimana: 'periods this week', mese: 'periods this month', anno: 'periods this year' },
     oreEffettive: 'actual hours',
     daSvolgere: 'still to be held',
+    settimaneConLezioni: (piene, tutte) =>
+      `Weeks of the year · ${plurale(piene, 'week', 'weeks')} with lessons out of ${tutte}`,
   },
 })
