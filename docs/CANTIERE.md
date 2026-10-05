@@ -197,6 +197,11 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       («Ctrl+D non copia un’ora ancorata», «Canc due volte»), cadono anche sul
       codice di prima della conversione a React: la prima non ancora l'ora
       all'ICS, la seconda non risponde alla conferma dell'eliminazione.
+- [ ] Etichette del piano (`CampoEtichette` in `ui/forms/plan.tsx`) senza
+      prova fissa: provate solo a mano. Caso in
+      `tests/interfaccia/plansNavigator.spec.ts`: Invio, virgola, incolla con
+      virgole, doppione, Backspace, scelta dal `datalist`; un `piano.salva`
+      per gesto.
 
 ### Audit del 2026-10-02
 

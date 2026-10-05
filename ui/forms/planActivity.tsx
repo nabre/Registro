@@ -31,7 +31,7 @@ import {
 } from '#core/dominio/activities.js'
 import { checkDelCorso } from '#core/dominio/check.js'
 import { coloreDiVoce, testoDiVoce, vociConValore } from '#core/dominio/lists.js'
-import { formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
+import { formattaData, formattaDurata, formattaUd, sommaMinuti } from '#core/dominio/dates.js'
 import { creaAttivita } from '#core/dominio/factories.js'
 import type {
   Attivita,
@@ -64,22 +64,6 @@ import {
 } from './common.js'
 
 /**
- * Una voce del modulo che si legge e non si tocca: non un campo spento, ma
- * un'informazione che arriva da un'altra scelta (l'ora scelta nell'elenco a fianco).
- */
-export function voceFerma (etichetta: string, valore: string, aiuto?: string): ReactElement {
-  return (
-    <div className="campo campo--meta">
-      <span className="campo__etichetta">
-        {etichetta}
-        {aiuto ? <Suggerimento testo={aiuto} etichetta={etichetta} /> : null}
-      </span>
-      <strong className="campo__dettato">{valore}</strong>
-    </div>
-  )
-}
-
-/**
  * Il legame fra un controllo e la «i» accanto alla sua etichetta: la
  * spiegazione nascosta lo descrive (`aria-describedby`) e il nome gli torna
  * con `aria-label`, perché il pulsante dentro la `<label>` farebbe «Peso
@@ -94,15 +78,17 @@ interface Lega {
  * Un campo del dettaglio di una tappa: etichetta visibile sopra, controllo
  * sotto. Un campo già riempito senza etichetta non dice che cosa chiede.
  */
-function CampoTappa ({ etichetta, aiuto, children }: {
+function CampoTappa ({ etichetta, aiuto, largo, children }: {
   etichetta: string
   aiuto?: string
+  /** Un campo di testo libero, che vuole spazio per farsi leggere. */
+  largo?: boolean
   children: (lega: Lega) => ReactNode
 }): ReactElement {
   const id = useIdSuggerimento()
   const lega: Lega = aiuto ? { 'aria-describedby': id, 'aria-label': etichetta } : {}
   return (
-    <label className="campo-tappa">
+    <label className={classi('campo-tappa', largo && 'campo-tappa--largo')}>
       <span className="campo-tappa__etichetta">
         {etichetta}
         {aiuto ? <Suggerimento testo={aiuto} etichetta={etichetta} id={id} /> : null}
@@ -160,16 +146,27 @@ function TendinaTappa ({ voci, valore, al, lega }: {
 
 /**
  * Un gruppo di campi del dettaglio col suo titolino: svolgimento, parametri
- * del tipo, prova, materiale. I campi arrivano con la loro chiave.
+ * del tipo, prova, materiale. I campi arrivano con la loro chiave. È un
+ * `<fieldset>`: chi legge lo schermo sente il nome del gruppo entrando nei suoi
+ * campi, cosa che un titolo staccato non fa. La «i» sta sul titolo quando il
+ * gruppo ha un controllo solo, che altrimenti ripeterebbe il nome sopra di sé.
  */
-function gruppoTappa (titolo: string, figli: ReactNode[], classe?: string): ReactNode {
+function gruppoTappa (
+  titolo: string,
+  figli: ReactNode[],
+  classe?: string,
+  aiuto?: string,
+): ReactNode {
   const campi = figli.filter(Boolean)
   if (campi.length === 0) return null
   return (
-    <section className={classi('gruppo-tappa', classe)}>
-      <h6 className="gruppo-tappa__titolo">{titolo}</h6>
+    <fieldset className={classi('gruppo-tappa', classe)}>
+      <legend className="gruppo-tappa__titolo">
+        {titolo}
+        {aiuto ? <Suggerimento testo={aiuto} etichetta={titolo} /> : null}
+      </legend>
       <div className="gruppo-tappa__campi">{campi}</div>
-    </section>
+    </fieldset>
   )
 }
 
@@ -292,12 +289,13 @@ function campiDurata (
             key={m}
             className={classi('selettore-durata__chip', minutiAttuali === m && 'selettore-durata__chip--attivo')}
             type="button"
+            aria-pressed={minutiAttuali === m}
             onClick={() => impostaMinuti(m)}
           >
             {t.minutiBreve(m)}
           </button>
         ))}
-        <span className="selettore-durata__separatore" />
+        <span className="selettore-durata__separatore" aria-hidden="true" />
         <button
           className="selettore-durata__chip"
           type="button"
@@ -354,7 +352,7 @@ function campiSvolgimento (voce: Attivita, alCambio: () => void): ReactNode[] {
         />
       )}
     </CampoTappa>,
-    <CampoTappa key="materiali" etichetta={t.materialeDAula} aiuto={t.aiutoMateriale}>
+    <CampoTappa key="materiali" etichetta={t.materialeDAula} aiuto={t.aiutoMateriale} largo>
       {(lega) => (
         <Input
           className="campo__controllo"
@@ -612,7 +610,6 @@ function campiProgetto (
   corsoId: string | null,
   alCambio: () => void,
 ): ReactNode[] {
-  const t = testi()
   const scegli = (scelta: ProgettoEFase): void => {
     if (voce.progettoId !== scelta.progettoId) delete voce.attivitaProgettoId
     if (scelta.progettoId) {
@@ -625,30 +622,28 @@ function campiProgetto (
     }
     alCambio()
   }
+  // Senza etichetta sua: il titolo del gruppo la dice già, e il pulsante si
+  // nomina da sé («Progetto: …»).
   return [
-    <CampoTappa key="progetto" etichetta={Uno(lessico().progetto)} aiuto={t.aiutoProgetto}>
-      {/* Il controllo è un pulsante: il legame con la «i» vale solo per i campi. */}
-      {() => (
-        <SceltaProgettoFase
-          corsoId={corsoId}
-          valore={{
-            progettoId: voce.progettoId ?? null,
-            faseProgettoId: voce.faseProgettoId ?? null,
-          }}
-          al={scegli}
-          nuovaFase={(progetto) => {
-            void aggiungiFase(progetto).then((faseId) => {
-              if (faseId) scegli({ progettoId: progetto.id, faseProgettoId: faseId })
-            })
-          }}
-          // Il progetto nasce nella biblioteca dell'anno; salvando il piano, la
-          // tappa legata lo integra nel corso (lo fa l'host).
-          nuovoProgetto={() => moduloProgetto({
-            dopo: (progettoId) => scegli({ progettoId, faseProgettoId: null }),
-          })}
-        />
-      )}
-    </CampoTappa>,
+    <SceltaProgettoFase
+      key="progetto"
+      corsoId={corsoId}
+      valore={{
+        progettoId: voce.progettoId ?? null,
+        faseProgettoId: voce.faseProgettoId ?? null,
+      }}
+      al={scegli}
+      nuovaFase={(progetto) => {
+        void aggiungiFase(progetto).then((faseId) => {
+          if (faseId) scegli({ progettoId: progetto.id, faseProgettoId: faseId })
+        })
+      }}
+      // Il progetto nasce nella biblioteca dell'anno; salvando il piano, la
+      // tappa legata lo integra nel corso (lo fa l'host).
+      nuovoProgetto={() => moduloProgetto({
+        dopo: (progettoId) => scegli({ progettoId, faseProgettoId: null }),
+      })}
+    />,
     voce.progettoId && voce.attivitaProgettoId !== null
       ? <p key="sincronizzata" className="testo-quieto">{testiProgetto().sincronizzata}</p>
       : null,
@@ -890,7 +885,20 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
     const minuti = minutiAttivita(voce, perUd)
     const suoBlocco = sulleUd?.blocchi[suo?.blocco ?? -1] ?? null
     const riferimento = suoBlocco ? suoBlocco.capienza : minutiDiAttivita(totale, perUd)
-    const quota = riferimento > 0 ? Math.min(100, (minuti / riferimento) * 100) : 0
+    const percento = riferimento > 0 ? Math.round((minuti / riferimento) * 100) : 0
+    const quotaDetta = suoBlocco
+      ? t.quotaDelGruppo(minuti, riferimento, percento)
+      : t.quotaDellaScaletta(minuti, riferimento, percento)
+
+    // Oltre la fine dell'ora non ci sono più UD né pause: l'orologio va avanti
+    // dalla fine della lezione, e quanto si sfora si dice invece dei puntini.
+    const fineLezione = sulleUd?.blocchi.at(-1)?.fine ?? null
+    const sforo = sulleUd && suo ? suo.a - sulleUd.minutiLezione : 0
+    const oraInizio = suo?.oraInizio ??
+      (suo && fineLezione ? sommaMinuti(fineLezione, suo.da - (sulleUd?.minutiLezione ?? 0)) : null)
+    const oraFine = suo?.oraFine ??
+      (sforo > 0 && fineLezione ? sommaMinuti(fineLezione, sforo) : null)
+    const dettagliId = `dettagli-tappa-${voce.id}` // testo-fisso: id del dettaglio
 
     // Il tipo è una pastiglia con la sua tinta, che premuta apre l'elenco: lascia
     // spazio al titolo.
@@ -1001,8 +1009,25 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
         {/* L'ora dell'orologio, intervalli compresi; la colonna c'è solo con un'ora sotto. */}
         {sulleUd
           ? (
-              <span className="attivita-riga__orario" title={t.quandoCade}>
-                {suo?.oraInizio ? `${suo.oraInizio}–${suo.oraFine ?? '…'}` : '—'}
+              <span
+                className={classi('attivita-riga__orario', sforo > 0 && 'attivita-riga__orario--sfora')}
+                title={sforo > 0 ? `${t.quandoCade} · ${t.sforaDi(sforo)}` : t.quandoCade}
+              >
+                {oraInizio && oraFine
+                  ? <span className="attivita-riga__ore">{`${oraInizio}–${oraFine}`}</span>
+                  : '—'}
+                {sforo > 0
+                  ? (
+                      <span className="attivita-riga__sforo">
+                        {/* Il segno solo sulla tappa che comincia dentro e sfora: quelle
+                            tutte fuori stanno già sotto «Oltre la fine». */}
+                        {suo?.ud !== null
+                          ? <span aria-hidden="true">{t.sforoBreve(sforo)}</span>
+                          : null}
+                        <span className="attivita-riga__per-lettori">{t.sforaDi(sforo)}</span>
+                      </span>
+                    )
+                  : null}
               </span>
             )
           : null}
@@ -1012,6 +1037,8 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
             variante="fantasma"
             classe="attivita-riga__apri"
             titolo={aperta ? t.chiudiDettaglio : t.dettaglioTappa}
+            aria-expanded={aperta}
+            aria-controls={aperta ? dettagliId : undefined}
             al={() => {
               if (aperta) aperte.current.delete(voce.id)
               else aperte.current.add(voce.id)
@@ -1032,7 +1059,7 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
         {aperta ? null : sommarioTappa(voce)}
         {aperta
           ? (
-              <div className="attivita-riga__dettagli">
+              <div className="attivita-riga__dettagli" id={dettagliId}>
                 {gruppoTappa(t.durataTappa, campiDurata(voce, perUd, cambiato))}
                 {gruppoTappa(t.svolgimento, campiSvolgimento(voce, cambiato))}
                 {/* Il titolo dice di quale tipo sono i campi: cambiando tipo il gruppo cambia. */}
@@ -1061,8 +1088,11 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
                       Uno(lessico().progetto),
                       campiProgetto(voce, idCorso, cambiato),
                       voce.progettoId ? 'gruppo-tappa--progetto' : undefined,
+                      t.aiutoProgetto,
                     )}
-                {/* Il materiale della tappa sta con la tappa, non in un elenco del piano. */}
+                {/* Il materiale della tappa sta con la tappa, non in un elenco del piano.
+                    Pulsanti col nome come quelli del piano: nel dettaglio aperto lo
+                    spazio c'è, e tre icone nude non dicono che cosa aggiungono. */}
                 {gestore
                   ? gruppoTappa(t.materialeDellaTappa, [
                       <BloccoRisorse
@@ -1070,7 +1100,6 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
                         pianoId={gestore.pianoId}
                         attivitaId={voce.id}
                         risorse={voce.risorse}
-                        compatto
                         prima={gestore.prima}
                         dopo={() => gestore.rinfrescaTutto()}
                       />,
@@ -1079,22 +1108,36 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
               </div>
             )
           : null}
-        {/* Il filo del tempo in fondo alla riga, largo quanto la tappa dura. */}
-        <span className="attivita-riga__quota" style={{ width: `${quota}%` }} aria-hidden="true" />
+        {/* Il filo del tempo in fondo alla riga, largo quanto la tappa dura: una
+            misura, che si dice a parole a chi non la vede o ci passa sopra. */}
+        <span
+          className="attivita-riga__quota"
+          role="meter"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.min(100, percento)}
+          aria-label={quotaDetta}
+          title={quotaDetta}
+        >
+          <span className="attivita-riga__quota-pieno" style={{ width: `${Math.min(100, percento)}%` }} />
+        </span>
       </li>
     )
   }
 
-  /** I nomi delle colonne, una volta sola in cima all'elenco. */
+  /**
+   * I nomi delle colonne, una volta sola sopra l'elenco e fuori da lui: non è
+   * una tappa, e ogni campo della riga ha già il suo nome per chi legge lo schermo.
+   */
   const intestazione = (
-    <li key="intestazione" className="attivita-riga attivita-riga--intestazione">
+    <div className="attivita-riga attivita-riga--intestazione" aria-hidden="true">
       <span>#</span>
       <span>{Uno(lessico().attivita)}</span>
       <span>{parole().tipo}</span>
       <span>{t.minuti}</span>
       {sulleUd ? <span>{t.quando}</span> : null}
       <span className="attivita-riga__azioni" />
-    </li>
+    </div>
   )
 
   /**
@@ -1105,10 +1148,10 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
    */
   const scheletro = (): ReactNode[] => {
     if (!sulleUd) {
-      return [intestazione, ...attivita.map((voce, indice) => rigaAttivita(voce, indice))]
+      return attivita.map((voce, indice) => rigaAttivita(voce, indice))
     }
 
-    const righe: ReactNode[] = [intestazione]
+    const righe: ReactNode[] = []
     sulleUd.blocchi.forEach((blocco, i) => {
       // Fra un gruppo e l'altro l'intervallo, con i minuti che dura.
       if (i > 0) {
@@ -1168,13 +1211,14 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
   const vuotoSenzOra = attivita.length === 0 && !sulleUd
 
   return (
-    <div ref={contenitore} className="attivita-editor">
+    <div ref={contenitore} className={classi('attivita-editor', sulleUd && 'attivita-editor--con-orario')}>
       {vuotoSenzOra
         ? <Quieto>{t.nessunaAttivita}</Quieto>
         : (
-            <ol className={classi('attivita-editor__elenco', sulleUd && 'attivita-editor__elenco--con-orario')}>
-              {scheletro()}
-            </ol>
+            <>
+              {intestazione}
+              <ol className="attivita-editor__elenco">{scheletro()}</ol>
+            </>
           )}
       {attivita.length === 0 && sulleUd ? <Quieto>{t.nessunaAttivita}</Quieto> : null}
       <div className="attivita-editor__piede">

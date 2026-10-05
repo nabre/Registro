@@ -53,10 +53,10 @@ import {
   annoCorrente,
   classeDelCorsoId,
   classeDiMomento,
+  lezioneDiPiano,
   lezionePerId,
   nomeClasseDiLezione,
   nomeDiLezione,
-  nomeDiPiano,
   pianoPerId,
   stato,
   vai,
@@ -250,8 +250,8 @@ function collegamentiDelPiano (piano: PianoLezione): ReactNode {
       <div>
         {usiInLezioni.length > 1
           ? (
-              <section className="blocco-testo">
-                <h5>{t.usatoNelleLezioni}</h5>
+              <section className="blocco-testo" aria-labelledby="piano-usi">
+                <h4 id="piano-usi">{t.usatoNelleLezioni}</h4>
                 <ul className="elenco-collegamenti">
                   {usiInLezioni.slice(0, 12).map((lezione) => (
                     <li key={lezione.id} className="elenco-collegamenti__voce">
@@ -272,8 +272,8 @@ function collegamentiDelPiano (piano: PianoLezione): ReactNode {
           : null}
         {momenti.length > 0
           ? (
-              <section className="blocco-testo">
-                <h5>{t.valutazioniUscite}</h5>
+              <section className="blocco-testo" aria-labelledby="piano-valutazioni">
+                <h4 id="piano-valutazioni">{t.valutazioniUscite}</h4>
                 <ul className="elenco-collegamenti">
                   {momenti.slice(0, 12).map((momento) => (
                     <li key={momento.id} className="elenco-collegamenti__voce">
@@ -379,8 +379,8 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
       <div className="strumenti-piano">
         {pendenzeAperte.length > 0
           ? (
-              <section className="blocco-testo">
-                <h5>{t.pendenzeDelCorso}</h5>
+              <section className="blocco-testo" aria-labelledby="piano-pendenze">
+                <h4 id="piano-pendenze">{t.pendenzeDelCorso}</h4>
                 <ul className="elenco-collegamenti">
                   {pendenzeAperte.map((c) => {
                     const avanzamento = avanzamentoConsegna(c, classe)
@@ -418,8 +418,8 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
           : null}
         {colonneCheck.length > 0
           ? (
-              <section className="blocco-testo">
-                <h5>{t.checkDelCorso}</h5>
+              <section className="blocco-testo" aria-labelledby="piano-check">
+                <h4 id="piano-check">{t.checkDelCorso}</h4>
                 <ul className="elenco-collegamenti">
                   {colonneCheck.map((col) => {
                     const giaCollegata = piano.attivita.some((a) => verificaColonna(a, col.id))
@@ -454,14 +454,25 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
 
 /** La colonna del piano aperto: l'editor e gli strumenti collegati. */
 function dettaglioPiano (piano: PianoLezione, lezione: Lezione | null): ReactElement {
-  const titolo = lezione
-    ? `${nomeDiLezione(lezione)} · ${formattaData(lezione.data, 'lungo')}`
-    : nomeDiPiano(piano)
+  const t = testi()
+  // Il corso e la data li dicono già la tendina e il navigatore sopra: qui
+  // basta il nome dell'ora, su una riga.
+  const titolo = lezione ? nomeDiLezione(lezione) : lezioneDiPiano(piano)
 
   return (
     <div className="colonna">
       {/* Niente pulsanti: duplicare, eliminare e andare al registro sono comandi della pagina. */}
-      <Scheda titolo={titolo} sottotitolo={testi().siSalva}>
+      <Scheda
+        classe="piano-scheda"
+        titolo={titolo}
+        aiuto={t.aiutoPiano}
+        azioni={(
+          <span className="piano-scheda__salvataggio">
+            <Icona nome="spunta" classe="icona--minuta" />
+            {t.siSalva}
+          </span>
+        )}
+      >
         <EditorDelPiano key={chiaveEditor(piano, lezione)} piano={piano} lezione={lezione} />
       </Scheda>
       {pannelloPendenzeECheckPiano(piano, lezione)}

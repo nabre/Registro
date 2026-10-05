@@ -14,6 +14,9 @@ const it = {
   valutazioniUscite: 'Valutazioni che ne sono uscite',
   senzaClasse: 'senza classe',
   siSalva: 'quel che si scrive si salva da sé',
+  aiutoPiano:
+    'Il piano dell’ora scelta nel navigatore, del corso scelto in cima. Per usarlo in un altro ' +
+    'corso lo si duplica e lo si adatta.',
 
   // La testata
   nessunCorsoDaPreparare: 'nessun corso da preparare',
@@ -58,6 +61,9 @@ export const testi = catalogo(it, {
     valutazioniUscite: 'Daraus entstandene Beurteilungen',
     senzaClasse: 'ohne Klasse',
     siSalva: 'was man schreibt, speichert sich selbst',
+    aiutoPiano:
+      'Der Plan der im Navigator gewählten Stunde, im oben gewählten Kurs. Um ihn in einem ' +
+      'anderen Kurs zu verwenden, duplizierst du ihn und passt ihn an.',
     nessunCorsoDaPreparare: 'kein Kurs vorzubereiten',
     senzaScaletta: (quante) =>
       plurale(quante, 'Stunde noch ohne Ablauf', 'Stunden noch ohne Ablauf'),
@@ -94,6 +100,9 @@ export const testi = catalogo(it, {
     valutazioniUscite: 'Évaluations qui en sont issues',
     senzaClasse: 'sans classe',
     siSalva: 'ce qu’on écrit s’enregistre tout seul',
+    aiutoPiano:
+      'Le plan de la leçon choisie dans le navigateur, du cours choisi en haut. Pour l’utiliser ' +
+      'dans un autre cours, on le duplique et on l’adapte.',
     nessunCorsoDaPreparare: 'aucun cours à préparer',
     senzaScaletta: (quante) =>
       plurale(
@@ -134,6 +143,9 @@ export const testi = catalogo(it, {
     valutazioniUscite: 'Assessments that came out of it',
     senzaClasse: 'no class',
     siSalva: 'what you write saves itself',
+    aiutoPiano:
+      'The plan for the lesson chosen in the navigator, in the course chosen at the top. To use ' +
+      'it in another course, duplicate it and adapt it.',
     nessunCorsoDaPreparare: 'no course to prepare',
     senzaScaletta: (quante) =>
       plurale(

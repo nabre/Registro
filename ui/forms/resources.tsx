@@ -10,7 +10,6 @@ import { Campo, Collegamento, Pulsante, Quieto } from '#ui/components/base.js'
 import { Icona } from '#ui/components/icons.js'
 import { Suggerimento } from '#ui/components/hint.js'
 import { apriModale } from '#ui/components/modal.js'
-import { classi } from '#ui/classNames.js'
 import { notifica } from '#ui/components/notifications.js'
 import { azione } from '#ui/bridge.js'
 import { pianoPerId, uriDato } from '#ui/state.js'
@@ -28,8 +27,6 @@ interface OpzioniRisorse {
   pianoId: string
   attivitaId: string | null
   risorse: Risorsa[]
-  /** Righe strette e pulsanti senza testo: dentro la scaletta lo spazio è poco. */
-  compatto?: boolean
   prima?: () => Promise<boolean>
   dopo?: () => void
 }
@@ -85,7 +82,7 @@ function RigaRisorsa ({ opzioni, risorsa }: { opzioni: OpzioniRisorse, risorsa: 
  */
 export function BloccoRisorse (opzioni: OpzioniRisorse): ReactElement {
   const t = testi()
-  const { pianoId, attivitaId, risorse, compatto = false } = opzioni
+  const { pianoId, attivitaId, risorse } = opzioni
 
   const aggiungi = (genere: 'file' | 'immagine') => async () => {
     if (opzioni.prima && !(await opzioni.prima())) return
@@ -99,33 +96,31 @@ export function BloccoRisorse (opzioni: OpzioniRisorse): ReactElement {
   }
 
   return (
-    <div className={classi('risorse', compatto && 'risorse--compatte')}>
+    <div className="risorse">
       {risorse.length > 0
         ? (
             <ul className="risorse__elenco">
               {risorse.map((r) => <RigaRisorsa key={r.id} opzioni={opzioni} risorsa={r} />)}
             </ul>
           )
-        : compatto
-          ? null
-          : <Quieto>{t.nessunaRisorsa}</Quieto>}
+        : <Quieto>{t.nessunaRisorsa}</Quieto>}
       <div className="risorse__azioni">
         <Pulsante
-          testo={compatto ? undefined : t.collegamento}
+          testo={t.collegamento}
           simbolo="collegamento"
           variante="fantasma"
           titolo={t.aggiungiCollegamento}
           al={() => void collegamento()}
         />
         <Pulsante
-          testo={compatto ? undefined : t.file}
+          testo={t.file}
           simbolo="allegato"
           variante="fantasma"
           titolo={t.aggiungiFile}
           al={() => void aggiungi('file')()}
         />
         <Pulsante
-          testo={compatto ? undefined : t.immagine}
+          testo={t.immagine}
           simbolo="immagine"
           variante="fantasma"
           titolo={t.aggiungiImmagine}

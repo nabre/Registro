@@ -726,9 +726,12 @@ const it = {
       {
         termine: 'Di che cosa parla',
         testo:
-          'Un piano non ha un titolo: ha **Obiettivi** (uno per riga) e **Prerequisiti**. ' +
-          'Sono quel che la ricerca trova, e il primo obiettivo fa da argomento ' +
-          'nell’elenco del navigatore.',
+          'Un piano non ha un titolo: ha **Obiettivi** (uno per riga), **Prerequisiti** ed ' +
+          '**Etichette**. Sono quel che la ricerca trova, e il primo obiettivo fa da argomento ' +
+          'nell’elenco del navigatore. Un’etichetta si scrive e si conferma con **Invio** o ' +
+          'con la virgola, e diventa una pastiglia; la × la toglie, come **Backspace** a campo ' +
+          'vuoto. Il campo propone quelle già date agli altri piani; due uguali a meno delle ' +
+          'maiuscole restano una. Il rapporto della lezione le stampa.',
       },
       {
         termine: 'Le tappe',
@@ -751,7 +754,9 @@ const it = {
         testo:
           'Con un’ora sotto, le tappe cadono nei gruppi di UD fra un intervallo e l’altro: ' +
           '«10 min liberi», «pieno», «15 min di troppo». Quel che non ci sta finisce sotto ' +
-          '**Oltre la fine della lezione**. Nell’elenco del navigatore, «20 min scoperti» ' +
+          '**Oltre la fine della lezione**; l’orario di chi sfora è rosso e arriva a quando ' +
+          'finisce davvero, con quanto va oltre: «08:55–09:20 +15′». Nell’elenco del ' +
+          'navigatore, «20 min scoperti» ' +
           'o «10 min oltre l’ora».',
       },
       {
@@ -779,7 +784,9 @@ const it = {
         testo:
           '**Collegamento**, **File**, **Immagine**: del piano intero o di una tappa. File e ' +
           'immagini si copiano nel documento dell’anno, con il nome della tappa. La matita ' +
-          'cambia titolo e note, o la sposta su un’altra tappa con **Appesa a**.',
+          'cambia titolo e note, o la sposta su un’altra tappa con **Appesa a**. Nella ' +
+          'finestra di modifica, allegare un file salva subito il piano: il file dev’essere ' +
+          'di qualcuno.',
       },
       {
         termine: 'Riuso',
@@ -1568,9 +1575,13 @@ export const testi = catalogo(it, {
         {
           termine: 'Worum es geht',
           testo:
-            'Ein Plan hat keinen Titel: Er hat **Lernziele** (eines pro Zeile) und ' +
-            '**Voraussetzungen**. Das findet die Suche, und das erste Lernziel dient als ' +
-            'Thema in der Liste des Navigators.',
+            'Ein Plan hat keinen Titel: Er hat **Lernziele** (eines pro Zeile), ' +
+            '**Voraussetzungen** und **Schlagwörter**. Das findet die Suche, und das erste ' +
+            'Lernziel dient als Thema in der Liste des Navigators. Ein Schlagwort schreibst du ' +
+            'und bestätigst es mit **Enter** oder einem Komma; es wird zu einer Pille. Das × ' +
+            'entfernt es, ebenso die **Rücktaste** im leeren Feld. Das Feld schlägt die ' +
+            'Schlagwörter der anderen Pläne vor; zwei, die sich nur in der Gross- und ' +
+            'Kleinschreibung unterscheiden, bleiben eines. Der Bericht der Stunde druckt sie.',
         },
         {
           termine: 'Die Etappen',
@@ -1595,7 +1606,9 @@ export const testi = catalogo(it, {
           testo:
             'Mit einer Stunde darunter fallen die Etappen in die Gruppen von Lektionen ' +
             'zwischen zwei Pausen: «10 min frei», «voll», «15 min zu viel». Was nicht ' +
-            'hineinpasst, landet unter **Über das Ende der Stunde hinaus**. In der Liste des ' +
+            'hineinpasst, landet unter **Über das Ende der Stunde hinaus**; die Uhrzeit einer ' +
+            'Etappe, die überzieht, ist rot und reicht bis zu ihrem wirklichen Ende, mit dem ' +
+            'Überschuss: «08:55–09:20 +15′». In der Liste des ' +
             'Navigators «20 min nicht abgedeckt» oder «10 min über die Stunde hinaus».',
         },
         {
@@ -1626,7 +1639,8 @@ export const testi = catalogo(it, {
             '**Link**, **Datei**, **Bild**: für den ganzen Plan oder für eine Etappe. Dateien ' +
             'und Bilder werden ins Dokument des Schuljahrs kopiert, mit dem Namen der Etappe. ' +
             'Der Stift ändert Titel und Notizen, oder hängt sie mit **Gehört zu** an eine ' +
-            'andere Etappe.',
+            'andere Etappe. Im Bearbeitungsfenster speichert das Anhängen einer Datei den Plan ' +
+            'sofort: Die Datei muss zu etwas gehören.',
         },
         {
           termine: 'Wiederverwenden',
@@ -2397,9 +2411,13 @@ export const testi = catalogo(it, {
         {
           termine: 'De quoi il parle',
           testo:
-            'Un plan n’a pas de titre : il a des **Objectifs** (un par ligne) et des ' +
-            '**Prérequis**. C’est ce que trouve la recherche, et le premier objectif sert de ' +
-            'sujet dans la liste du navigateur.',
+            'Un plan n’a pas de titre : il a des **Objectifs** (un par ligne), des ' +
+            '**Prérequis** et des **Mots-clés**. C’est ce que trouve la recherche, et le premier ' +
+            'objectif sert de sujet dans la liste du navigateur. Un mot-clé s’écrit et se ' +
+            'confirme avec **Entrée** ou une virgule, et devient une pastille ; la × le retire, ' +
+            'comme **Retour arrière** dans le champ vide. Le champ propose ceux déjà donnés aux ' +
+            'autres plans ; deux identiques aux majuscules près n’en font qu’un. Le rapport de ' +
+            'la leçon les imprime.',
         },
         {
           termine: 'Les étapes',
@@ -2424,7 +2442,9 @@ export const testi = catalogo(it, {
           testo:
             'Avec une leçon dessous, les étapes tombent dans les groupes de périodes entre ' +
             'deux pauses : « 10 min libres », « plein », « 15 min de trop ». Ce qui ne tient ' +
-            'pas finit sous **Au-delà de la fin de la leçon**. Dans la liste du navigateur, ' +
+            'pas finit sous **Au-delà de la fin de la leçon** ; l’horaire d’une étape qui ' +
+            'déborde est en rouge et va jusqu’à sa vraie fin, avec le dépassement : ' +
+            '« 08:55–09:20 +15′ ». Dans la liste du navigateur, ' +
             '« 20 min non couverts » ou « 10 min au-delà de la leçon ».',
         },
         {
@@ -2454,7 +2474,8 @@ export const testi = catalogo(it, {
             '**Lien**, **Fichier**, **Image** : du plan entier ou d’une étape. Fichiers et ' +
             'images se copient dans le document de l’année, avec le nom de l’étape. Le crayon ' +
             'change le titre et les notes, ou la déplace sur une autre étape avec **Rattachée ' +
-            'à**.',
+            'à**. Dans la fenêtre de modification, joindre un fichier enregistre aussitôt le ' +
+            'plan : le fichier doit appartenir à quelque chose.',
         },
         {
           termine: 'Réutilisation',
@@ -3205,9 +3226,12 @@ export const testi = catalogo(it, {
         {
           termine: 'What it is about',
           testo:
-            'A plan has no title: it has **Objectives** (one per line) and ' +
-            '**Prerequisites**. That is what the search finds, and the first objective ' +
-            'serves as the topic in the navigator’s list.',
+            'A plan has no title: it has **Objectives** (one per line), **Prerequisites** ' +
+            'and **Tags**. That is what the search finds, and the first objective serves as ' +
+            'the topic in the navigator’s list. You type a tag and confirm it with **Enter** ' +
+            'or a comma, and it becomes a pill; the × removes it, as does **Backspace** in the ' +
+            'empty field. The field suggests the tags already given to other plans; two that ' +
+            'differ only in capitals stay one. The lesson report prints them.',
         },
         {
           termine: 'The steps',
@@ -3231,7 +3255,9 @@ export const testi = catalogo(it, {
           testo:
             'With a lesson underneath, the steps fall into the groups of periods between one ' +
             'break and the next: “10 min free”, “full”, “15 min too many”. What does not fit ' +
-            'ends up under **Past the end of the lesson**. In the navigator’s list, “20 min ' +
+            'ends up under **Past the end of the lesson**; a step that runs over shows its ' +
+            'time in red up to when it really ends, with the overrun: “08:55–09:20 +15′”. ' +
+            'In the navigator’s list, “20 min ' +
             'uncovered” or “10 min over the lesson”.',
         },
         {
@@ -3259,7 +3285,8 @@ export const testi = catalogo(it, {
           testo:
             '**Link**, **File**, **Image**: for the whole plan or a step. Files and images are ' +
             'copied into the year’s document, with the step’s name. The pencil changes title ' +
-            'and notes, or moves it to another step with **Attached to**.',
+            'and notes, or moves it to another step with **Attached to**. In the edit window, ' +
+            'attaching a file saves the plan straight away: the file has to belong somewhere.',
         },
         {
           termine: 'Reuse',
