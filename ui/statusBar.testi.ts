@@ -1,4 +1,4 @@
-// I testi della barra in fondo (`statusBar.ts`). La guida cita fra virgolette
+// I testi della barra in fondo (`statusBar.tsx`). La guida cita fra virgolette
 // le voci corte («da compilare», «senza rete», «casella collegata»): cambiandone
 // una va cambiata anche là, in tutte le lingue.
 

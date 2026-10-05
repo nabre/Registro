@@ -1,4 +1,4 @@
-// I testi delle liste dei menu a tendina (`settings/lists.ts`). Nomi delle
+// I testi delle liste dei menu a tendina (`settings/lists.tsx`). Nomi delle
 // liste e dove compaiono stanno in `domain/lists.testi.ts`.
 
 import { catalogo } from '#core/i18n/index.js'

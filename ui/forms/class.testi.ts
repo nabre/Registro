@@ -1,4 +1,4 @@
-// I testi di `forms/class.ts`: la finestra della classe, quella della persona
+// I testi di `forms/class.tsx`: la finestra della classe, quella della persona
 // in formazione — anagrafica, indirizzi, telefoni, foto — e l'incolla-elenco.
 
 import { catalogo } from '#core/i18n/index.js'

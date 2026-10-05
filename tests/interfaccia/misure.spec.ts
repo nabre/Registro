@@ -10,7 +10,7 @@
 //
 // Lenta vuol dire oltre 200 ms il primo disegno o 50 ms un ridisegno, il
 // limite di un compito lungo per Chromium. Le tre tabelle lo erano, di secondi
-// le due matrici, e ora si disegnano a finestra (`components/virtualList.ts`).
+// le due matrici, e ora si disegnano a finestra (`components/virtualList.tsx`).
 // Il ridisegno però rifà la pagina intera (ADR-06), e con quaranta righe la
 // pagina costa già più di 50 ms anche con una tabella corta: la prova chiede
 // allora che la tabella lunga costi quanto la stessa pagina con una corta, o

@@ -3,81 +3,46 @@
 // che arriva (un'anteprima, un PDF rifatto, un CSV) cambia solo il riquadro che
 // la mostra, e rifare tutta la pagina per lei la faceva lampeggiare.
 //
-// Un'isola è una funzione del disegno come le altre: la vista la chiama con una
-// chiave e una funzione che ne disegna il contenuto. Il disegno completo la
-// esegue subito e se la ricorda; `ridisegnaIsola(chiave)` la riesegue più tardi
-// e rifà solo quel sottoalbero. Il contenuto resta funzione dello stato e delle
-// letture: il DOM dell'isola non tiene niente che un ridisegno completo perda.
+// Un'isola è un componente di React (`<Isola>`, `island.tsx`, o chi usa
+// `useFinestra`) iscritto qui sotto una chiave che dice che cosa si guarda
+// (`anteprima:<id del modello>`), non dove. `ridisegnaIsola(chiave)` rifà più
+// tardi solo lui. Il contenuto resta funzione dello stato e delle letture:
+// l'isola non tiene niente che un ridisegno completo perda.
 
-import {
-  aggiornaElemento,
-  h,
-  ricordaFuoco,
-  ricordaScorrimenti,
-  ripristinaFuoco,
-  ripristinaScorrimenti,
-  type Attributi,
-  type Figlio,
-} from './dom.js'
+/** Per ogni chiave, chi ridisegna le isole che le rispondono. */
+const reattive = new Map<string, Set<() => void>>()
 
-/**
- * L'ultima funzione disegnata per ogni chiave. Si sovrascrive a ogni disegno
- * completo, quindi vede sempre lo stato dell'ultimo; una chiave la cui isola
- * non è più nel documento si dimentica al primo tentativo di rifarla.
- */
-const disegni = new Map<string, () => Figlio>()
+/** Iscrive un'isola alla sua chiave; torna la disiscrizione. */
+export function iscriviIsola (chiave: string, rifai: () => void): () => void {
+  let suoi = reattive.get(chiave)
+  if (!suoi) {
+    suoi = new Set()
+    reattive.set(chiave, suoi)
+  }
+  suoi.add(rifai)
+  return () => {
+    suoi.delete(rifai)
+    if (suoi.size === 0) reattive.delete(chiave)
+  }
+}
 
 /** Le chiavi da rifare al prossimo fotogramma: tre letture di fila, un giro solo. */
 const inAttesa = new Set<string>()
 let programmato = false
 
-/**
- * Il contenitore di un'isola, da mettere nel disegno dove il contenuto deve
- * comparire. La chiave è unica nella pagina e dice che cosa si guarda
- * (`anteprima:<id del modello>`), non dove. `attributi` vanno sul contenitore,
- * che il ridisegno dell'isola non rifà: niente ascoltatori che dipendano dallo
- * stato, lì.
- */
-export function isola (
-  chiave: string,
-  disegna: () => Figlio,
-  attributi: Attributi = {},
-): HTMLElement {
-  disegni.set(chiave, disegna)
-  return h('div', { ...attributi, dataset: { ...attributi.dataset, isola: chiave } }, disegna())
-}
-
-/** I contenitori nel documento con quella chiave. */
-function contenitori (chiave: string): HTMLElement[] {
-  return Array.from(document.querySelectorAll<HTMLElement>(`[data-isola="${CSS.escape(chiave)}"]`))
-}
-
 /** Se l'isola è nel documento adesso: chi l'aspetta può ridisegnare lei sola. */
 export function isolaPresente (chiave: string): boolean {
-  return disegni.has(chiave) && contenitori(chiave).length > 0
+  return (reattive.get(chiave)?.size ?? 0) > 0
 }
 
 /**
- * Rifà adesso il contenuto dell'isola, con fuoco e scorrimento rimessi come in
- * `main.ts` ma solo lì dentro. Torna falso se l'isola non c'è: chi chiama
- * decide se ridisegnare tutto.
+ * Rifà adesso le isole con quella chiave. Torna falso se non ce n'è nessuna:
+ * chi chiama decide se ridisegnare tutto.
  */
 function rifaiIsola (chiave: string): boolean {
-  const disegna = disegni.get(chiave)
-  const trovati = disegna ? contenitori(chiave) : []
-  if (!disegna || trovati.length === 0) {
-    disegni.delete(chiave)
-    return false
-  }
-  for (const contenitore of trovati) {
-    const nuovo = disegna()
-    const attivo = document.activeElement
-    const fuoco = attivo && contenitore.contains(attivo) ? ricordaFuoco() : null
-    const scorrimenti = ricordaScorrimenti(contenitore)
-    aggiornaElemento(contenitore, nuovo)
-    ripristinaFuoco(fuoco)
-    ripristinaScorrimenti(scorrimenti, contenitore)
-  }
+  const suoi = reattive.get(chiave)
+  if (!suoi || suoi.size === 0) return false
+  for (const rifai of [...suoi]) rifai()
   return true
 }
 

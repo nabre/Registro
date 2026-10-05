@@ -333,7 +333,7 @@
 
 /* Chi cede per primo stringendo (i numeri sono un ordine): prima il corso, poi
    dove si è; il nome del documento per ultimo. L'area e la scheda si dicono
-   solo a voce (`ANELLI_SOLO_A_VOCE` in `breadcrumb.ts`). */
+   solo a voce (`ANELLI_SOLO_A_VOCE` in `breadcrumb.tsx`). */
 .barra-titolo__documento { flex: 0 1 auto; min-width: 4em; }
 .percorso { flex: 0 50 auto; }
 .percorso__passo--contesto { flex: 0 40 auto; }

@@ -127,10 +127,7 @@
 
 .documenti__riga:hover .documenti__gesto-raro,
 .documenti__riga:focus-within .documenti__gesto-raro,
-.documenti__riga--aperta .documenti__gesto-raro,
-.documenti__cella:hover .documenti__gesto-raro,
-.documenti__cella:focus-within .documenti__gesto-raro,
-.documenti__cella--aperta .documenti__gesto-raro {
+.documenti__riga--aperta .documenti__gesto-raro {
   opacity: 1;
   pointer-events: auto;
 }
@@ -178,13 +175,11 @@
  * nient'altro da aprire. I pulsanti restano loro, e la lente è il gesto che i
  * lettori di schermo annunciano.
  */
-.documenti__riga--apribile,
-.documenti__cella--apribile {
+.documenti__riga--apribile {
   cursor: pointer;
 }
 
-.documenti__riga--apribile:hover,
-.documenti__cella--apribile:hover {
+.documenti__riga--apribile:hover {
   background: var(--sfondo-alto-2);
 }
 
@@ -192,8 +187,7 @@
  * La riga del documento aperto: una barra di colore sul fianco, non un fondo
  * pieno, che sembrerebbe una selezione.
  */
-.documenti__riga--aperta,
-.documenti__cella--aperta {
+.documenti__riga--aperta {
   background: color-mix(in srgb, var(--accento) 10%, transparent);
   box-shadow: inset 2px 0 0 var(--accento);
 }
@@ -202,41 +196,6 @@
 .documenti__riga > .pulsante {
   flex: 0 0 auto;
   margin-left: -2px;
-}
-
-/*
- * La matrice delle lezioni: una riga per data, una colonna per documento.
- * Colonne dei documenti larghe uguali e fisse, così i pulsanti restano incolonnati.
- */
-.tabella--lezioni td,
-.tabella--lezioni th {
-  vertical-align: middle;
-}
-
-/* Il numero dell'ora: colonna stretta, allineata a destra per incolonnare decine e unità. */
-.documenti__numero {
-  width: 1%;
-  text-align: right;
-  white-space: nowrap;
-  color: var(--testo-quieto);
-  font-variant-numeric: tabular-nums;
-}
-
-.documenti__quando {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-2);
-  white-space: nowrap;
-}
-
-.documenti__cella {
-  width: 42%;
-}
-
-.documenti__gesti {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-1);
 }
 
 /*

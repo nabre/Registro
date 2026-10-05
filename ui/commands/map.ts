@@ -4,7 +4,7 @@ import type { ComandoUI } from '#ui/commands.js'
 import { testi as testiComuni } from '#ui/commands.testi.js'
 import { conferma } from '#ui/components/modal.js'
 import { azione } from '#ui/bridge.js'
-// La mappa tiene la sua inquadratura in una variabile di modulo (vedi `views/map.ts`).
+// La mappa tiene la sua inquadratura in una variabile di modulo (vedi `views/map.tsx`).
 import { indirizziInAttesa, inquadraTutto } from '#ui/views/map.js'
 import { testi } from './map.testi.js'
 

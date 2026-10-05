@@ -11,7 +11,7 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 | Superficie | Dove è dichiarata | Che cos'è |
 |---|---|---|
 | Destinazioni (pagine) | [`ui/pages.ts`](../ui/pages.ts) — `PAGINE` | un posto dove *andare* |
-| Viste | [`contract/protocol.ts`](../contract/protocol.ts) — `type Vista`, instradate da [`ui/shell.ts`](../ui/shell.ts) | lo schermo disegnato |
+| Viste | [`contract/protocol.ts`](../contract/protocol.ts) — `type Vista`, instradate da [`ui/shell.tsx`](../ui/shell.tsx) | lo schermo disegnato |
 | Comandi dell'interfaccia | [`ui/commands.ts`](../ui/commands.ts) — `COMANDI_UI`, dalle sezioni di [`ui/commands/`](../ui/commands/) | una cosa da *fare* nel pannello |
 | Comandi del programma | [`contract/manifest.ts`](../contract/manifest.ts) — `COMANDI` | voci del menu nativo, del vassoio, dei promemoria |
 | Azioni del protocollo | [`contract/protocol.ts`](../contract/protocol.ts) — `type Azione` | la scrittura che attraversa il ponte |
@@ -29,9 +29,13 @@ conteggi verificati stanno in [INDICE](INDICE.md).
                                        `- esegui(archivio, {tipo})  la stessa Azione del pannello
 ```
 
-- Una pagina è una destinazione, una vista uno schermo: le quattro
-  `pagina.classe.*` aprono tutte `docenteClasse` con `schedaDocente` diverse; la
-  vista `allievo` non ha pagina propria.
+- Una pagina è una destinazione, una vista uno schermo: tre `pagina.classe.*`
+  aprono `docenteClasse` con `schedaDocente` diverse, `pagina.classe.check` e
+  `pagina.corso.check` la stessa `check` (`ambitoCheck`), `pagina.progetti` e
+  `pagina.corso.integrazione` la stessa `progetti`; le viste `allievo` e
+  `docenteClasse` (scheda `todo`) si raggiungono da posti senza voce
+  (`pagina.allievo`, `pagina.classe.pendenze`, in
+  [`ui/place.ts`](../ui/place.ts)).
 - Un comando chiama zero, una o più azioni.
 - Il `dove` di un comando è una superficie: `'app'` = menu File, `'schermo'` =
   scheda Proiezione, altrimenti una `Vista`.
@@ -43,7 +47,7 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 
 ## 2. Destinazioni (pagine)
 
-### 2.1 Le 19 `Pagina` di `PAGINE`
+### 2.1 Le 22 `Pagina` di `PAGINE`
 
 | id | titolo | gruppo | vista | note |
 |---|---|---|---|---|
@@ -51,73 +55,80 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 | `pagina.calendario` | Calendario | `agenda` | `calendario` | |
 | `pagina.pendenze` | Pendenze | `agenda` | `todo` | conto `pendenzeDellaBarra().aperti` |
 | `pagina.daSmistare` | Da smistare | `agenda` | `daSmistare` | conto `pagineDaSmistareInTutto()` |
-| `pagina.persone` | Persone | `anno` | `persone` | attiva anche su `allievo` |
-| `pagina.mappa` | Mappa | `anno` | `mappa` | |
 | `pagina.corso.registro` | Lezione | `registro` | `lezione` | `vaiAlCorso()`; impedimento `senzaCorso` |
 | `pagina.corso.valutazioni` | Valutazioni | `registro` | `valutazioni` | idem |
 | `pagina.corso.check` | Check | `registro` | `check` | idem |
-| `pagina.corso.piani` | Piani lezione | `registro` | `piani` | idem |
 | `pagina.corso.documenti` | Documenti | `registro` | `documenti` | idem |
-| `pagina.classe.pendenze` | Pendenze della classe | `classe` | `docenteClasse` (`todo`) | `vaiAlPannello()` |
+| `pagina.corso.overview` | Panoramica | `progettazione` | `overview` | idem |
+| `pagina.corso.piani` | Piani lezione | `progettazione` | `piani` | idem |
+| `pagina.corso.integrazione` | Integrazione progetti | `progettazione` | `progetti` | idem; disegna `vistaIntegrazioneProgetti()` |
+| `pagina.classe.check` | Check della classe | `classe` | `check` (`ambitoCheck: 'classe'`) | |
 | `pagina.classe.documenti` | Archivio documentale | `classe` | `docenteClasse` (`documenti`) | |
 | `pagina.classe.assenze` | Assenze | `classe` | `docenteClasse` (`assenze`) | |
 | `pagina.classe.messaggistica` | Messaggistica | `classe` | `docenteClasse` (`messaggistica`) | |
-| `pagina.corsi` | Corsi | `anno` | `corsi` | |
 | `pagina.classi` | Classi | `anno` | `classi` | |
+| `pagina.persone` | Persone | `anno` | `persone` | attiva anche su `pagina.allievo` |
+| `pagina.mappa` | Mappa | `anno` | `mappa` | |
+| `pagina.corsi` | Corsi | `anno` | `corsi` | |
+| `pagina.progetti` | Progetti | `anno` | `progetti` | la biblioteca dell'anno, di nessun corso |
 | `pagina.impostazioni` | Impostazioni | `sistema` | `impostazioni` | |
 | `pagina.guida` | Guida | `sistema` | `guida` | |
 
 `vaiA(pagina)` è l'unico ingresso di navigazione. Il gruppo `classe` esiste
-solo con almeno una classe di cui si è docente (`sezioneCePer`).
+solo con almeno una classe di cui si è docente (`sezioneCePer`). La vista di
+ogni pagina sta in `VISTA_DELLA_PAGINA` ([`ui/place.ts`](../ui/place.ts)).
 
-### 2.2 I cinque gruppi
+### 2.2 I sei gruppi
 
 | `GruppoPagina` | nome | pagine |
 |---|---|---|
-| `agenda` | Agenda | Dashboard, Calendario, Da smistare |
-| `registro` | Registro — *corso* | Lezione, Valutazioni, Check, Piani lezione, Documenti |
-| `classe` | Docente di classe — *classe* | le quattro schede del fascicolo |
-| `anno` | L'anno | Persone, Mappa, Corsi, Classi |
-| `sistema` | Il programma | Impostazioni, Guida (anche nel menu «File», `GRUPPO_DEL_MENU` in [`ui/commandBar.ts`](../ui/commandBar.ts)) |
+| `agenda` | Agenda | Dashboard, Calendario, Pendenze, Da smistare |
+| `registro` | Registro — *corso* | Lezione, Valutazioni, Check, Documenti |
+| `progettazione` | Progettazione — *corso* | Panoramica, Piani lezione, Integrazione progetti |
+| `classe` | Docente di classe — *classe* | Check della classe e le tre schede del fascicolo |
+| `anno` | Anno scolastico | Classi, Persone, Mappa, Corsi, Progetti |
+| `sistema` | Il programma | Impostazioni, Guida (non nel menu «File»: la barra laterale è sempre in vista) |
 
 Ordine: `ORDINE`. L'interruttore della barra laterale sta nella sua
-intestazione ([`ui/sidebar.ts`](../ui/sidebar.ts)).
+intestazione ([`ui/sidebar.tsx`](../ui/sidebar.tsx)).
 
-### 2.3 Le 19 `Vista`
+### 2.3 Le 21 `Vista`
 
 | `Vista` | file | schede interne |
 |---|---|---|
-| `oggi` | [`views/today.ts`](../ui/views/today.ts) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
-| `calendario` | [`views/calendar.ts`](../ui/views/calendar.ts), [`calendar/`](../ui/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.ts` |
-| `todo` | [`views/todo.ts`](../ui/views/todo.ts) | delega a `classTodo.ts` |
-| `daSmistare` | [`views/sorting/toSort.ts`](../ui/views/sorting/toSort.ts) | — |
-| `lezione` | [`views/lesson.ts`](../ui/views/lesson.ts), [`lesson/`](../ui/views/lesson/) | amministrazione (appello, consegne, check, riconsegne), lezione (piano, voti, recuperi), annotazioni |
-| `classi` | [`views/classes.ts`](../ui/views/classes.ts) | elenco + anagrafica |
-| `persone` | [`views/people.ts`](../ui/views/people.ts) | riusa `schedaAllievo()` |
-| `allievo` | [`views/student.ts`](../ui/views/student.ts), [`student/`](../ui/views/student/) | anagrafica, docenteClasse, materie |
-| `docenteClasse` | [`views/classTeacher.ts`](../ui/views/classTeacher.ts) | todo, documenti, assenze, messaggistica |
-| `corsi` | [`views/courses.ts`](../ui/views/courses.ts) | elenco + scheda con matrice |
-| `piani` | [`views/plans.ts`](../ui/views/plans.ts) | navigatore delle ore ([`plansNavigator.ts`](../ui/views/plansNavigator.ts)) + editor a tutta larghezza |
-| `valutazioni` | [`views/assessments.ts`](../ui/views/assessments.ts), [`assessments/`](../ui/views/assessments/) | recuperi, riconsegne |
-| `check` | [`views/check.ts`](../ui/views/check.ts) | la griglia; moduli in [`forms/check.ts`](../ui/forms/check.ts) |
-| `documenti` | [`views/documents.ts`](../ui/views/documents.ts) | corso, lezioni, allievi |
-| `mappa` | [`views/map.ts`](../ui/views/map.ts) | tutti, domicilio, lavoro |
-| `impostazioni` | [`views/settings.ts`](../ui/views/settings.ts) | quattro aree (Calendario, Didattica, Utente, Programma), una pagina che scorre per area; pastiglia d'ambito su ogni blocco; «Ripristina» per area |
-| `guida` | [`views/help.ts`](../ui/views/help.ts) | una scheda per vista |
+| `oggi` | [`views/today.tsx`](../ui/views/today.tsx) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
+| `calendario` | [`views/calendar.tsx`](../ui/views/calendar.tsx), [`calendar/`](../ui/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.tsx` |
+| `todo` | [`views/todo.tsx`](../ui/views/todo.tsx) | schede «corsi» (`corso:<id>`) e, da docente di classe, «classi» (`classe:<id>`); famiglie e riassunti da `classTodo.tsx` |
+| `daSmistare` | [`views/sorting/toSort.tsx`](../ui/views/sorting/toSort.tsx) | — |
+| `lezione` | [`views/lesson.tsx`](../ui/views/lesson.tsx), [`lesson/`](../ui/views/lesson/) | amministrazione (appello, consegne, check, riconsegne), lezione (piano, voti, recuperi, progetto), annotazioni |
+| `classi` | [`views/classes.tsx`](../ui/views/classes.tsx) | elenco + anagrafica |
+| `persone` | [`views/people.tsx`](../ui/views/people.tsx) | riusa `schedaAllievo()` |
+| `allievo` | [`views/student.tsx`](../ui/views/student.tsx), [`student/`](../ui/views/student/) | anagrafica, docenteClasse, materie |
+| `docenteClasse` | [`views/classTeacher.tsx`](../ui/views/classTeacher.tsx) | todo, documenti, assenze, messaggistica |
+| `corsi` | [`views/courses.tsx`](../ui/views/courses.tsx) | elenco + scheda con matrice |
+| `piani` | [`views/plans.tsx`](../ui/views/plans.tsx) | navigatore delle ore ([`plansNavigator.tsx`](../ui/views/plansNavigator.tsx)) + editor a tutta larghezza |
+| `progetti` | [`views/projects.tsx`](../ui/views/projects.tsx), [`views/projectIntegration.tsx`](../ui/views/projectIntegration.tsx), [`projects/`](../ui/views/projects/) | biblioteca: testata, fasi, criteri e livelli, corsi; integrazione: stato, compiti, fasi nei piani, matrice, esiti |
+| `overview` | [`views/overview.tsx`](../ui/views/overview.tsx), [`overviewLinks.tsx`](../ui/views/overviewLinks.tsx) | lezioni, piani, progetti e risorse del corso con le linee che li collegano |
+| `valutazioni` | [`views/assessments.tsx`](../ui/views/assessments.tsx), [`assessments/`](../ui/views/assessments/) | recuperi, riconsegne |
+| `check` | [`views/check.tsx`](../ui/views/check.tsx) | la griglia, del corso o della classe (`ambitoCheck`); moduli in [`forms/check.tsx`](../ui/forms/check.tsx) |
+| `documenti` | [`views/documents.tsx`](../ui/views/documents.tsx) | corso, lezioni, allievi |
+| `mappa` | [`views/map.tsx`](../ui/views/map.tsx) | tutti, domicilio, lavoro |
+| `impostazioni` | [`views/settings.tsx`](../ui/views/settings.tsx) | quattro aree (Calendario, Didattica, Utente, Programma), una pagina che scorre per area; pastiglia d'ambito su ogni blocco; «Ripristina» per area |
+| `guida` | [`views/help.tsx`](../ui/views/help.tsx) | una scheda per vista |
 | `modelli` | — | solo un indirizzo: Utente › Carta e stampa (`utente#stampa`) |
-| `modelliLinguistici` | [`views/languageModels.ts`](../ui/views/languageModels.ts) | solo un indirizzo: Programma › Assistente e modelli (`programma#modelli`) |
+| `modelliLinguistici` | [`views/languageModels.tsx`](../ui/views/languageModels.tsx) | solo un indirizzo: Programma › Assistente e modelli (`programma#modelli`) |
 
 ### 2.4 File satellite
 
-Pezzi di vista usati da più pagine: [`views/archive.ts`](../ui/views/archive.ts),
-[`views/absences.ts`](../ui/views/absences.ts),
-[`views/assignments.ts`](../ui/views/assignments.ts),
-[`views/assessments/retakes.ts`](../ui/views/assessments/retakes.ts),
-[`views/assessments/returns.ts`](../ui/views/assessments/returns.ts),
-[`views/sorting/pageBrowser.ts`](../ui/views/sorting/pageBrowser.ts),
-[`views/sorting/pageDrop.ts`](../ui/views/sorting/pageDrop.ts),
-[`views/sorting.ts`](../ui/views/sorting.ts),
-[`views/classTodo.ts`](../ui/views/classTodo.ts),
+Pezzi di vista usati da più pagine: [`views/archive.tsx`](../ui/views/archive.tsx),
+[`views/absences.tsx`](../ui/views/absences.tsx),
+[`views/assignments.tsx`](../ui/views/assignments.tsx),
+[`views/assessments/retakes.tsx`](../ui/views/assessments/retakes.tsx),
+[`views/assessments/returns.tsx`](../ui/views/assessments/returns.tsx),
+[`views/sorting/pageBrowser.tsx`](../ui/views/sorting/pageBrowser.tsx),
+[`views/sorting/pageDrop.tsx`](../ui/views/sorting/pageDrop.tsx),
+[`views/sorting.tsx`](../ui/views/sorting.tsx),
+[`views/classTodo.tsx`](../ui/views/classTodo.tsx),
 [`views/documents/`](../ui/views/documents/) (anteprima, CSV, schede),
 [`views/settings/`](../ui/views/settings/) (anno, documento, giornata,
 liste, posta, programma, sezioni).
@@ -139,6 +150,7 @@ interface ComandoUI {
   aiuto?: string | (() => string)
   scorciatoia?: string
   dalMenu?: boolean               // l'acceleratore è del menu nativo
+  fuoriMenu?: boolean | (() => boolean) // 'app' ma non nel menu «File»
   primario?: boolean | (() => boolean)
   acceso?: () => boolean          // interruttore
   impedimento?: () => string | null
@@ -149,7 +161,7 @@ interface ComandoUI {
 
 - I comandi `dalMenu` li esegue il menu nativo; per `registro.oggi` e
   `registro.nuovaLezione` l'host manda un `naviga`, che `eseguiNavigazione()`
-  ([`ui/main.ts`](../ui/main.ts)) riporta allo stesso gesto. Con una
+  ([`ui/main.tsx`](../ui/main.tsx)) riporta allo stesso gesto. Con una
   modale aperta un `naviga` si ignora.
 - Nelle tabelle: ◐ = interruttore, ★ = primario.
 
@@ -164,11 +176,13 @@ interface ComandoUI {
 | `file.ricarica` | Ricarica | `stato.ricarica` |
 | `file.chiudi` | Chiudi l'anno | `documento.chiudi` |
 | `file.cartella` | Apri la cartella del file | `sistema.apriCartella` |
+| `file.informazioni` | Informazioni documento… | `apriInformazioniDocumento()` |
 | `file.nuovoAnno` | Nuovo anno scolastico | `moduloAnno()`; primario senza anno |
 | `file.modificaAnno` | Modifica l'anno | `moduloAnno(anno)` |
 | `file.pause` | Vacanze e sospensioni | `moduloPause(anno)` |
 | `file.ripara` | Ripara il registro | `manutenzione.ripara`; spento se non c'è niente da riparare |
 | `file.collegaPosta`, `file.provaPosta`, `file.provaInvioPosta`, `file.scollegaPosta` | Posta | `posta.collega`, `posta.prova`, `posta.invioProva`, `posta.scollega` |
+| `file.accountPosta` | Account e posta (`fuoriMenu`) | apre Utente › Account (`utente#account`) |
 | `finestra.ingrandisci`, `finestra.riduci`, `finestra.dimensioneNormale` | zoom (`Ctrl+Plus`, `Ctrl+-`, `Ctrl+0`, `dalMenu`) | `finestra.zoom` |
 | `finestra.schermoIntero` | Schermo intero (`F11`, `dalMenu`) | `finestra.schermoIntero` |
 | `finestra.esci` | Esci dal registro | `programma.esci` |
@@ -177,8 +191,8 @@ interface ComandoUI {
 | `proiezione.schermo` ★◐ | Proietta / Spegni lo schermo | `proiezione.apri` / `proiezione.chiudi` |
 | `calendario.editor` ◐ | Modifica (`Ctrl+E`) | modo del registro: arma la griglia del calendario, rende modificabili le lezioni esistenti, mostra «Nuova lezione» e i comandi ICS |
 
-Impostazioni: nessun comando; gruppi e sezioni stanno nella fascia in cima
-(`GRUPPI_SEZIONI` in [`ui/views/settings/sections.ts`](../ui/views/settings/sections.ts)).
+Impostazioni: nessun comando; le quattro aree stanno nella testata, le sezioni
+nell'indice a sinistra (`AREE`, `SEZIONI` in [`ui/views/settings/sections.ts`](../ui/views/settings/sections.ts)).
 
 ### 3.2 Calendario (`dove: calendario`)
 
@@ -190,10 +204,11 @@ Impostazioni: nessun comando; gruppi e sezioni stanno nella fascia in cima
 | `calendario.settimana`, `.mese`, `.anno`, `.agenda` ◐ | i quattro modi | `scegliModoCalendario()` |
 | `calendario.esterno` ◐ | Calendario ICS | mostra gli eventi ICS; `soloSe` settimana e modifica |
 | `registro.nuovaLezione` ★ | Nuova lezione (`Ctrl+Alt+N`, `dalMenu`) | `moduloLezione()`; `soloSe` modifica |
+| `calendario.aggiornaIcs` | Aggiorna ICS | `calendario.aggiornaTutti`; `soloSe` settimana, modifica e ICS acceso |
 | `registro.confrontaCalendario` | Confronta con il calendario | `moduloCalendariIcs()`; `soloSe` modifica e ICS acceso |
 
 Sabato e domenica si accendono dai «Giorni mostrati» delle impostazioni.
-In modifica (`views/calendar/editor.ts`): clic sceglie, sul vuoto si disegna a UD
+In modifica (`views/calendar/editor.tsx`): clic sceglie, sul vuoto si disegna a UD
 intere, maniglie stirano, frecce e `Ctrl+D` spostano e copiano, Invio apre, F2
 modulo, Canc elimina, Esc esce; ogni gesto è un'azione a gesto finito; ore
 ancorate all'ICS ferme.
@@ -206,6 +221,7 @@ ancorate all'ICS ferme.
 | `registro.nuovoCorso` | `corsi` | Nuovo corso | `moduloCorso()` |
 | `registro.nuovaClasse` | `classi`, `corsi` | Nuova classe | `moduloClasse()` |
 | `lezione.stato.pianificata`, `.svolta` ★, `.annullata` ◐ | `lezione` | stato dell'ora | `lezione.stato`; annullare chiede conferma |
+| `lezione.supplenza` | `lezione` | Prepara la supplenza | `moduloSupplenza()` → `supplenza.prepara`; non su un'ora annullata |
 | `piano.vaiAlRegistro` ★ | `piani` | Vai al registro | apre la prima ora del piano |
 | `piano.duplica` | `piani` | Duplica | `piano.duplica` |
 | `piano.elimina` | `piani` | Elimina | `chiediEliminazione` → `piano.elimina` |
@@ -213,7 +229,21 @@ ancorate all'ICS ferme.
 | `check.nuovaColonna` ★ | `check` del corso | Aggiungi una colonna | `moduloColonnaCheck()` → `check.colonne` |
 | `check.colonne` | `check` del corso | Colonne | `moduloColonneCheck()` → `check.colonne` (conferma se cadono spunte) |
 
-### 3.4 Mappa, persone, docente di classe
+### 3.4 Progetti (`dove: progetti`)
+
+[`ui/commands/projects.ts`](../ui/commands/projects.ts). La vista è una sola:
+`soloSe` separa la biblioteca (`pagina.progetti`) dall'integrazione nel corso
+(`pagina.corso.integrazione`).
+
+| id | pagina | titolo | che cosa fa |
+|---|---|---|---|
+| `progetto.nuovo` ★ | tutte e due | Nuovo progetto | `moduloProgetto()`; nell'integrazione nasce già integrato nel corso (impedimento `senzaCorso`); primario nella biblioteca |
+| `progetto.modifica` | biblioteca | Modifica | `moduloProgetto({progetto})` |
+| `progetto.fasi`, `.criteri`, `.livelli` | biblioteca | Fasi, Criteri, Livelli | `moduloFasi()`, `moduloCriteri()`, `moduloLivelli()` → `progetto.salva` |
+| `progetto.elimina` | biblioteca | Elimina | `chiediEliminazione` → `progetto.elimina` |
+| `progetto.nuovoCompito` ★ | integrazione | Nuovo compito | `nuovoCompito()` → `progetto.compito.salva` |
+
+### 3.5 Mappa, persone, docente di classe
 
 | id | dove | titolo | che cosa fa |
 |---|---|---|---|
@@ -234,7 +264,7 @@ ancorate all'ICS ferme.
 | `docente.comunicazione` ★ | `messaggistica` | Nuova comunicazione | `moduloComunicazione()` |
 | `docente.recapito` | `messaggistica` | Nuovo recapito | `moduloRecapito()` |
 
-### 3.5 Proiezione (`dove: schermo`)
+### 3.6 Proiezione (`dove: schermo`)
 
 | id | titolo | che cosa fa |
 |---|---|---|
@@ -245,7 +275,7 @@ ancorate all'ICS ferme.
 | `proiezione.blocco.*` ◐ | `scaletta`, `argomenti`, `consegne`, `calendario`, `valutazioni`, `documenti`, `appello` | apre o spegne il blocco; gli ultimi tre sono riservati (`BLOCCHI_RISERVATI`) e partono spenti |
 | `proiezione.calendario.*` ◐ | `settimana`, `mese`, `anno`, `agenda` | `calendario` del blocco Calendario |
 
-### 3.6 Documenti (`dove: documenti`)
+### 3.7 Documenti (`dove: documenti`)
 
 | id | titolo | che cosa fa |
 |---|---|---|
@@ -324,7 +354,7 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 - Il procedimento per aggiungerne una: skill `impostazione`.
 - Le impostazioni del documento, campo per campo: MODELLO-DATI § 3.44.
 
-### 5.1 Le 28 chiavi del programma
+### 5.1 Le 29 chiavi del programma
 
 Sezioni con chiavi (`DIVISIONI` in
 [`core/controlli/areas.ts`](../core/controlli/areas.ts), le stesse per pannello e
@@ -349,6 +379,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 | `posta.invioDiretto` | bool; `false` | spedisce invece di preparare bozze, con conferma |
 | `recapiti.telefono` | `tel` \| `msteams` \| `skype` \| `callto` \| `nessuno`; `tel` | come si compone un numero (`sistema.chiama`) |
 | `recapiti.posta` | `sistema` \| `outlook` \| `outlookWeb` \| `nessuno`; `sistema` | come si apre una mail (`sistema.scrivi`); `outlook` trova `OUTLOOK.EXE` da sé |
+| `supplenza.segretariato` | email; `''` | il destinatario proposto nel modulo «Prepara la supplenza» quando non si sa ancora chi la farà; vuoto: lo si scrive ogni volta |
 | `modelli.cartella` | cartella; `''` | dove stanno i `.gguf` |
 | `ocr.attivo` | bool; `false` | lettura delle scansioni; richiede `ocr.modello` e `ocr.proiettore` |
 | `ocr.modello`, `ocr.proiettore` | modello; `''` | nomi di file nella cartella dei modelli (`llm.scegli`) |
@@ -379,7 +410,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 ## 6. Azioni del protocollo
 
-Le 168 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
+Le 189 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
 una per gestore in [`core/azioni/`](../core/azioni/); `GESTORI` in
 [`contract/switchboard.ts`](../contract/switchboard.ts) (il compilatore vieta azioni senza
 gestore e viceversa). Ognuna ha una procedura davanti (ADR-27): `azione →
@@ -388,24 +419,24 @@ lo tiene `tests/api/coverage.test.mjs`.
 
 | File | Azioni |
 |---|---|
-| [`register.ts`](../core/azioni/register.ts) | `stato.leggi`, `stato.ricarica`, `anno.crea`→`anni.crea`, `anno.salva`→`anni.salva`, `anno.settimana`→`anni.settimana`, `materia.salva`→`materie.salva`, `materia.elimina`→`materie.elimina`, `materia.unisci`→`materie.unisci`, `corso.crea`→`corsi.crea`, `corso.salva`→`corsi.salva`, `corso.elimina`→`corsi.elimina`, `orario.imposta`, `orario.genera`, `classe.salva`→`classi.salva`, `classe.elimina`→`classi.elimina`, `allievo.elimina`→`persone.elimina`, `allievo.foto.imposta`→`persone.foto.imposta`, `allievo.foto.togli`→`persone.foto.togli`, `classe.duplica`→`classi.duplica`, `classe.importa`→`classi.importa`, `registro.importa`, `allievi.importa`→`persone.importa` |
+| [`register.ts`](../core/azioni/register.ts) | `stato.leggi`, `stato.ricarica`, `anno.crea`→`anni.crea`, `anno.salva`→`anni.salva`, `anno.calendario`→`anni.calendario`, `anno.settimana`→`anni.settimana`, `materia.salva`→`materie.salva`, `materia.elimina`→`materie.elimina`, `materia.unisci`→`materie.unisci`, `corso.crea`→`corsi.crea`, `corso.salva`→`corsi.salva`, `corso.elimina`→`corsi.elimina`, `orario.imposta`, `orario.genera`, `classe.salva`→`classi.salva`, `classe.modifica`→`classi.modifica`, `classe.elimina`→`classi.elimina`, `allievo.elimina`→`persone.elimina`, `allievo.foto.imposta`→`persone.foto.imposta`, `allievo.foto.togli`→`persone.foto.togli`, `classe.duplica`→`classi.duplica`, `classe.importa`→`classi.importa`, `registro.importa`, `allievi.importa`→`persone.importa` |
 | [`hours.ts`](../core/azioni/hours.ts) | `lezione.salva`→`ore.salva`, `lezione.elimina`→`ore.elimina`, `lezione.togliNelleChiusure`→`ore.chiusure.togli`, `lezione.duplica`→`ore.duplica`, `lezione.stato`→`ore.stato`, `lezione.sposta`→`ore.sposta`, `lezione.testi`→`ore.testi`, `presenze.ud`→`ore.appello.casella`, `presenze.riga`→`ore.appello.riga`, `presenze.colonna`→`ore.appello.colonna`, `presenze.tutti`→`ore.appello.tutti`, `presenze.campi`→`ore.appello.campi`, `osservazione.cella`→`ore.comportamento.cella`, `osservazione.salva`→`ore.osservazione.salva`, `osservazione.elimina`→`ore.osservazione.elimina` |
 | [`plans.ts`](../core/azioni/plans.ts) | `piano.salva`→`piani.salva`, `piano.elimina`→`piani.elimina`, `piano.duplica`→`piani.duplica`, `piano.assegna`→`piani.assegna`, `risorsa.aggiungi`→`risorse.aggiungi`, `risorsa.salva`→`risorse.salva`, `risorsa.sposta`→`risorse.sposta`, `risorsa.elimina`→`risorse.elimina`, `risorsa.apri`→`risorse.apri`, `avanzamento.imposta` |
 | [`assessments.ts`](../core/azioni/assessments.ts) | `valutazione.daAttivita`→`valutazioni.daAttivita`, `valutazione.salva`→`valutazioni.salva`, `valutazione.elimina`→`valutazioni.elimina`, `valutazione.eliminaOrfane`→`valutazioni.eliminaOrfane`, `voto.imposta`→`valutazioni.voto.imposta`, `valutazione.riconsegna`→`valutazioni.riconsegna`, `recupero.imposta`→`valutazioni.recupero.imposta`, `voto.riconsegna`→`valutazioni.voto.riconsegna`, `allegato.aggiungi`→`valutazioni.allegato.aggiungi`, `allegato.apri`→`valutazioni.allegato.apri`, `allegato.elimina`→`valutazioni.allegato.elimina` |
 | [`assignments.ts`](../core/azioni/assignments.ts) | `consegna.salva`, `.elimina`, `.spunta`, `.spuntaTutti`, `.raccogli`, `.documento.allega`, `.documento.apri`, `.documento.togli`, `.consegnato`, `.distribuisci` → `consegne.*` |
 | [`classTeacher.ts`](../core/azioni/classTeacher.ts) | `consegna.firme.aggiungi`, `.firme.apri`, `.firme.togli`, `.file.apri`, `.file.togli` → `consegne.*`; `recapito.salva`, `.elimina` → `classe.recapiti.*`; `comunicazione.salva`, `.elimina`, `.invia`, `.spunta` → `classe.comunicazioni.*`; `assenze.salva`, `.elimina`, `.foglio.aggiungi`, `.importa`, `.foglio.apri`, `.foglio.togli`, `.invia`, `.spunta` → `classe.assenze.*` |
-| [`sorting.ts`](../core/azioni/sorting.ts) | `smistamento.carica`→`smistamento.pdf.carica`, `.deposita`→`.pdf.deposita`, `.dividi`→`.pdf.dividi`, `.attribuisci`→`.pdf.attribuisci`, `.apri`→`.pdf.apri`, `.elimina`→`.pdf.elimina`, `.assegnaPagine`→`.pagine.assegna`, `.assegnaManuale`→`.pagine.assegnaManuale`, `.scartaPagine`→`.pagine.scarta`, `.apriPagine`→`.pagine.apri`, `.riprendiPagine`→`.pagine.riprendi`, `.confermaTutto`→`.bozza.conferma`, `.assegnaAssenze`→`.assenze.assegna`, `.assegnaFirme`→`.firme.assegna`, `.leggiPagine`→`.lettura.pagine`, `.leggiTutto`→`.lettura.tutto`, `.rileggiAttive`→`.lettura.attive`, `.fermaLettura`→`.lettura.ferma`, `.impostazioni`→`.lettura.impostazioni` |
+| [`sorting.ts`](../core/azioni/sorting.ts) | `smistamento.carica`→`smistamento.pdf.carica`, `.deposita`→`.pdf.deposita`, `.cassetta.assorbi`, `.dividi`→`.pdf.dividi`, `.attribuisci`→`.pdf.attribuisci`, `.apri`→`.pdf.apri`, `.elimina`→`.pdf.elimina`, `.assegnaPagine`→`.pagine.assegna`, `.assegnaManuale`→`.pagine.assegnaManuale`, `.scartaPagine`→`.pagine.scarta`, `.apriPagine`→`.pagine.apri`, `.riprendiPagine`→`.pagine.riprendi`, `.confermaTutto`→`.bozza.conferma`, `.assegnaAssenze`→`.assenze.assegna`, `.assegnaFirme`→`.firme.assegna`, `.leggiPagine`→`.lettura.pagine`, `.leggiTutto`→`.lettura.tutto`, `.rileggiAttive`→`.lettura.attive`, `.fermaLettura`→`.lettura.ferma`, `.impostazioni`→`.lettura.impostazioni` |
 | [`system.ts`](../core/azioni/system.ts) | `impostazioni.salva`, `programma.salva`, `programma.sfoglia`, `programma.azzera`, `esporta.valutazioni`, `esporta.presenze`, `esporta.lezione`, `manutenzione.ripara`, `sistema.apriCartella`, `finestra.zoom`, `finestra.schermoIntero`, `programma.esci`, `sistema.chiama`, `sistema.scrivi`, `posta.prova`, `posta.invioProva`, `posta.collega`, `posta.scollega`, `posta.azzera`, `sistema.messaggio` |
 | [`microsoft.ts`](../core/azioni/microsoft.ts) | `microsoft.aggiungi`, `microsoft.togli`, `onedrive.apri` |
-| [`calendar.ts`](../core/azioni/calendar.ts) | `calendario.aggiungi`, `calendario.aggiorna`, `calendario.modifica`, `calendario.togli`, `calendario.applica` |
+| [`calendar.ts`](../core/azioni/calendar.ts) | `calendario.aggiungi`, `calendario.aggiorna`, `calendario.aggiornaTutti`, `calendario.modifica`, `calendario.togli`, `calendario.applica` |
 | [`check.ts`](../core/azioni/check.ts) | `check.colonne`, `check.spunta`, `check.data`, `check.lezione` |
-| [`projects.ts`](../core/azioni/projects.ts) | `progetto.salva`, `.elimina`, `.cella`, `.compito.salva`, `.compito.elimina`, `.compito.inizia`, `.compito.togliInizio`, `.compito.proroga`, `.compito.fatto`, `.compito.fattoTutti`, `.giudizio.salva`, `.giudizio.elimina` → `progetti.*` |
+| [`projects.ts`](../core/azioni/projects.ts) | `progetto.salva`, `.elimina`, `.integra`, `.integrazione.stato`, `.integrazione.togli`, `.cella`, `.compito.salva`, `.compito.elimina`, `.compito.inizia`, `.compito.togliInizio`, `.compito.proroga`, `.compito.fatto`, `.compito.fattoTutti`, `.giudizio.salva`, `.giudizio.elimina` → `progetti.*` |
 | [`documents.ts`](../core/azioni/documents.ts) | `stato.salva`, `documento.apri`, `documento.chiudi`, `documento.preferito`, `documento.dimentica` |
 | [`exports.ts`](../core/azioni/exports.ts) | `esportazione.apri`, `.mostra`, `.elimina` → `esportazioni.*` |
 | [`reports.ts`](../core/azioni/reports.ts) | `rapporto.genera`, `rapporto.completo` → `rapporti.*` |
 | [`substitute.ts`](../core/azioni/substitute.ts) | `supplenza.prepara` |
 | [`llm.ts`](../core/azioni/llm.ts) | `llm.scarica`, `llm.annulla`, `llm.importa`, `llm.elimina`, `llm.scegli` |
-| [`updates.ts`](../core/azioni/updates.ts) | `aggiornamenti.controlla`, `aggiornamenti.scarica`, `aggiornamenti.installa` |
+| [`updates.ts`](../core/azioni/updates.ts) | `aggiornamenti.controlla`, `aggiornamenti.scarica`, `aggiornamenti.installa`, `aggiornamenti.nascondiNotizia` |
 | [`templates.ts`](../core/azioni/templates.ts) | `intestazione.logo`, `intestazione.togliLogo` |
 | [`projection.ts`](../core/azioni/projection.ts) | `proiezione.apri`, `proiezione.chiudi`, `proiezione.mira`, `proiezione.impostazioni` (nessuna tocca il `Registro`) |
 | [`history.ts`](../core/azioni/history.ts) | `storia.annulla`, `storia.ripristina` (con `conflitto` se le collezioni sono cambiate per un'altra strada) |
@@ -415,7 +446,8 @@ lo tiene `tests/api/coverage.test.mjs`.
 
 Helper comuni in [`core/azioni/context.ts`](../core/azioni/context.ts):
 `fatto`, `invariato`, `rifiuta`, `conMessaggio`, `riponi` (upsert per id),
-`apriFile`, `cestina`, `scegliFile`, `lanciaComando`, `vietaSeInChiusura`.
+`apriFile`, `cestina`, `scegliFile`, `lanciaComando`; `Archivio.vietaSeInChiusura`
+in [`core/dati/archive.ts`](../core/dati/archive.ts).
 
 Comportamenti da sapere:
 
@@ -423,10 +455,8 @@ Comportamenti da sapere:
   `valutazione.daAttivita`, `orario.genera` (quel che c'è non si tocca),
   `calendario.applica` (tutto o niente; non cancella mai lezioni).
 - **Aprono un dialogo** (e da uno script aspettano una persona): API § 7.
-- **Scrivono con `archivio.modifica` diretto**, fuori da `contesto.modifica`:
-  `materia.salva`, `comunicazione.invia`, `comunicazione.spunta`,
-  `assenze.invia`, `assenze.spunta` e alcune di `sorting.ts`,
-  `assignments.ts`, `assessments.ts`.
+- **Scrive con `archivio.modifica` diretto**, fuori da `contesto.modifica`, solo
+  `chiudiSeFinito` di `sorting.ts` (lo smistamento finito, non annullabile).
 - **File prima del registro**: le rimozioni cestinano il file e poi tolgono la
   riga; le aggiunte copiano il file e poi scrivono.
 - `lezione.stato` a `svolta` inizializza l'appello vuoto e rifà subito i
@@ -510,7 +540,7 @@ sotto-protocolli con un discriminante di stringa e type guard scritti a mano.
 |---|---|---|
 | Pannello e proiezione | forma `Richiesta`/`Domanda` | [`desktop/apparato/windows.ts`](../desktop/apparato/windows.ts) |
 | Benvenuto | `benvenuto: '…'` | [`desktop/shell/windows/welcome.ts`](../desktop/shell/windows/welcome.ts), [`desktop/shell/pages/welcome/welcome.html`](../desktop/shell/pages/welcome/welcome.html) |
-| Impostazioni | `impostazioni: '…'` | [`desktop/shell/windows/menu.ts`](../desktop/shell/windows/menu.ts), [`desktop/shell/pages/settings/settings.ts`](../desktop/shell/pages/settings/settings.ts) |
+| Impostazioni | `impostazioni: '…'` | [`desktop/shell/windows/menu.ts`](../desktop/shell/windows/menu.ts), [`desktop/shell/pages/settings/settings.tsx`](../desktop/shell/pages/settings/settings.tsx) |
 | Dialogo | `dialogo: '…'` | [`desktop/apparato/dialogs.ts`](../desktop/apparato/dialogs.ts), [`desktop/shell/pages/dialog/dialog.html`](../desktop/shell/pages/dialog/dialog.html) |
 
 ### 8.1 Benvenuto
@@ -637,22 +667,26 @@ modulo aperto con gli errori o chiude, notifica e chiama `dopo(idCreato)`.
 | `moduloMateria`, `moduloUnisciMaterie` | `materia.salva`, `materia.elimina`, `materia.unisci` |
 | `editorPiano`, `moduloPiano`, `moduloAssegnaPiano` | `piano.salva`, `piano.duplica`, `piano.elimina`, `piano.assegna` |
 | `moduloRecupero` | `recupero.imposta` |
-| `bloccoRisorse`, `moduloCollegamento`, `moduloRisorsa` | `risorsa.*` |
+| `BloccoRisorse`, `moduloCollegamento`, `moduloRisorsa` | `risorsa.*` |
 | `moduloValutazione` (corregge, non crea) | `valutazione.salva`, `valutazione.elimina` |
 | `moduloImportaRegistro` | `registro.importa` |
-| `moduloColonnaCheck`, `moduloColonneCheck` | `check.colonne` |
-| `moduloCalendariIcs` (in `ui/views/settings/icsCalendar.ts`) | `calendario.*` |
+| `moduloColonnaCheck`, `moduloColonneCheck`, `moduloDataCheck` | `check.colonne`, `check.data` |
+| `moduloProgetto`, `moduloFasi`, `moduloCriteri`, `moduloLivelli`, `moduloScalettaProgetto` | `progetto.salva`, `progetto.integra`, `progetto.elimina` |
+| `moduloCompito`, `moduloProroga`, `moduloInizio`, `moduloGiudizio`, `moduloCella` | `progetto.compito.*`, `progetto.giudizio.*`, `progetto.cella` |
+| `moduloSupplenza` | `supplenza.prepara` |
+| `moduloCalendariIcs` (in `ui/views/settings/icsCalendar.tsx`) | `calendario.*` |
 
-`forms/common.ts`: `salva`, `chiediEliminazione` (mostra tutto ciò che sparisce,
-da `core/dominio/deletions.ts`), `tastoElimina`, `tastoDuplica`, `campoCollegato`
-(tendina con «+» che crea la voce mancante), `campoCorso`, `applicaOrario`,
-`riordinatore` (trascinamento e tastiera). Gli editor interni (`editorPause`,
-`editorTelefoni`, `editorRicorrenze`, `editorSlot`, `editorAttivita`)
-aggiornano solo i nodi che cambiano, per non perdere il fuoco.
+`forms/common.tsx`: `salva`, `chiediEliminazione` (mostra tutto ciò che sparisce,
+da `core/dominio/deletions.ts`), `TastoElimina`, `TastoDuplica`, `CampoCollegato`
+(tendina con «+» che crea la voce mancante), `applicaOrario`, `useRiordino` e
+`PresaDiRiga` (trascinamento e tastiera); `campoCorso` sta in `forms/course.tsx`.
+Gli editor interni (`EditorPause`, `EditorTelefoni`, `EditorRicorrenze`,
+`EditorSlot`, `EditorAttivita`) sono componenti React: tengono lo stato in
+proprio e il fuoco resta dov'è (skill `react`).
 
-`components/hint.ts`: `suggerimento()` è la «i» con la spiegazione nascosta
-(`aria-describedby`); la usano `campo({ aiuto })`, `scheda`, `testataVista`,
-`sezioneModulo`, `apriModale`.
+`components/hint.tsx`: `<Suggerimento>` è la «i» con la spiegazione nascosta
+(`aria-describedby`, `useIdSuggerimento`); la usano campi, schede, testate,
+sezioni dei moduli e modali.
 
 ## 11. Esportazioni e integrazioni
 
@@ -664,7 +698,7 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
 | PDF di prova | lettura `modelli.prova` | in memoria |
 | CSV | `esporta.valutazioni`, `esporta.presenze` | accanto al PDF, stesso nome ([`core/dati/exports.ts`](../core/dati/exports.ts)) |
 | Markdown | `esporta.lezione` | accanto al verbale |
-| ZIP (allievi con foto, piani, risorse, `Leggimi.txt`) | `supplenza.prepara`, anche con la mail che lo porta | accanto al `.regi`, fuori dal documento |
+| ZIP (allievi con foto, piani, risorse, `Leggimi.txt`) | `supplenza.prepara`, anche con la mail che lo porta | accanto al `.regi`, fuori dal documento; cancellato, senza cestino, quando la mail parte (resta senza indirizzo, con l'invio rifiutato o fallito, con la bozza aperta e non spedita); due supplenze dello stesso giorno con nome uguale si separano con « (2)» |
 | `.eml` | invii con invio diretto spento o fallito | `bozze/` |
 
 ### 11.2 Posta
@@ -714,7 +748,7 @@ nel gestore. Tasselli: `registro://mappa/…` (§ 8.5).
 
 | Fase | Azioni | File |
 |---|---|---|
-| Ingresso | `smistamento.carica`, `.deposita` | i byte in `quarantena/` nel `.regi`, anteprime in `quarantena/anteprime/` |
+| Ingresso | `smistamento.carica`, `.deposita`, `.cassetta.assorbi` (un PDF alla volta dalla cassetta di arrivo) | i byte in `quarantena/` nel `.regi`, anteprime in `quarantena/anteprime/` |
 | Ricostruzione | `.dividi`, `.attribuisci` | nessuno |
 | Lettura | `.leggiPagine`, `.leggiTutto`, `.rileggiAttive`, `.fermaLettura` | si riempie `letture` |
 | Assegnazione | `.assegnaPagine`, `.assegnaAssenze`, `.assegnaFirme`, `.confermaTutto`, `.assegnaManuale` | il ritaglio va in `archivio/<materia>/<classe>/<chi>/` |

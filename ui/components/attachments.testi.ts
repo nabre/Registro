@@ -1,4 +1,4 @@
-// I testi dei posti per i PDF di un momento di valutazione (`attachments.ts`).
+// I testi dei posti per i PDF di un momento di valutazione (`attachments.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 

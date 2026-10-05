@@ -11,11 +11,15 @@ import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
 
+import { applyPatches, enablePatches } from 'immer'
+
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-storia-'))
 const lavoro = percorso.join(radice, 'lavoro')
 process.env.REGISTRO_USERDATA = percorso.join(radice, 'userData')
 
 after(() => rmSync(radice, { recursive: true, force: true }))
+
+enablePatches()
 
 let api
 
@@ -545,6 +549,49 @@ describe('i file tolti dal documento, detti alla storia da dove escono', () => {
     assert.equal(archivio.annulla().ok, true)
     assert.deepEqual(nomi(archivio), [])
     await archivio.chiudi()
+    archivio.dispose()
+  })
+})
+
+describe('la storia rimette le patch di più scritture', () => {
+  it('ripristina una voce cambiata prima che la sua lista fosse riordinata', async () => {
+    // Le inverse del gesto, applicate in una bozza sola, tolgono e rimettono
+    // le classi e poi scendono in `classi[0]`: dopo lo `splice` immer lì dà la
+    // voce dello stato e non una bozza, e l'annulla la cambierebbe fuori da
+    // immer, senza patch per il ripristina né per il pannello.
+    const archivio = await archivioVuoto()
+    const classe = (id, nome) => ({ id, nome, allievi: [] })
+    const perNome = (a, b) => a.nome.localeCompare(b.nome)
+    await archivio.inUnPasso(async () => {
+      archivio.modifica((r) => { r.classi.push(classe('c1', 'B'), classe('c2', 'C')) }, ['classi'])
+    })
+    const prima = JSON.stringify(archivio.registro.classi)
+    await archivio.inUnPasso(async () => {
+      archivio.modifica((r) => { r.classi[0].allievi.push({ id: 'a3', nome: 'x' }) }, ['classi'])
+      archivio.modifica((r) => {
+        r.classi.push(classe('c4', 'A'))
+        r.classi.sort(perNome)
+      }, ['classi'])
+      archivio.modifica((r) => {
+        r.classi[0].allievi.push({ id: 'a5', nome: 'y' })
+        r.classi.push(classe('c6', '0'))
+        r.classi.sort(perNome)
+      }, ['classi'])
+    })
+    const dopo = JSON.stringify(archivio.registro.classi)
+
+    const ricevute = []
+    const via = archivio.alleDifferenze((d) => ricevute.push(d))
+    assert.equal(archivio.annulla().ok, true)
+    assert.equal(JSON.stringify(archivio.registro.classi), prima)
+    assert.equal(archivio.ripristina().ok, true)
+    assert.equal(JSON.stringify(archivio.registro.classi), dopo)
+    via.dispose()
+    // Le differenze, riportate sulla copia della pagina, danno lo stato del
+    // documento: il pannello vede anche la voce cambiata.
+    const pagina = (stato, patch) => applyPatches({ classi: JSON.parse(stato) }, patch).classi
+    assert.equal(JSON.stringify(pagina(dopo, ricevute[0].patch)), prima)
+    assert.equal(JSON.stringify(pagina(prima, ricevute[1].patch)), dopo)
     archivio.dispose()
   })
 })

@@ -1,4 +1,4 @@
-// I testi di `views/projects/tasks.ts`: la griglia dei compiti di un progetto.
+// I testi di `views/projects/tasks.tsx`: la griglia dei compiti di un progetto.
 
 import { catalogo } from '#core/i18n/index.js'
 

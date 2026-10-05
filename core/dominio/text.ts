@@ -132,8 +132,12 @@ export function nomeDelFile (percorso: string): string {
 
 // ------------------------------------------------------------------ file
 
-/** I nomi che Windows non accetta come file o cartella, con o senza estensione. */
-const RISERVATI_WINDOWS = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i
+/**
+ * I nomi che Windows non accetta come file o cartella, con o senza estensione:
+ * anche le console (`CONIN$`, `CONOUT$`), le porte con l'esponente (`COM¹`) e
+ * lo zero, che Windows riserva pure.
+ */
+const RISERVATI_WINDOWS = /^(con|prn|aux|nul|conin\$|conout\$|com[0-9¹²³]|lpt[0-9¹²³])(\..*)?$/i
 /**
  * Un nome scrivibile su disco su tutti i sistemi: via caratteri vietati e di
  * controllo, punti e spazi in coda (Windows non li tiene nelle cartelle), nomi

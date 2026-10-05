@@ -11,7 +11,7 @@
 //   non rimbalzare fra le ultime due.
 // - **Ctrl+cifra** (`ui/shortcuts.ts`): la seconda voce della barra laterale si
 //   apre con Ctrl+2, anche dal tasto fisico del tastierino; la quinta con Ctrl+5.
-// - **L'entrata** (`ui/main.ts`, `styles/motion.css`): `data-entrata` c'è nel
+// - **L'entrata** (`ui/main.tsx`, `styles/motion.css`): `data-entrata` c'è nel
 //   disegno in cui la pagina cambia e non in quello di un `aggiorna` qualunque
 //   dopo — che è il giro dell'orologio. Se restasse, la pagina lampeggerebbe a
 //   ogni minuto.

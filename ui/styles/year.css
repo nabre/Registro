@@ -19,24 +19,6 @@
 .anno__semestre-periodo,
 .anno__semestre-conti { color: var(--testo-quieto); font-size: 0.88em; }
 
-.scelta-giorni { display: flex; gap: var(--spazio-1); flex-wrap: wrap; }
-
-.scelta-giorni__voce {
-  padding: 4px 10px;
-  border: 1px solid var(--bordo-tenue);
-  border-radius: var(--raggio);
-  background: transparent;
-  color: var(--testo-quieto);
-  font: inherit;
-  cursor: pointer;
-}
-
-.scelta-giorni__voce--attiva {
-  background: var(--primario);
-  color: var(--su-tinta);
-  border-color: transparent;
-}
-
 .avanzamento-inserimento { display: flex; align-items: center; gap: var(--spazio-2); margin-top: var(--spazio-2); font-size: 0.88em; color: var(--testo-quieto); }
 .avanzamento-inserimento .barra { flex: 1; }
 

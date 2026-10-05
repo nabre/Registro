@@ -27,7 +27,7 @@ export const procedura = scrittura({
       aiuto: () => t().vista,
     }),
     // Un id solo, non uno per genere: quale sia lo dice la pagina che si apre, come
-    // per la palette (`contestoDellElemento` in `ui/main.ts`).
+    // per la palette (`contestoDellElemento` in `ui/main.tsx`).
     elementoId: opzionale(identificatore({
       aiuto: () => t().elementoId,
     })),

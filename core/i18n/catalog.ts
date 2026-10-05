@@ -1,6 +1,6 @@
 // Il catalogo: i testi di un pezzo del registro, in tutte le lingue.
 //
-// Sta accanto al file che lo usa (`views/absences.ts` → `views/absences.testi.ts`)
+// Sta accanto al file che lo usa (`views/absences.tsx` → `views/absences.testi.ts`)
 // con le quattro lingue una sotto l'altra, così chi cambia l'italiano vede le
 // traduzioni.
 //

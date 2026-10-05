@@ -1,9 +1,9 @@
 // Le letture asincrone che una vista mostra (un file, una risposta dell'host):
 // una per chiave, partita una volta sola e mai dentro il disegno. Il disegno
 // legge quel che c'è — vuoto, in volo, pronto, errore — e se non c'è niente
-// la lettura parte subito dopo, in un microtask: `h()` non fa mai partire
-// niente, e cento ridisegni della stessa pagina chiedono una volta sola. A
-// lettura finita si ridisegna (`ridisegna` di `state.ts`), o solo le isole
+// la lettura parte subito dopo, in un microtask: il disegno non fa mai
+// partire niente, e cento ridisegni della stessa pagina chiedono una volta
+// sola. A lettura finita si ridisegna (`ridisegna` di `state.ts`), o solo le isole
 // che la mostrano (`islands.ts`), se chi legge le ha dichiarate.
 //
 // Per chi deve far partire una lettura all'ingresso in una pagina, prima del
@@ -12,13 +12,13 @@
 import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { ridisegna } from './state.js'
 
-export type Voce<T> =
+type Voce<T> =
   | { stato: 'vuoto' }
   | { stato: 'inVolo' }
   | { stato: 'pronto', valore: T }
   | { stato: 'errore', errore: string }
 
-export interface OpzioniLettura {
+interface OpzioniLettura {
   /**
    * L'isola che mostra la lettura: a lettura finita si rifà lei sola invece
    * della pagina. Se un lettore non la dichiara, o nessuna delle isole è più nel

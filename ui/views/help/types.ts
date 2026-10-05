@@ -1,5 +1,5 @@
 // La forma di una sezione della guida, e le regole per scriverla.
-// Il contenuto è una struttura di dati, non un albero di `h()`: aggiungere una
+// Il contenuto è una struttura di dati, non un albero di componenti: aggiungere una
 // funzione vuol dire aggiungere una riga nel file della sua parte.
 //
 // Regole di scrittura per tutti i file di questa cartella:

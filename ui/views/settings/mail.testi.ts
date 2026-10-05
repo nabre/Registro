@@ -1,4 +1,4 @@
-// I testi della posta nelle impostazioni (`settings/mail.ts`). Nomi e
+// I testi della posta nelle impostazioni (`settings/mail.tsx`). Nomi e
 // descrizioni delle voci vengono dal manifesto.
 
 import { catalogo } from '#core/i18n/index.js'

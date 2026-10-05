@@ -86,7 +86,7 @@ interface EsitoSmistamento {
 interface LavoroOcr {
   smistamentoId: string
   pagina: number
-  /** Come si chiama in interfaccia: «michel.brenna.pdf · pagina 4». */
+  /** Come si chiama in interfaccia: «mario.rossi.pdf · pagina 4». */
   etichetta: string
 }
 

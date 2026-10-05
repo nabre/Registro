@@ -1,4 +1,4 @@
-// I testi di `forms/schoolCalendar.ts`: il calendario scolastico ufficiale
+// I testi di `forms/schoolCalendar.tsx`: il calendario scolastico ufficiale
 // dentro i moduli dell'anno.
 //
 // Il nome del Cantone arriva dai dati, scritto in italiano: le lingue che lo

@@ -51,8 +51,8 @@ gira dentro `npm test`.
 | `npm run layers` | ogni `import` contro i confini di `docs/ARCHITETTURA.md` (e ADR-42 in `docs/DECISIONI.md`), più tre regole di testo | un import attraversa un confine, nasce un ciclo, uno specificatore ha un segmento `...`, una regola del dominio è ricopiata, un gestore rientra in `chiama()` |
 | `npm run census` | gli export che nessuno consuma | un export «da eliminare» (mai usato), o zero file letti; i «da rendere interni» si leggono e basta |
 | `npm run collections` | che ogni `modifica()` di `core/azioni/` e `core/dati/` dichiari i JSON che riscrive | una collezione toccata non è dichiarata |
-| `npm run forms` | che ogni `campo({nome})` sia raccolto da `alSalva` | un nome dichiarato e mai raccolto |
-| `npm run buttons` | i comandi disegnati senza `al` | un pulsante che non fa niente |
+| `npm run forms` | in ogni `apriModale`, i `nome`/`name` dei campi del corpo (componenti seguiti col compilatore) contro le chiavi lette da `alSalva` e da `valoriModulo` | un campo senza gestore mai letto, o una chiave letta che nessun campo dichiara |
+| `npm run buttons` | ogni `<Pulsante>` (di `ui/components/base.tsx`) e `<button>` sull'albero JSX, e la vecchia `pulsante({…})` | un comando senza `al`/`on…` che non sia `submit`, spento per sempre o presa di riga |
 | `npm run procedures` | percorso = nome, file nell'indice, indice registrato | una procedura non arriva a `contract/registry.ts` |
 | `npm run docs` | che docs e skill citino script e file che esistono | uno script citato o un percorso fra backtick che non c'è |
 | `npm run i18n -- --severo` | testi per chi usa il registro fuori da un catalogo `*.testi.ts`, grammatica italiana fuori dai cataloghi italiani, cataloghi letti a livello di modulo nel main process (ADR-38, skill `testi`) | resta un reperto; senza `--severo` solo per il terzo |
@@ -76,7 +76,7 @@ Il progetto organizza il codice su cinque strati architetturali netti
   (`desktop/apparato/`), pannelli webview e finestre (`desktop/pannelli/`),
   trasporti (`desktop/transports/`), widget di sistema (`desktop/widget/`),
   punto d'avvio (`desktop/boot.ts`).
-- **`ui/`** — l'interfaccia utente webview, senza framework: `ui/` con le
+- **`ui/`** — l'interfaccia utente webview, in React (ADR-56): `ui/` con le
   sue viste (`ui/views/`), i moduli form (`ui/forms/`) e i
   componenti (`ui/components/`).
 - **`cli/`** — gli strumenti a riga di comando autonomi: `cli/main.mjs` e
@@ -151,11 +151,19 @@ testo e non eseguono il programma. Vanno letti, non temuti.
   `core/azioni/system.ts` su `manutenzione.ripara`, che calcola le sue collezioni
   con un `flatMap` sulle riparazioni trovate: sono quelle vere, ma si conoscono
   solo quando il programma gira.
-- **`forms`** — `valori passato intero a un'altra funzione`. Due casi noti,
-  `ui/forms/absences.ts` e `ui/forms/classTeacher.ts`: falsi positivi verificati nel
-  giro 2, lo strumento non sa seguire `valori` passato tutto insieme.
-- **`buttons`** — `filtro o campo di vista senza al`. Un campo di ricerca che
-  agisce alla digitazione, non al clic. Quattro casi noti.
+- **`forms`** — `non letti qui … valori prosegue in`: l'oggetto dei valori
+  finisce dove il compilatore non lo segue. Il caso noto è
+  `ui/forms/class.tsx` (indirizzo dell'allievo: `Presso`, `Casella`, `Paese` li
+  legge `facoltativo(nome)` con una chiave calcolata). `senza alSalva e senza
+  gestore`: `ui/views/settings/icsCalendar.tsx`, dove «Aggiungi» rilegge il
+  campo dal DOM. Un campo con `al`/`on…` o spento per sempre non si chiede al
+  salvataggio; una chiave confrontata con `undefined` è letta sapendo che può
+  mancare (`tag` in `ui/forms/plan.tsx`, campo tolto e valore tenuto).
+- **`buttons`** — `filtro o campo di vista senza al`: un `<Campo>` fuori da
+  `ui/forms/` e fuori da un `apriModale` scritto lì. Casi noti: il corpo di
+  `chiediImportaClasse` in `ui/views/classes.tsx` (lo legge `alSalva`) e le
+  righe «nuovo» di `ui/views/settings/icsCalendar.tsx` (le legge il pulsante
+  accanto).
 
 Un caso nuovo in queste sezioni **va guardato**: è lo strumento che dice «qui
 non arrivo», e il giorno in cui uno di quei casi è un guasto vero ha esattamente
@@ -189,24 +197,21 @@ L'ordine conta, perché il sospetto più comune è il più economico da escluder
    procedure, comandi, viste, entità) e dice che si ricontano, non si ricordano.
    `npm run procedures` stampa quante ce ne sono e **legge il testo senza
    compilare**: risponde anche quando `tsc` non passa.
-4. **È un artefatto generato?** Quattro file non si scrivono a mano:
-   `resources/tools.json` (`npm run tools`),
-   `core/dati/defaultTemplates.ts` (`npm run templates`),
-   `core/dominio/schoolCalendarTicino.ts` (`npm run calendario`),
-   `tests/samples/anno_esempio.regi` (`npm run sample`).
+4. **È un artefatto generato?** I file che non si scrivono a mano, con lo
+   script che li rifà, sono elencati in `docs/GUIDA.md` («File generati»).
    Se il diff li tocca senza che nessuno li abbia rigenerati, il difetto è a
    monte.
 
 ## La forma breve
 
-Prima di dire «fatto», questa riga, e si legge la fine di ognuna:
+Prima di dire «fatto», questa riga, e si legge la fine di ogni passo:
 
 ```sh
-npm run typecheck && npx eslint . && npm test && npm run layers && npm run collections && npm run forms && npm run buttons && npm run procedures && npm run docs && npm run i18n -- --severo && npm run census
+npm run ci -- --solo verifica
 ```
 
-In PowerShell `&&` non esiste: si usa il Bash tool, oppure si separano con `;`
-e si guarda ogni uscita.
+Esegue i passi del lavoro `verifica` di `.github/workflows/verifica.yml`, letti
+dal file: i tre d'obbligo, i controlli della tabella sopra, `knip` e `licenze`.
 
 ## La prova del fumo
 

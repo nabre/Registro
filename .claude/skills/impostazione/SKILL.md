@@ -65,7 +65,7 @@ la forma in cui il registro le chiede:
 | `tipo` | sempre | `'string'`, `'number'`, `'boolean'` |
 | `predefinito` | sempre | il valore quando nessuno ha scelto |
 | `etichetta`, `descrizione` | sempre, in `manifest.testi.ts` | il nome della riga, e sotto una frase discorsiva: chi apre le impostazioni non sa già che cosa cerca |
-| `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `core/controlli/figure.ts` (oggi tema e lingua). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
+| `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `core/controlli/figure.tsx` (oggi tema e lingua). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
 | `formato: 'email'` | il valore è un indirizzo | dogana vera, non un `type="email"`: vale anche da riga di comando |
 | `minimo` / `massimo` | fuori da un intervallo il numero non vuol dire niente | dogana; diventano gli attributi `min`/`max` dei campi |
 | `passo` | il numero non è intero, o salta | dogana anche lui; assente vale 1 |
@@ -139,16 +139,66 @@ Va bene tutte e due, ma va **deciso**, non subìto. Spostare una sezione cambia
 gli indirizzi (`area#sezione`): quelli di prima si riportano in
 `SCHEDE_DI_PRIMA` di `place.ts`.
 
+## Il sistema delle pagine
+
+Le regole che tengono insieme le pagine Impostazioni; il codice le cita.
+
+**Tre livelli.** Area (le quattro schede in testata) → sezione (indice a
+sinistra; l'area è una pagina sola che scorre, l'indice segue lo scorrimento e
+un clic salta; su stretto è una tendina in cima) → gruppo di voci (titolo h3:
+*Stato e gesti* → *Scelte* → *Avanzate*, chiuso).
+
+- Niente sezione senza impostazioni.
+- L'ambito **non è un livello**: una pastiglia su ogni blocco, «Questo anno» o
+  «Questo computer».
+- Le azioni di file (apri, nuovo anno, mostra cartella, ricarica, OneDrive)
+  stanno fuori: menu File, Ctrl+K, dialogo «Informazioni documento».
+- Ogni voce ha un indirizzo `impostazioni/<area>#<voce>`: rimandi, filtro e
+  Ctrl+K arrivano sul controllo e lo accendono.
+- Un punto di stato sulla scheda dell'area quando lì qualcosa chiede
+  attenzione (account scollegato, assistente acceso senza modello).
+- Senza documento aperto (finestra nativa) restano Utente › Account/Posta e
+  Programma; Calendario e Didattica dicono «apri un anno». Si riparte
+  dall'ultima area aperta, alla sezione dove si era.
+
+**Una vista sola.** Nome, controllo, «i». Niente modo Dettagli, chiave
+tecnica, «modificata · prima», Ritira per voce o pastiglia «predefinito». Il
+numero delle voci modificate sta sull'area, in tono neutro.
+
+**Un filtro solo** in testata per i due ambiti, con i risultati per area e la
+pastiglia d'ambito; la stessa sorgente serve Ctrl+K.
+
+**Il tipo di controllo**, in quest'ordine di preferenza; il testo libero per
+ultimo:
+
+1. **Figura**: l'effetto si vede (tema, lingua).
+2. **Segmentato** fino a 4 scelte brevi; **tendina** oltre 4 o per un elenco
+   dinamico. L'opzione è un nome corto; la frase va nell'aiuto sotto.
+3. **Interruttore**: vero switch, nome accessibile = nome della voce; le
+   figlie indentate sotto il padre.
+4. **Numero con unità**: suffisso sempre visibile, `minimo`/`massimo`/`passo`
+   dove serve. **Cursore** solo per intervalli piccoli e continui.
+5. **Ora, data, colore**: il controllo nativo dedicato.
+6. **File o cartella**: una resa sola (percorso, Sfoglia, verifica, Apri).
+7. **Testo libero**: solo nomi propri, indirizzi, URL, con validazione in
+   linea.
+
+**Lo stesso comportamento ovunque.** Si salva al cambio, senza modali per un
+campo; il testo al `change`. Ogni salvataggio dà la stessa riga «salvato»
+discreta. Togliere chiede conferma solo se si perde qualcosa che non torna;
+per il resto «Annulla» nella notifica. Un valore raddrizzato dall'host si dice
+accanto al campo.
+
 ## Le due superfici
 
 | | Pagina del pannello | Finestra nativa |
 | --- | --- | --- |
-| Dove | `ui/views/settings*` | `desktop/shell/pages/settings/settings.ts`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
+| Dove | `ui/views/settings*` | `desktop/shell/pages/settings/settings.tsx`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
 | Quando serve | quasi sempre | la scialuppa: nessun documento aperto, il pannello non c'è (menu Registro › «Impostazioni senza documento aperto…») |
 | Che cosa mostra | tutte e quattro le aree | Utente › Posta e Programma; Calendario e Didattica dicono che stanno nel file |
 
-I controlli sono **gli stessi** (ADR-52): `core/controlli/control.ts` sceglie il
-disegno dalla `VoceProgramma`, `field.ts` fa lo stesso per i campi dell'anno.
+I controlli sono **gli stessi** (ADR-52): `core/controlli/control.tsx` sceglie il
+disegno dalla `VoceProgramma`, `field.tsx` fa lo stesso per i campi dell'anno.
 `core/controlli/` importa solo `core/i18n`, le parole comuni e i tipi di
 `contract/` (`npm run layers`).
 

@@ -2,6 +2,10 @@
 // sulle sue integrazioni nei corsi.
 
 import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
+
+/** I pezzi non vuoti, in fila. */
+const inFila = (pezzi: string[]) => pezzi.filter(Boolean).join(', ')
 
 const it = {
   compitoSparito: 'Quel compito non c’è più nel progetto.',
@@ -14,6 +18,14 @@ const it = {
     tappe === 0
       ? 'Progetto tolto dal corso.'
       : `Progetto tolto dal corso: ${tappe === 1 ? '1 tappa dei piani resta' : `${tappe} tappe dei piani restano`} senza progetto.`,
+  persi: (compiti: number, giudizi: number, celle: number) => {
+    const via = inFila([
+      compiti > 0 ? plurale(compiti, 'compito', 'compiti') : '',
+      giudizi > 0 ? plurale(giudizi, 'giudizio', 'giudizi') : '',
+      celle > 0 ? plurale(celle, 'cella della matrice', 'celle della matrice') : '',
+    ])
+    return via ? `Con il corso se ne sono andati: ${via}.` : ''
+  },
   fileEstranei: (n: number) =>
     n === 1
       ? 'Un file indicato nelle risorse non è del progetto: i file si aggiungono dalla pagina del progetto.'
@@ -52,6 +64,14 @@ export const testi = catalogo(it, {
       tappe === 0
         ? 'Projekt aus dem Kurs entfernt.'
         : `Projekt aus dem Kurs entfernt: ${tappe === 1 ? '1 Etappe der Pläne bleibt' : `${tappe} Etappen der Pläne bleiben`} ohne Projekt.`,
+    persi: (compiti, giudizi, celle) => {
+      const weg = inFila([
+        compiti > 0 ? plurale(compiti, 'Aufgabe', 'Aufgaben') : '',
+        giudizi > 0 ? plurale(giudizi, 'Einschätzung', 'Einschätzungen') : '',
+        celle > 0 ? plurale(celle, 'Zelle der Matrix', 'Zellen der Matrix') : '',
+      ])
+      return weg ? `Mit dem Kurs entfernt: ${weg}.` : ''
+    },
     fileEstranei: (n) =>
       n === 1
         ? 'Eine Datei in den Ressourcen gehört nicht zum Projekt: Dateien fügst du auf der Projektseite hinzu.'
@@ -88,6 +108,14 @@ export const testi = catalogo(it, {
       tappe === 0
         ? 'Projet retiré du cours.'
         : `Projet retiré du cours : ${tappe === 1 ? '1 étape des plans reste' : `${tappe} étapes des plans restent`} sans projet.`,
+    persi: (compiti, giudizi, celle) => {
+      const partis = inFila([
+        compiti > 0 ? plurale(compiti, 'tâche', 'tâches') : '',
+        giudizi > 0 ? plurale(giudizi, 'appréciation', 'appréciations') : '',
+        celle > 0 ? plurale(celle, 'cellule de la matrice', 'cellules de la matrice') : '',
+      ])
+      return partis ? `Retirés avec le cours : ${partis}.` : ''
+    },
     fileEstranei: (n) =>
       n === 1
         ? 'Un fichier indiqué dans les ressources n’est pas du projet : les fichiers s’ajoutent depuis la page du projet.'
@@ -125,6 +153,14 @@ export const testi = catalogo(it, {
       tappe === 0
         ? 'Project removed from the course.'
         : `Project removed from the course: ${tappe === 1 ? '1 plan step is' : `${tappe} plan steps are`} left without a project.`,
+    persi: (compiti, giudizi, celle) => {
+      const gone = inFila([
+        compiti > 0 ? plurale(compiti, 'task', 'tasks') : '',
+        giudizi > 0 ? plurale(giudizi, 'comment', 'comments') : '',
+        celle > 0 ? plurale(celle, 'matrix cell', 'matrix cells') : '',
+      ])
+      return gone ? `Removed with the course: ${gone}.` : ''
+    },
     fileEstranei: (n) =>
       n === 1
         ? 'A file listed in the resources isn’t the project’s: files are added from the project page.'

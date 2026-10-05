@@ -1,5 +1,5 @@
-// I testi della conversazione con l'assistente: il filo (`chat.ts`), le tabelle
-// lette (`result.ts`) e il microfono (`voice.ts`). «Ferma» sta qui con la riga
+// I testi della conversazione con l'assistente: il filo (`chat.tsx`), le tabelle
+// lette (`result.tsx`) e il microfono (`voice.ts`). «Ferma» sta qui con la riga
 // che lo cita fra virgolette.
 
 import { catalogo } from '#core/i18n/index.js'

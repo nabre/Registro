@@ -1,4 +1,4 @@
-// I testi delle righe delle impostazioni dell'anno (`yearSetting.ts`) e della
+// I testi delle righe delle impostazioni dell'anno (`yearSetting.tsx`) e della
 // notifica con «Annulla» (`undoable.ts`; il nome del pulsante è quello del
 // comando che disfa l'ultimo gesto, `commands.testi.ts`).
 

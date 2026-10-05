@@ -1,4 +1,4 @@
-// I testi della barra laterale (`sidebar.ts`): il marchio in cima e
+// I testi della barra laterale (`sidebar.tsx`): il marchio in cima e
 // l'interruttore che la riduce alle icone, e la scorciatoia di ogni voce.
 
 import { catalogo } from '#core/i18n/index.js'

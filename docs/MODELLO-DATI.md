@@ -240,6 +240,7 @@ La radice: lo stato di un anno, più le intestazioni di tutti gli anni.
 
 - Semestri contigui (`validaAnno` rifiuta, `allineaSemestri` ripara);
   `inizio`/`fine` riscritti da `annoAllineato()`; sospensioni dentro l'anno.
+- `fine − inizio` al più 731 giorni (`validaAnno`).
 - Con `calendarioUfficiale` inizio, fine e le chiusure collegate (id
   `sos-<cantone>-<aaaa-aaaa>-…`, `èCollegata`) non si cambiano da `anno.salva`
   (`motivoCalendarioToccato`); il marcatore lo mette e lo toglie solo
@@ -291,6 +292,7 @@ Una fascia fissa dell'orario.
 | `dal?`, `al?` | `Iso` | vigenza parziale |
 
 - Due fasce dello stesso corso non hanno stesso `giorno` e `inizio`.
+- Una fascia finisce entro mezzanotte: `inizio + durataMin ≤ 24:00`.
 - L'alternanza A/B si fa con ricorrenze distinte e `dal`/`al`; la lettera è
   solo un'etichetta.
 - Norm.: `validaRicorrenza(ricorrenza, altre)`, `normalizzaRicorrenza`;
@@ -661,6 +663,9 @@ resta.
 
 `min` (1), `max` (6), `sufficienza` (4), `passo` (0.25) = `SCALA_PREDEFINITA`.
 `min < max` (altrimenti `max = min + 1`), `sufficienza` dentro, `passo > 0`.
+Estremi in `[-1000, 1000]` e al più 400 voti (`(max − min) / passo`,
+`LIMITI_SCALA`): in lettura estremi fuori misura tornano alla scala di serie,
+un passo troppo fitto si allarga.
 Due usi: `Impostazioni.scala` (per le prove nuove) e `MomentoValutazione.scala`
 (copia). Norm.: `validaScala`, `normalizzaScala`.
 
@@ -771,7 +776,7 @@ matrice nomina sono del progetto.
 
 | campo | tipo | nota |
 |---|---|---|
-| `corsoId` | `string` | senza, alla lettura l'integrazione se ne va; due per lo stesso corso: vale la prima |
+| `corsoId` | `string` | senza, alla lettura l'integrazione se ne va; due per lo stesso corso: vale la prima, salvo quando la migrazione ha fuso due corsi (`conCorsoVero`): allora si fondono (`fondiIntegrazione`) |
 | `stato` | `StatoProgetto` | |
 | `compiti` | `CompitoProgetto[]` | |
 | `giudizi` | `GiudizioProgetto[]` | |
@@ -1225,9 +1230,9 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | Bersaglio | Si cancella | Si scollega / sopravvive | Alternativa |
 |---|---|---|---|
 | `anno` | la cartella intera, con classi, corsi, lezioni, valutazioni, consegne, check, smistamenti, fascicoli | `annoCorrenteId` al primo rimasto; piani con `corsoId = null`. Se non è l'anno aperto non se ne contano i contenuti | cestino di sistema |
-| `materia` | la materia e i suoi corsi, in cascata | piani dei corsi caduti | unirla a un'altra |
-| `classe` | classe, allievi, corsi in cascata, fascicolo, schede stampate | piani dei corsi caduti | archiviarla |
-| `corso` | corso, lezioni, valutazioni, consegne, check, integrazioni dei progetti in quel corso (e i loro fogli), smistamenti, PDF | i piani (`corsoId = null`, le tappe tengono il progetto); i progetti | — |
+| `materia` | la materia e i suoi corsi, in cascata | piani dei corsi caduti; i progetti integrati solo in quei corsi restano nella biblioteca, senza corsi | unirla a un'altra |
+| `classe` | classe, allievi, corsi in cascata, fascicolo, schede stampate | piani dei corsi caduti; i progetti integrati solo in quei corsi restano nella biblioteca, senza corsi | archiviarla |
+| `corso` | corso, lezioni, valutazioni, consegne, check, integrazioni dei progetti in quel corso (e i loro fogli), smistamenti, PDF | i piani (`corsoId = null`, le tappe tengono il progetto); i progetti (integrati solo lì: nella biblioteca, senza corsi) | — |
 | `allievo` (classeId, id) | presenze, osservazioni, celle, voti, recuperi, righe d'assenza, documenti e file delle spunte, spunte del check, voci dei progetti, schede stampate | allegati e documenti del fascicolo → `allievoId = null` (file restano); consegne restano senza il suo nome | togliere «Frequenta» (`attivo = false`) |
 | `lezione` | sé stessa, appello, osservazioni, verbale | consegne, spunte e voci dei progetti: data **copiata prima** di azzerare il rimando; momenti → `lezioneId = null` | — |
 | `piano` | il piano, i file delle sue risorse (per percorso, non per cartella), il PDF | lezioni → `pianoId = null` e `avanzamento = []`; momenti → `pianoId = null` | — |

@@ -1,4 +1,4 @@
-// I testi del dialogo «Informazioni documento» (`documentInfo.ts`).
+// I testi del dialogo «Informazioni documento» (`documentInfo.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { PIF, un } from '#core/dominio/lexicon.js'

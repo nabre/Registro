@@ -14,9 +14,20 @@ import { postoDaVista } from '#ui/place.js'
 import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '#ui/pages.js'
 import { scegliCorso } from '#ui/context.js'
 import { COMANDI_UI } from '#ui/commands.js'
+// Rifà una sola isola: `tests/interfaccia/stabilita.spec.ts` guarda che il resto resti.
+import { ridisegnaIsola } from '#ui/islands.js'
 // Le miniature hanno bisogno di una tela vera: `tests/interfaccia/pageBrowser.spec.ts` le
 // chiama a mano per provare apertura e chiusura di un documento.
 import { miniatura, dimentica } from '#ui/components/thumbnails.js'
+// Le finestre dei moduli, aperte a mano da `tests/interfaccia/moduli.spec.ts`:
+// molte nella pagina vera stanno dietro gesti lunghi da rifare (un evento ICS,
+// un recupero), e la prova guarda la finestra, non la strada per arrivarci.
+import {
+  moduloBloccoAssenze, moduloCalendario, moduloComunicazione, moduloConsegna, moduloCorso,
+  moduloEventoIcs, moduloImportaRegistro, moduloMateria, moduloRecapito, moduloRecupero,
+  moduloSupplenza, moduloValutazione,
+} from '#ui/forms.js'
+import { apriOneDrive } from '#ui/forms/oneDrive.js'
 // Due pezzi di dominio che le prove leggono invece di ricopiarli: le regole dei
 // nomi dei documenti e l'elenco delle tipologie delle pendenze.
 import { collocazioneDi, percorsoDi } from '#core/dominio/locations.js'
@@ -247,7 +258,23 @@ Object.assign(window, {
     MISURE_SFOGLIO, PAGINE, gruppiDiPagine, vaiA, scegliCorso,
     lezioniInAgenda, riconvalidaRicordati,
     COMANDI_UI, registroVuoto, collocazioneDi, percorsoDi, FAMIGLIE_TODO, miniatura, dimentica,
+    ridisegnaIsola,
     datiGrandi,
+    moduli: {
+      corso: moduloCorso,
+      consegna: moduloConsegna,
+      valutazione: moduloValutazione,
+      materia: moduloMateria,
+      assenze: moduloBloccoAssenze,
+      recapito: moduloRecapito,
+      comunicazione: moduloComunicazione,
+      recupero: moduloRecupero,
+      supplenza: moduloSupplenza,
+      eventoIcs: moduloEventoIcs,
+      calendario: moduloCalendario,
+      importaRegistro: moduloImportaRegistro,
+      oneDrive: apriOneDrive,
+    },
   },
 })
 vai(postoCorrente(), {

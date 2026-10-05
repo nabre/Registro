@@ -1,4 +1,4 @@
-// I testi di `forms/icsEvent.ts`: la finestra che prende un evento del
+// I testi di `forms/icsEvent.tsx`: la finestra che prende un evento del
 // calendario ICS e lo abbina a un corso, o ne fa una lezione.
 
 import { catalogo } from '#core/i18n/index.js'

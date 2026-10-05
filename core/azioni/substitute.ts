@@ -1,6 +1,6 @@
 // La supplenza vista dall'altra parte: manco, e chi tiene le mie ore riceve
 // un pacchetto. Lo zip va accanto al documento, fuori dal `.regi`: è da
-// mandare via, non da conservare. Che cosa ci va e con che nomi lo decide
+// mandare via, non da conservare, e partita la mail lo si toglie. Che cosa ci va e con che nomi lo decide
 // `core/dominio/substitute.ts`; qui si compongono i PDF, si leggono i file e si scrive.
 
 import * as apparato from 'apparato'
@@ -12,13 +12,14 @@ import { componiPdf } from '#core/dati/reportsPdf.js'
 import { firmaPosta } from '#core/dati/templates.js'
 import { apriBozzaSingola, confermaInvio, nomeBozza, puoSpedire } from '#core/dati/mail.js'
 import { sembraIndirizzo } from '#core/dominio/mailbox.js'
-import { datiFotoClasse, datiPiano } from '#core/dominio/reportData/index.js'
+import { datiPiano } from '#core/dominio/reportData/index.js'
 import type { DatiRapporto } from '#core/dominio/reports.js'
 import type { Intestazione } from '#core/dominio/models.js'
 import { oggi, periodoNelNome } from '#core/dominio/dates.js'
 import {
-  cartellaDellOra,
+  cartelleDelleOre,
   classiDellaSupplenza,
+  datiFotoSupplenza,
   leggimi,
   lezioniDellaSupplenza,
   messaggioSupplenza,
@@ -71,18 +72,19 @@ export const supplenza = {
     // I file spariti, per id: il foglio da leggere non li deve promettere.
     const assenti = new Map<string, string>()
 
+    const cartelle = cartelleDelleOre(registro, lezioni)
     try {
       for (const classe of classiDellaSupplenza(registro, lezioni)) {
         voci.push({
           nome: nomeFoglioAllievi(classe),
-          dati: await pdfDi('foto-classe', datiFotoClasse(registro, classe), intestazione),
+          dati: await pdfDi('foto-classe', datiFotoSupplenza(registro, classe), intestazione),
         })
       }
 
       for (const lezione of lezioni) {
         const piano = registro.piani.find((p) => p.id === lezione.pianoId) ?? null
         if (!piano) continue
-        const cartellaOra = cartellaDellOra(registro, lezione)
+        const cartellaOra = cartelle.get(lezione.id) ?? ''
         voci.push({
           nome: `${cartellaOra}/${nomeFoglioPiano()}`,
           dati: await pdfDi('piano-lezione', datiPiano(registro, piano), intestazione),
@@ -112,7 +114,7 @@ export const supplenza = {
     // Comporre i PDF è l'attesa lunga: nel frattempo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()
 
-    const nome = nomeDelloZip(lezioni)
+    const nome = nomeDelloZip(registro, lezioni)
     const file = apparato.Uri.joinPath(cartella, nome)
     const zip = scriviZip(voci)
     try {
@@ -159,6 +161,10 @@ export const supplenza = {
     if (!bozza.spedita) {
       return conMessaggio(t.bozzaAperta(email, file.fsPath), 'info', { invariato: true })
     }
+    // Partito, lo zip non serve più: accanto al documento, spesso su OneDrive,
+    // resterebbe una copia di foto e nomi di minorenni; nemmeno nel cestino.
+    // Se non si toglie, la mail è partita lo stesso: non c'è errore da dire.
+    await apparato.file.delete(file, { useTrash: false }).catch(() => undefined)
     const finale = [bozza.avviso ? t.speditaNonATutti(bozza.avviso) : t.spedita(email), avviso]
     return conMessaggio(
       finale.filter(Boolean).join(' '),

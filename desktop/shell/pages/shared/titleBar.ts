@@ -1,5 +1,5 @@
 // La barra del titolo delle finestre del guscio (benvenuto, impostazioni,
-// dialoghi, lettore): la stessa testata del pannello (`ui/titleBar.ts`),
+// dialoghi, lettore): la stessa testata del pannello (`ui/titleBar.tsx`),
 // ridotta a quel che una finestra di servizio porta — il logo e il titolo.
 //
 // La finestra nasce con `cornicePropria()` (`desktop/apparato/theme.ts`) e lo
@@ -12,7 +12,7 @@
 
 import './title-bar.css'
 
-/** Il file del logo, lo stesso di `ui/components/logo.ts`. */
+/** Il file del logo, lo stesso di `ui/components/logo.tsx`. */
 const LOGO = 'registro://app/resources/registro-app-piccola.svg'
 
 function disegna (): void {

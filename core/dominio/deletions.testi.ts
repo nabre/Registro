@@ -96,6 +96,8 @@ const it = {
   progettiConData: (n: number) =>
     `${plurale(n, 'voce dei progetti resta', 'voci dei progetti restano')}, ` +
     'con la data al posto della lezione',
+  progettiInBiblioteca: (n: number) =>
+    `${plurale(n, 'progetto resta', 'progetti restano')} nella biblioteca, senza corsi`,
   momentiSenzaLezione: (n: number) =>
     `${plurale(n, 'momento di valutazione resta', 'momenti di valutazione restano')}, ` +
     'senza la lezione a cui era legato',
@@ -200,6 +202,8 @@ export const testi = catalogo(it, {
     progettiConData: (n) =>
       `${plurale(n, 'Projekteintrag bleibt', 'Projekteinträge bleiben')}, ` +
       'mit dem Datum statt der Stunde',
+    progettiInBiblioteca: (n) =>
+      `${plurale(n, 'Projekt bleibt', 'Projekte bleiben')} in der Bibliothek, ohne Kurse`,
     momentiSenzaLezione: (n) =>
       `${plurale(n, 'Leistungsbeurteilung bleibt', 'Leistungsbeurteilungen bleiben')}, ` +
       'ohne die Stunde, mit der sie verknüpft war',
@@ -298,6 +302,8 @@ export const testi = catalogo(it, {
     progettiConData: (n) =>
       `${plurale(n, 'entrée des projets reste', 'entrées des projets restent')}, ` +
       'avec la date à la place de la leçon',
+    progettiInBiblioteca: (n) =>
+      `${plurale(n, 'projet reste', 'projets restent')} dans la bibliothèque, sans cours`,
     momentiSenzaLezione: (n) =>
       `${plurale(n, 'évaluation reste', 'évaluations restent')}, ` +
       'sans la leçon à laquelle elle était liée',
@@ -389,6 +395,8 @@ export const testi = catalogo(it, {
       `${plurale(n, 'assessment stays', 'assessments stay')}, with no project`,
     progettiConData: (n) =>
       `${plurale(n, 'project entry stays', 'project entries stay')}, with the date instead of the lesson`,
+    progettiInBiblioteca: (n) =>
+      `${plurale(n, 'project stays', 'projects stay')} in the library, with no courses`,
     momentiSenzaLezione: (n) =>
       `${plurale(n, 'assessment stays', 'assessments stay')}, without the lesson it was linked to`,
     lezioniSenzaScaletta: (n) =>

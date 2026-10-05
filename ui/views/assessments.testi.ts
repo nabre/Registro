@@ -1,4 +1,4 @@
-// I testi della pagina dei momenti di valutazione (`views/assessments.ts`).
+// I testi della pagina dei momenti di valutazione (`views/assessments.tsx`).
 
 import { catalogo, numero, perNumero, minuscolo } from '#core/i18n/index.js'
 import { PIF } from '#core/dominio/lexicon.js'

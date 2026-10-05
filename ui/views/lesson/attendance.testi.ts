@@ -1,4 +1,4 @@
-// I testi dell'appello dell'ora (`lesson/attendance.ts`).
+// I testi dell'appello dell'ora (`lesson/attendance.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { PIF } from '#core/dominio/lexicon.js'

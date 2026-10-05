@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url'
 export const RADICE = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
 /** Le estensioni che si guardano quando nessuno ne chiede altre. */
-const ESTENSIONI_PREDEFINITE = ['.ts']
+const ESTENSIONI_PREDEFINITE = ['.ts', '.tsx']
 
 /**
  * Ogni file di codice sotto una cartella, ricorsivamente, nell'ordine di

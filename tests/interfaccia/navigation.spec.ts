@@ -242,7 +242,7 @@ test('navigation', async ({ browser }) => {
   const semestri = await valuta<number>(page, '()=>prova.stato.registro.anni[0].semestri.length')
   await expect(confini).toHaveCount(semestri - 1)
   // E cade sulla settimana in cui il semestre finisce. Il titolo conta i soli
-  // giorni mostrati, il confine si cerca su tutti e sette (`weekStrip.ts`): un
+  // giorni mostrati, il confine si cerca su tutti e sette (`weekStrip.tsx`): un
   // semestre che finisce di domenica, con Sab/Dom nascosti, sta nella settimana
   // che il titolo chiude al venerdì. Si confronta col lunedì e la domenica.
   const fine = await valuta<string>(page, '()=>prova.stato.registro.anni[0].semestri[0].fine')
@@ -551,7 +551,7 @@ test('navigation', async ({ browser }) => {
   await expect(page.locator('.archivio__titolo')).toHaveText('Rossi Maria')
   // La casella della matrice si accende: si vede da dove si era partiti.
   await expect(page.locator('.cella-documento--aperta')).toHaveCount(1)
-  // Il telaio del lettore è tenuto (`data-tieni`): un ridisegno non lo ricrea.
+  // Il telaio del lettore è tenuto: un ridisegno non lo ricrea.
   await valuta(page, "document.querySelector('.cornice-posto__telaio').__segnato = true")
   await valuta(page, 'prova.ridisegna()')
   await valuta(page, FOTOGRAMMA)

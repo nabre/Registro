@@ -1,5 +1,5 @@
-// I testi della griglia dei voti (`views/assessments/grades.ts`); l'avviso «non è un voto»
-// lo usa anche la casella del recupero (`views/assessments/retakes.ts`).
+// I testi della griglia dei voti (`views/assessments/grades.tsx`); l'avviso «non è un voto»
+// lo usa anche la casella del recupero (`views/assessments/retakes.tsx`).
 
 import { catalogo, numero } from '#core/i18n/index.js'
 

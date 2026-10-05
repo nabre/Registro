@@ -154,66 +154,6 @@
   flex: none;
 }
 
-/* ------------------------------------------------------------------ i filtri */
-
-/*
- * Le due tendine accanto all'ora da fare: il corso e il periodo. Piccole,
- * senza cornice a riposo, alte quanto una voce; il bordo arriva al passaggio.
- */
-.barra-stato__filtro {
-  display: flex;
-  align-items: center;
-  gap: var(--vicino);
-  min-width: 0;
-  color: var(--testo-quieto);
-  cursor: pointer;
-}
-
-.barra-stato__filtro .icona {
-  flex: none;
-  width: 1.05em;
-  height: 1.05em;
-  color: var(--testo-quieto);
-}
-
-.barra-stato__tendina {
-  /* `none` e non `menulist`: la cornice di sistema gonfierebbe la riga. */
-  appearance: none;
-  max-width: 11rem;
-  padding: var(--respiro-y) var(--respiro-x) var(--respiro-y) var(--vicino);
-  border: 1px solid transparent;
-  border-radius: var(--raggio);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-overflow: ellipsis;
-  cursor: pointer;
-}
-
-/* La freccia sta dopo la tendina e dice solo che si apre; il clic lo prende la tendina. */
-.barra-stato__filtro > .icona:last-child {
-  margin-left: -2px;
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.barra-stato__tendina:hover {
-  border-color: var(--bordo-tenue);
-  background: var(--sfondo-alto-2);
-  color: var(--testo);
-}
-
-.barra-stato__tendina:focus-visible {
-  outline: 2px solid var(--fuoco);
-  outline-offset: -1px;
-}
-
-/* Il menu è del sistema e non eredita dalla barra: senza, su fondo scuro, sarebbe nero su nero. */
-.barra-stato__tendina option {
-  background: var(--sfondo-alto);
-  color: var(--testo);
-}
-
 /* ------------------------------------------------------------------- i toni */
 
 /*
@@ -266,13 +206,8 @@
 /* Un interruttore spento si vede spento: l'icona sbiadisce. */
 .barra-stato__voce[aria-pressed="false"] .icona { opacity: 0.55; }
 
-/* Sotto una certa larghezza i filtri si accorciano ma restano raggiungibili. */
-@media (max-width: 56.25em) {
-  .barra-stato__tendina { max-width: 7rem; }
-}
-
-/* Più stretto ancora spariscono le icone di destra: restano i filtri, l'ora da
-   fare e «senza rete», che non si nasconde mai. */
+/* Nelle finestre strette spariscono le icone di destra: restano l'ora da fare e
+   «senza rete», che non si nasconde mai. */
 @media (max-width: 34em) {
   .barra-stato__gruppo--coda .barra-stato__voce:not(.barra-stato__voce--negativo) {
     display: none;
@@ -283,5 +218,4 @@
     > .barra-stato__blocco:not(:has(.barra-stato__voce--negativo)) {
     display: none;
   }
-  .barra-stato__tendina { max-width: 5.5rem; }
 }

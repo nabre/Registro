@@ -5,6 +5,10 @@
     "module": "Node16",
     "moduleResolution": "Node16",
 
+    // Le pagine del renderer in React (ADR-56): JSX col runtime automatico,
+    // come lo compila esbuild.
+    "jsx": "react-jsx",
+
     // Il modulo `apparato` è un file nostro, come per esbuild: `tsc` controlla
     // esattamente quel che gira.
     "paths": {

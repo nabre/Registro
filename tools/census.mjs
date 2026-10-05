@@ -33,7 +33,7 @@ const SCIOLTI = ['esbuild.mjs']
 const radice = RADICE
 
 /** Tutte le forme in cui qui dentro si scrive codice: un export si nomina da ognuna. */
-const ESTENSIONI = ['.ts', '.mts', '.mjs', '.cjs']
+const ESTENSIONI = ['.ts', '.tsx', '.mts', '.mjs', '.cjs']
 
 const percorsi = CARTELLE
   .filter((c) => existsSync(join(radice, c)))

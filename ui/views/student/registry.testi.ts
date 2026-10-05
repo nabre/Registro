@@ -1,4 +1,4 @@
-// I testi della scheda personale, parte anagrafica (`student/registry.ts`).
+// I testi della scheda personale, parte anagrafica (`student/registry.tsx`).
 
 import { catalogo, minuscolo } from '#core/i18n/index.js'
 import { PERSONE, del } from '#core/dominio/lexicon.js'

@@ -1,4 +1,4 @@
-// I testi della cornice dei documenti (`frame.ts`).
+// I testi della cornice dei documenti (`frame.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 

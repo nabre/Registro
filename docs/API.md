@@ -249,7 +249,7 @@ L'area è il primo segmento del nome.
 | `calendario` | calendari ICS: gestirli, leggerli, confrontarli, applicare la revisione (crea, allinea, annulla, non cancella) |
 | `stato` · `documento` · `documenti` | stato del registro, documenti d'anno |
 | `rapporti` · `esportazioni` · `esporta` | i fogli che escono |
-| `supplenza` | quando manco io: lo zip per chi tiene le mie ore, accanto al documento, e la mail che lo porta |
+| `supplenza` | quando manco io: lo zip per chi tiene le mie ore, accanto al documento, e la mail che lo porta (spedita la mail, lo zip si cancella) |
 | `proiezione` | la finestra davanti alla classe |
 | `finestra` · `vista` | zoom, schermo intero, e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
 | `posta` · `mappa` | quel che parla con altre macchine |
@@ -339,6 +339,9 @@ che li prendano.
 | `ore.elenco` | `corsoId?`, `classeId?`, `materiaId?`, `stato?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | ore nel periodo: giorno, orario, corso, quantesima, stato, UD, argomenti, appello fatto |
 | `ore.prossima` | `corsoId?`, `classeId?`, `da?`, `dalleOre?`, `quante?` | la prossima lezione (o quella in corso). Unica lettura che guarda l'orologio: rimanda il momento usato. `aCalendario` distingue «finite» da «calendario vuoto». Conto da `prossimaLezione()` |
 | `ore.leggi` | `lezioneId` | argomenti, materiali, consuntivo, piano, annotazioni con il nome |
+| `ore.cruscotto` | `oggi?`, `ora?` | l'ora su cui andare adesso: prima la più vecchia con un buco, poi la prossima; corso, classe, materia, giorno, orario, aula e `motivoMancanza`. Conto da `oraDaCompilare()` |
+| `classe.pendenze` | `classeId`, `oggi?` | pendenze aperte e urgenti della classe, in tutto e per famiglia (`FAMIGLIE_TODO`). Conto da `todoDellaClasse()` |
+| `smistamento.daFare` | `classeId?` | le scansioni in quarantena: file, classe, consegna, pagine rimaste da attribuire, arrivo, errore; totali di file e pagine |
 | `valutazioni.elenco` | `corsoId?`, `classeId?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | momenti: titolo, genere, peso, voti messi, media, riconsegne, recuperi |
 | `valutazioni.voti` | `valutazioneId` | una riga per persona della classe: voto, assenza, sufficienza, riconsegna, recupero |
 | `valutazioni.orfane` | `corsoId?`, `classeId?` | i momenti di valutazione sganciati da ogni tappa del piano, con il motivo e il numero dei voti |
@@ -439,10 +442,10 @@ interface Riscontro { tipo: 'riscontro'; id: number; ok: boolean;
 
   Un nome inesistente passa al nucleo: `procedura-sconosciuta`.
 - Le procedure della proiezione restano scritture: comandano una finestra.
-- Chi lo usa oggi: [ui/views/languageModels.ts](../ui/views/languageModels.ts)
-  (`llm.*`), [ui/views/settings/updates.ts](../ui/views/settings/updates.ts)
+- Chi lo usa oggi: [ui/views/languageModels.tsx](../ui/views/languageModels.tsx)
+  (`llm.*`), [ui/views/settings/updates.tsx](../ui/views/settings/updates.tsx)
   (`aggiornamenti.stato`), [ui/externalCalendar.ts](../ui/externalCalendar.ts)
-  e [ui/forms/calendar.ts](../ui/forms/calendar.ts) (`calendario.*`).
+  e [ui/forms/calendar.tsx](../ui/forms/calendar.tsx) (`calendario.*`).
 
 ## 7. Il condotto
 
@@ -650,7 +653,7 @@ riquadro a destra (pulsante accanto a «Proietta») o, con «Stacca», in una
 finestra sua (`dist/assistente.js`).
 
 ```
-riquadro (ui/assistant.ts)  ← o →  finestra staccata
+riquadro (ui/assistant.tsx)  ← o →  finestra staccata
    ↓  postMessage, busta `Conversazione`
 main process (desktop/pannelli/{panel,assistant}.ts → conversation.ts)
    ├→ core/dati/llm.ts → motore (core/dati/llamaCpp.ts) → il .gguf
@@ -659,7 +662,7 @@ main process (desktop/pannelli/{panel,assistant}.ts → conversation.ts)
    └→ il risultato torna al modello → risposta
 ```
 
-- Il filo dei turni sta in `ui/assistant/chat.ts`, che non conosce né
+- Il filo dei turni sta in `ui/assistant/chat.tsx`, che non conosce né
   riquadro né finestra; il lavoro del main process in
   `desktop/pannelli/conversation.ts`; il trasporto in
   `desktop/transports/assistant.ts`.
@@ -731,7 +734,7 @@ desktop/transports/assistant.ts   `descriviContesto()` → nota davanti all'ulti
   catalogo resta identico (ADR-32).
 - Nomi **e** id; tendine con le altre voci (dodici al più, tagliate attorno
   alla scelta, «… e altre N»); linguette da `porzioniDellaVista()`; ore con
-  l'etichetta di `oreDelCorso()` (`ui/views/lesson.ts`); il periodo come
+  l'etichetta di `oreDelCorso()` (`ui/views/lesson.tsx`); il periodo come
   `{ etichetta, dal, al }`.
 - **Ogni parte si spegne per conto suo** dal menu a imbuto del riquadro, che
   mostra che cosa contiene adesso; anche ogni tendina. Una tendina spenta si
@@ -753,7 +756,7 @@ usaAttrezzo()                    chiama la procedura
    ├→ al modello   JSON
    └→ alla pagina  impagina()    titolo, valori, colonne
           ↓  evento `risultato`, subito
-   ui/assistant/result.ts    lo disegna sotto la risposta
+   ui/assistant/result.tsx    lo disegna sotto la risposta
 ```
 
 - La forma la dichiara la procedura in `presentazione` (`blocchi` di tipo
@@ -766,7 +769,7 @@ usaAttrezzo()                    chiama la procedura
   esteso, mai un id. I risultati stanno **sotto** la bolla e restano anche se la
   risposta non arriva.
 - Il testo del modello: `ui/assistant/format.ts` lo divide in blocchi
-  (paragrafi, elenchi, titoletti, tabelle), `answer.ts` li costruisce;
+  (paragrafi, elenchi, titoletti, tabelle), `answer.tsx` li costruisce;
   **nessun HTML** interpretato. Prova `tests/ui/answerFormat.test.mjs`.
 - Mentre si aspetta si vedono gli attrezzi con il loro nome vero: una risposta
   senza attrezzi sotto non viene dal registro.

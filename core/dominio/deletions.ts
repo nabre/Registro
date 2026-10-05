@@ -731,6 +731,13 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
   if (integrazioni.length > 0) {
     collezioni.add('progetti')
     perdite.push(t.integrazioni(integrazioni.length))
+    // Chi era integrato solo nei corsi che se ne vanno torna nella biblioteca,
+    // con fasi, criteri e risorse: è lo stato di un progetto di nessun corso.
+    const inBiblioteca = registro.progetti.filter((p) =>
+      !progetti.has(p.id) &&
+      p.integrazioni.length > 0 &&
+      p.integrazioni.every((i) => corsi.has(i.corsoId))).length
+    if (inBiblioteca > 0) staccati.push(t.progettiInBiblioteca(inBiblioteca))
   }
 
   // Tappe e momenti che lavoravano per un progetto che se ne va restano,

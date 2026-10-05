@@ -1,4 +1,4 @@
-// I testi di `forms/timetable.ts`: l'editor delle fasce fisse di un corso.
+// I testi di `forms/timetable.tsx`: l'editor delle fasce fisse di un corso.
 
 import { catalogo } from '#core/i18n/index.js'
 

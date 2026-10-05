@@ -14,7 +14,7 @@ export const procedura = scrittura({
   collezioni: ['classi'],
   ingresso: oggetto({
     classeId: identificatore({ aiuto: () => t().classeId }),
-    nome: opzionale(testo({ aiuto: () => t().nome })),
+    nome: opzionale(testo({ massimo: 120, aiuto: () => t().nome })),
     colore: opzionale(testo({ aiuto: () => t().colore })),
     note: opzionale(testo({ aiuto: () => t().note })),
     docenteDiClasse: opzionale(booleano({ aiuto: () => t().docenteDiClasse })),

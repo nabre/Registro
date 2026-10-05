@@ -21,7 +21,7 @@ Windows se nota, altrimenti it). Una lingua per processo, `core/i18n/state.ts`.
 ## Dove sta un testo
 
 **Accanto al codice che lo usa**, in `<file>.testi.ts`:
-`ui/views/absences.ts` → `ui/views/absences.testi.ts`. Un catalogo per file sorgente
+`ui/views/absences.tsx` → `ui/views/absences.testi.ts`. Un catalogo per file sorgente
 (o per piccolo gruppo di file dello stesso tema). Le quattro lingue nello stesso
 file, una sotto l'altra.
 
@@ -46,12 +46,12 @@ export const testi = catalogo(it, {
 
 Nel file che lo usa, **al momento dell'uso**:
 
-```ts
+```tsx
 import { testi } from './absences.testi.js'
 …
-function vista (): Figlio {
+function Titolo (): ReactElement {
   const t = testi()
-  return h('h2', null, t.titolo)
+  return <h2>{t.titolo}</h2>
 }
 ```
 
@@ -124,10 +124,10 @@ colonna o di campo («Data», «Tipo», «Stato», «Periodo», «Dal», «Al»,
 «Che cosa», «Aula», «Colore», «Indirizzo», «E-mail»), una parola di filtro
 («Tutti», «Tutte», «Con», «Senza», «Immagini»).
 
-```ts
-import { parole } from '../../../core/dominio/words.testi.js'   // anche da desktop/shell/pages/
+```tsx
+import { parole } from '#core/dominio/words.testi.js'   // anche da desktop/shell/pages/
 …
-h('button', { onclick: togli }, parole().togli)
+<Pulsante testo={parole().togli} al={togli} />
 ```
 
 **Si usa `parole()`** quando la parola è la stessa nelle quattro lingue di

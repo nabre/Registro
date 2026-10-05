@@ -356,6 +356,7 @@ export function riparazioni (registro: Registro): Riparazione[] {
             if (attivita.progettoId && !progettoBuono(r, attivita.progettoId, null)) {
               delete attivita.progettoId
               delete attivita.faseProgettoId
+              delete attivita.attivitaProgettoId
             }
           }
         }

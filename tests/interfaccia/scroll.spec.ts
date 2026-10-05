@@ -6,8 +6,7 @@
 //
 // Che cosa difende, e da che cosa. Il registro **rifà l'albero intero a ogni
 // cambio di stato** — una spunta, l'orologio che batte il minuto, una lettera
-// scritta in un filtro — e `rimpiazza` in `ui/dom.ts` svuota e ricostruisce: ogni
-// scatola che scorre riparte da capo, salvo quelle marcate `data-scorrimento`.
+// scritta in un filtro — e una scatola rifatta riparte da capo, salvo quelle marcate `data-scorrimento`.
 // `main.contenuto`, che è la superficie su cui scorre quasi ogni pagina del
 // registro, non era marcata: chi si era scorso in fondo alle pendenze tornava in
 // cima a ogni gesto. Queste prove sarebbero state rosse prima di quel marchio.

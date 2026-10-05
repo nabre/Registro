@@ -16,8 +16,8 @@ import {
 
 describe('la casella', () => {
   it('tiene separati il nome di accesso e l’indirizzo da cui si scrive', () => {
-    const suo = componiCasella('vxg140@edu.ti.ch', 'michel.brenna@edu.ti.ch')
-    assert.deepEqual(suo, { accesso: 'vxg140@edu.ti.ch', mittente: 'michel.brenna@edu.ti.ch' })
+    const suo = componiCasella('abc123@edu.ti.ch', 'mario.rossi@edu.ti.ch')
+    assert.deepEqual(suo, { accesso: 'abc123@edu.ti.ch', mittente: 'mario.rossi@edu.ti.ch' })
   })
 
   it('con uno solo scritto, l’altro gli è uguale', () => {
@@ -37,9 +37,9 @@ describe('la casella', () => {
   })
 
   it('toglie gli spazi intorno, che un copia-incolla si porta dietro', () => {
-    const suo = componiCasella(' vxg140@edu.ti.ch ', ' michel.brenna@edu.ti.ch')
-    assert.equal(suo.accesso, 'vxg140@edu.ti.ch')
-    assert.equal(suo.mittente, 'michel.brenna@edu.ti.ch')
+    const suo = componiCasella(' abc123@edu.ti.ch ', ' mario.rossi@edu.ti.ch')
+    assert.equal(suo.accesso, 'abc123@edu.ti.ch')
+    assert.equal(suo.mittente, 'mario.rossi@edu.ti.ch')
   })
 
   it('confronta gli indirizzi senza badare alle maiuscole', () => {
@@ -49,14 +49,14 @@ describe('la casella', () => {
 
   it('si descrive con l’indirizzo, e con la sigla solo quando è diversa', () => {
     assert.equal(
-      descriviCasella(componiCasella('vxg140@edu.ti.ch', 'michel.brenna@edu.ti.ch')),
-      'michel.brenna@edu.ti.ch (accesso vxg140@edu.ti.ch)',
+      descriviCasella(componiCasella('abc123@edu.ti.ch', 'mario.rossi@edu.ti.ch')),
+      'mario.rossi@edu.ti.ch (accesso abc123@edu.ti.ch)',
     )
     assert.equal(descriviCasella(componiCasella('', 'nome.cognome@edu.ti.ch')), 'nome.cognome@edu.ti.ch')
   })
 
   it('sa il dominio di un indirizzo, e riconosce quel che non lo è', () => {
-    assert.equal(dominioDi('vxg140@EDU.ti.ch'), 'edu.ti.ch')
+    assert.equal(dominioDi('abc123@EDU.ti.ch'), 'edu.ti.ch')
     assert.equal(dominioDi('senza-chiocciola'), '')
     assert.equal(sembraIndirizzo('nome.cognome@edu.ti.ch'), true)
     assert.equal(sembraIndirizzo('nome cognome'), false)

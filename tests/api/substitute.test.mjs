@@ -17,6 +17,8 @@ let archivio
 let prima
 let seconda
 let annullata
+let senzaOrario
+let ancoraSenzaOrario
 /** I file che il registro ha chiesto di mostrare nella cartella. */
 const mostrati = []
 
@@ -54,13 +56,18 @@ before(async () => {
   prima = { ...creaLezione(corso.id, '2026-10-05', '08:15', 45), pianoId: piano.id, aula: 'B12' }
   seconda = creaLezione(corso.id, '2026-10-05', '10:00', 45)
   annullata = { ...creaLezione(corso.id, '2026-10-05', '14:00', 45), stato: 'annullata' }
+  // Due ore senza orario, stessa classe e materia, stesso giorno: ognuna col suo piano.
+  const altro = creaPiano(corso.id)
+  altro.obiettivi.push('Ripassare le frazioni')
+  senzaOrario = { ...creaLezione(corso.id, '2026-10-06', '08:00', 45), slot: [], pianoId: piano.id }
+  ancoraSenzaOrario = { ...creaLezione(corso.id, '2026-10-06', '08:00', 45), slot: [], pianoId: altro.id }
 
   archivio.modifica((r) => {
     r.classi.push(classe)
     r.materie.push(materia)
     r.corsi.push(corso)
-    r.piani.push(piano)
-    r.lezioni.push(prima, seconda, annullata)
+    r.piani.push(piano, altro)
+    r.lezioni.push(prima, seconda, annullata, senzaOrario, ancoraSenzaOrario)
   }, ['classi', 'corsi', 'lezioni', 'piani', 'registro'])
 })
 
@@ -85,7 +92,7 @@ describe('supplenza.prepara', () => {
     assert.match(esito.messaggio.testo, /Sparita/)
     assert.deepEqual(archivio.registro, registroPrima)
 
-    const zip = percorso.join(dati, 'Supplenza 2026-10-05.zip')
+    const zip = percorso.join(dati, 'Supplenza 2026-10-05 08.15–10.45.zip')
     assert.ok(existsSync(zip), 'lo zip sta accanto al .regi')
     assert.equal(mostrati.at(-1)?.fsPath, zip, 'senza indirizzo, lo zip si mostra nella cartella')
 
@@ -106,6 +113,29 @@ describe('supplenza.prepara', () => {
     assert.match(leggimi, /Aula: B12/)
     assert.doesNotMatch(leggimi, /sparita\.pdf/, 'un file rimasto fuori non si promette')
     assert.ok(leggimi.indexOf('08:15') < leggimi.indexOf('10:00'), 'le ore in ordine')
+  })
+
+  it('due supplenze dello stesso giorno, a ore diverse, non si pestano lo zip', async () => {
+    assert.equal((await esegui({ tipo: 'supplenza.prepara', lezioniIds: [prima.id] })).ok, true)
+    assert.equal((await esegui({ tipo: 'supplenza.prepara', lezioniIds: [seconda.id] })).ok, true)
+    assert.ok(existsSync(percorso.join(dati, 'Supplenza 2026-10-05 08.15–09.00.zip')))
+    assert.ok(existsSync(percorso.join(dati, 'Supplenza 2026-10-05 10.00–10.45.zip')))
+  })
+
+  it('due ore senza orario della stessa classe e materia hanno due cartelle', async () => {
+    const esito = await esegui({
+      tipo: 'supplenza.prepara', lezioniIds: [senzaOrario.id, ancoraSenzaOrario.id],
+    })
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    const zip = percorso.join(dati, 'Supplenza 2026-10-06 3A.zip')
+    const nomi = leggiZip(readFileSync(zip)).map((v) => v.nome)
+    const piani = nomi.filter((n) => n.endsWith('/Piano della lezione.pdf'))
+    assert.deepEqual(piani.sort(), [
+      '2026-10-06 3A Matematica (2)/Piano della lezione.pdf',
+      '2026-10-06 3A Matematica/Piano della lezione.pdf',
+    ])
+    const leggimi = new TextDecoder().decode(leggiZip(readFileSync(zip)).find((v) => v.nome === 'Leggimi.txt').dati)
+    assert.match(leggimi, /2026-10-06 3A Matematica \(2\)\/Piano della lezione\.pdf/)
   })
 
   it('rifiuta un indirizzo storto, e il segretariato senza indirizzo', async () => {

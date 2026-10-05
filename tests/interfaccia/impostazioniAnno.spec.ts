@@ -1,5 +1,5 @@
 // Le impostazioni dell'anno disegnate con i controlli condivisi (`core/controlli/`,
-// `components/yearSetting.ts`), su Chromium. Qui si prova che:
+// `components/yearSetting.tsx`), su Chromium. Qui si prova che:
 //
 // - il passo dei voti è un segmentato, e scegliendo si salva con «Salvato»
 //   accanto al campo, senza notifica;

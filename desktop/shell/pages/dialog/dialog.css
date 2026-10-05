@@ -94,7 +94,7 @@ h1 {
  * Il fuoco messo dalla pagina sul pulsante predefinito non disegna l'anello
  * finché non si usa la tastiera: nel pannello la modale si apre dopo un clic e
  * l'anello non c'è; qui la finestra è nuova e Chromium lo mostrerebbe sempre.
- * `da-tastiera` lo mette `dialog.ts` al primo tasto.
+ * `da-tastiera` lo mette `dialog.tsx` al primo tasto.
  */
 html:not(.da-tastiera) .tasti button:focus-visible {
   outline: none;

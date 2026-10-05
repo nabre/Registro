@@ -11,7 +11,7 @@ export const procedura = scrittura({
   titolo: () => t().titolo,
   azione: 'piano.assegna',
   idempotente: true,
-  collezioni: ['lezioni'],
+  collezioni: ['lezioni', 'progetti'],
   ingresso: oggetto({
     lezioneId: identificatore(),
     // Obbligatorio e annullabile: `null` è il gesto di staccare il piano.

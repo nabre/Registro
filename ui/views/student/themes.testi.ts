@@ -1,4 +1,4 @@
-// I testi della scheda personale, parte materie (`student/themes.ts`).
+// I testi della scheda personale, parte materie (`student/themes.tsx`).
 
 import { catalogo, minuscolo } from '#core/i18n/index.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'

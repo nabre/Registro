@@ -95,6 +95,7 @@ export function datiCorso (
   dati.tabelle.sospensioni = dp.tabelle.sospensioni
   dati.tabelle.voti = dv.tabelle.voti
   dati.grafici.andamento = dv.grafici.andamento
+  dati.grafici.assenze = dp.grafici.assenze
   dati.tabelle.diario = dd.tabelle.diario
 
   // Osservazioni di tutte le lezioni del corso per le persone in formazione

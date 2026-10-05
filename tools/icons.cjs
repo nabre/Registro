@@ -21,7 +21,7 @@
 //                             dove il colore lo decide chi lo posa
 //   registro.svg              a tratto su 24: l'icona dei pannelli
 //                             (`iconPath`) e, copiato a mano, il tracciato
-//                             `registro` di `src/ui/components/icons.ts`
+//                             `registro` di `ui/components/icons.tsx`
 //
 // Le USCITE le scrive questo script, e non si toccano a mano:
 //
@@ -45,7 +45,7 @@
 //
 // Le pagine non usano le uscite raster: leggono i vettori da
 // `registro://app/resources/`. La barra del titolo mostra
-// `registro-app-piccola.svg` (`src/ui/components/logo.ts`),
+// `registro-app-piccola.svg` (`ui/components/logo.tsx`),
 // lo splash `registro-app.svg`, il benvenuto la fascia. Chi sceglie quale file
 // raster dare a finestre, vassoio e notifiche è `src/environment/context.ts`
 // (`percorsoIconaFinestra`, `percorsoIconaCassetto`, `percorsoIcona`), e chi li

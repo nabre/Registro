@@ -24,7 +24,7 @@ export {
 export { normalizzaRegistro } from './register.js'
 export { normalizzaConsegna } from './deliveries.js'
 export { fondiCheck, normalizzaCheck } from './check.js'
-export { normalizzaProgetto } from './projects.js'
+export { fondiIntegrazione, normalizzaProgetto } from './projects.js'
 
 /** Riesportata da `text.ts` per chi la importa da qui. */
 export { emailValida } from '#core/dominio/text.js'

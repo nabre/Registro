@@ -339,7 +339,7 @@
   border-style: solid;
   /*
    * Il colore della lezione a destra, sottile e smorzato: il bordo pieno a
-   * sinistra è della lezione. `--colore-ancora` lo mette `ics.ts`.
+   * sinistra è della lezione. `--colore-ancora` lo mette `ics.tsx`.
    */
   border-left: 1px solid var(--bordo-tenue);
   border-right: 2px solid color-mix(in srgb, var(--colore-ancora, var(--bordo-tenue)) 55%, transparent);
@@ -1377,7 +1377,7 @@ label.confronto-calendario__voce { cursor: pointer; }
 /*
  * ------------------------------------------------------------ la modifica
  *
- * Il calendario in modifica (`views/calendar/editor.ts`). Si vede che un clic
+ * Il calendario in modifica (`views/calendar/editor.tsx`). Si vede che un clic
  * scrive e non apre: pulsante «Modifica» acceso, cursore a croce sul vuoto,
  * righe delle ore più marcate, maniglie, tutto nell'accento. Il resto resta com'è.
  */

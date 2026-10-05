@@ -1,7 +1,8 @@
 // I numeri che le docs dichiarano, confrontati con quelli che il codice dice:
 // «i conteggi vanno verificati, non ricordati». Le cifre di `docs/INDICE.md`
-// che si derivano dal sorgente, e i conti dell'API (procedure, aree, letture)
-// come li scrivono `README.md`, `docs/INDICE.md` e `docs/API.md`.
+// e dei titoli di `docs/CATALOGO.md` che si derivano dal sorgente, e i conti
+// dell'API (procedure, aree, letture) come li scrivono `README.md`,
+// `docs/INDICE.md` e `docs/API.md`.
 //
 // Si leggono i sorgenti, come in `coverage.test.mjs`, perché alcune verità
 // stanno in un **tipo** (`Vista`, le entità del modello).
@@ -19,8 +20,9 @@ import { IMPOSTAZIONI } from '../dist-tests/manifest.mjs'
 
 registraTutte()
 
+// Con `core.autocrlf` git scrive le docs in CRLF: i titoli si confrontano senza `\r`.
 const sorgente = (relativo) =>
-  readFileSync(fileURLToPath(new URL(`../${relativo}`, import.meta.url)), 'utf8')
+  readFileSync(fileURLToPath(new URL(`../${relativo}`, import.meta.url)), 'utf8').replace(/\r\n/g, '\n')
 
 /** Quante varianti ha un'unione di stringhe dichiarata come `export type X =`. */
 function varianti (testo, nome) {
@@ -33,6 +35,26 @@ function varianti (testo, nome) {
   return (corpo.match(/'[^']+'/g) ?? []).length
 }
 
+/** Le destinazioni di `PAGINE`: un `id:` per voce. */
+function destinazioni () {
+  const pagine = sorgente('ui/pages.ts')
+  const inizio = pagine.indexOf('export const PAGINE')
+  assert.ok(inizio >= 0, 'PAGINE non si chiama più così')
+  const corpo = pagine.slice(inizio, pagine.indexOf('\n]', inizio))
+  return (corpo.match(/^\s+id: '/gm) ?? []).length
+}
+
+/** I gruppi della barra laterale: `GruppoPagina` non è esportato e sta su una riga. */
+function gruppi () {
+  const riga = /^type GruppoPagina = (.+)$/m.exec(sorgente('ui/pages.ts'))
+  assert.ok(riga, '«type GruppoPagina» non c’è più in ui/pages.ts: il nome è cambiato?')
+  return (riga[1].match(/'[^']+'/g) ?? []).length
+}
+
+// Le viste del protocollo. L'assistente non è una vista: è un riquadro
+// (`ui/assistant.tsx`).
+const viste = () => varianti(sorgente('contract/protocol.ts'), 'Vista')
+
 describe('i conteggi che INDICE.md dichiara', () => {
   // Solo i numeri che il sorgente dice senza ambiguità. Comandi dell'interfaccia
   // (una parte nasce da `...spread`) ed entità (il conto somma `type` e
@@ -40,24 +62,39 @@ describe('i conteggi che INDICE.md dichiara', () => {
   const indice = sorgente('docs/INDICE.md').replace(/\s+/g, ' ')
 
   it('INDICE.md dice quante destinazioni e quante viste', () => {
-    const pagine = sorgente('ui/pages.ts')
-    const inizio = pagine.indexOf('export const PAGINE')
-    assert.ok(inizio >= 0, 'PAGINE non si chiama più così')
-    const corpo = pagine.slice(inizio, pagine.indexOf('\n]', inizio))
-    const destinazioni = (corpo.match(/^\s+id: '/gm) ?? []).length
-    // Le viste del protocollo. L'assistente non è una vista: è un riquadro
-    // (`ui/assistant.ts`).
-    const viste = varianti(sorgente('contract/protocol.ts'), 'Vista')
-
     const scritto = /(\d+) destinazioni, (\d+) viste/.exec(indice)
     assert.ok(scritto, 'la frase «N destinazioni, N viste» non c’è più in INDICE.md: la forma è cambiata?')
-    assert.deepEqual(scritto.slice(1).map(Number), [destinazioni, viste], 'destinazioni, viste')
+    assert.deepEqual(scritto.slice(1).map(Number), [destinazioni(), viste()], 'destinazioni, viste')
   })
 
   it('INDICE.md dice quante impostazioni macchina', () => {
     const scritto = /(\d+) impostazioni macchina/.exec(indice)
     assert.ok(scritto, 'la frase «N impostazioni macchina» non c’è più in INDICE.md: la forma è cambiata?')
     assert.equal(Number(scritto[1]), Object.keys(IMPOSTAZIONI).length)
+  })
+})
+
+describe('i conteggi che CATALOGO.md dichiara', () => {
+  const catalogo = sorgente('docs/CATALOGO.md')
+
+  /** Il numero del titolo che finisce con `coda`, com'è scritto (cifre o lettere). */
+  function nelTitolo (coda) {
+    const titolo = catalogo.split('\n').find((riga) => /^###? [\d.]+ /.test(riga) && riga.endsWith(coda))
+    assert.ok(titolo, `il titolo «… ${coda}» non c’è più in CATALOGO.md: la forma è cambiata?`)
+    return /^###? [\d.]+ (?:Le|Gli|I) (\S+) /.exec(titolo)?.[1]
+  }
+
+  it('CATALOGO.md dice quante pagine, gruppi e viste', () => {
+    assert.equal(Number(nelTitolo(' `Pagina` di `PAGINE`')), destinazioni(), '§ 2.1, le pagine')
+    assert.equal(nelTitolo(' gruppi'), inLettere(gruppi()), '§ 2.2, i gruppi in lettere')
+    assert.equal(Number(nelTitolo(' `Vista`')), viste(), '§ 2.3, le viste')
+  })
+
+  it('CATALOGO.md dice quante chiavi del programma e quante azioni', () => {
+    assert.equal(Number(nelTitolo(' chiavi del programma')), Object.keys(IMPOSTAZIONI).length, '§ 5.1')
+    const azioni = /Le (\d+) varianti di `type Azione`/.exec(catalogo)
+    assert.ok(azioni, 'la frase «Le N varianti di `type Azione`» non c’è più in CATALOGO.md')
+    assert.equal(Number(azioni[1]), new Set(azioniSottoContratto()).size, '§ 6')
   })
 })
 

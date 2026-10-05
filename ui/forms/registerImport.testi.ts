@@ -1,4 +1,4 @@
-// I testi di `forms/registerImport.ts`: la finestra «Importa da un altro
+// I testi di `forms/registerImport.tsx`: la finestra «Importa da un altro
 // registro», con le caselle dei blocchi e quel che ognuna porterebbe.
 
 import { catalogo, perNumero } from '#core/i18n/index.js'

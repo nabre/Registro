@@ -50,7 +50,7 @@ import {
 } from './state.js'
 import { nonElencate, secondoLeParti } from './assistant/parts.js'
 import { sezioneDi } from './views/settings/sections.js'
-// La ricerca delle persone vive in una variabile di `views/people.ts`: da fuori
+// La ricerca delle persone vive in una variabile di `views/people.tsx`: da fuori
 // è l'unico modo di sapere che l'elenco è ristretto.
 import { oreDelCorso } from './views/lesson.js'
 import { depositoAperto, modelliInVista, ricercaDeiModelli } from './views/languageModels.js'

@@ -14,7 +14,7 @@ import {
 } from '#core/dominio/dates.js'
 import { nomeDelFile, percorsoRelativo } from '#core/dominio/text.js'
 import { chiaveIndirizzo } from '#core/dominio/map.js'
-import { contaUd } from '#core/dominio/calculations.js'
+import { LIMITI_SCALA, contaUd } from '#core/dominio/calculations.js'
 import { coloreValido } from '#core/dominio/lists.js'
 import { COLORI_CLASSE, SCALA_PREDEFINITA } from '#core/dominio/factories.js'
 import {
@@ -188,12 +188,20 @@ export function normalizzaScala (grezzo: unknown): Scala {
   const sufficienza = numero(dati.sufficienza, SCALA_PREDEFINITA.sufficienza)
   const passo = numero(dati.passo, SCALA_PREDEFINITA.passo)
   // Le stesse regole di `validaScala`: un file scritto a mano non passa dalla
-  // porta di servizio.
+  // porta di servizio. Estremi fuori misura non dicono quale scala si voleva:
+  // si torna a quella predefinita.
+  const { estremo, voti } = LIMITI_SCALA
+  if (Math.abs(min) > estremo || Math.abs(massimo) > estremo) return { ...SCALA_PREDEFINITA }
+  const ampiezza = massimo - min
+  // Un passo troppo fitto si allarga: a quello predefinito se basta, se no
+  // quanto serve. Gli estremi restano, e con loro i voti già dati.
+  let largo = passo > 0 ? passo : SCALA_PREDEFINITA.passo
+  if (ampiezza / largo > voti) largo = Math.max(SCALA_PREDEFINITA.passo, ampiezza / voti)
   return {
     min,
     max: massimo,
     sufficienza: Math.min(massimo, Math.max(min, sufficienza)),
-    passo: passo > 0 ? passo : SCALA_PREDEFINITA.passo,
+    passo: largo,
   }
 }
 

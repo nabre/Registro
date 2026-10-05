@@ -1,5 +1,5 @@
 // Come si legge quel che il modello ha scritto: la stringa della risposta si
-// divide in blocchi (tabella, elenco, titoletto, paragrafo) e `answer.ts` ne
+// divide in blocchi (tabella, elenco, titoletto, paragrafo) e `answer.tsx` ne
 // costruisce i nodi. Serve perché i dati in colonna si leggono in tabella.
 //
 // Puro, senza DOM, per poterlo provare: una cella persa non si nota a occhio

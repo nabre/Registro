@@ -63,11 +63,6 @@
   outline: 2px solid var(--fuoco);
   outline-offset: -2px;
 }
-.barra-comandi__pagina {
-  color: var(--testo);
-  font-weight: 600;
-  max-width: 24rem;
-}
 .barra-comandi__spazio { flex: 1 1 0; }
 .barra-comandi__schermo--acceso,
 .barra-comandi__scheda--attiva {
@@ -177,7 +172,7 @@
  * Il gruppo a segmenti: più interruttori di cui uno solo acceso
  * (Settimana/Mese/Anno, Tutte/Mie, Pianificata/Svolta/Annullata).
  *
- * Lo riconosce `aria-pressed`, che `commandBar.ts` mette sui comandi con stato:
+ * Lo riconosce `aria-pressed`, che `commandBar.tsx` mette sui comandi con stato:
  * un gruppo fatto solo di questi è una scelta fra valori, disegnata come
  * binario tenue con il segmento scelto sollevato. Un gruppo misto resta com'è.
  *
@@ -223,7 +218,6 @@
 @media (max-width: 48em) {
   .barra-comandi__schermo span { display: none; }
   .barra-comandi__navigazione { gap: var(--spazio-1); }
-  .barra-comandi__pagina { max-width: 13rem; }
   .barra-comandi__tendina, .barra-comandi__schermo,
   .barra-comandi__interruttore, .comando { min-height: var(--bersaglio-comodo); }
 }

@@ -1,4 +1,4 @@
-// I testi di `forms/subject.ts`: la finestra di una materia e quella che ne
+// I testi di `forms/subject.tsx`: la finestra di una materia e quella che ne
 // unisce due.
 
 import { catalogo } from '#core/i18n/index.js'

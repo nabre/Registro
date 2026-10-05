@@ -1,0 +1,10 @@
+# Che cosa graphify non legge: build, rapporti, campioni e il grafo stesso.
+# Il resto lo esclude già .gitignore.
+graphify-out/
+test-results/
+playwright-report/
+reports/
+icons/
+tests/samples/
+package-lock.json
+*.regi

@@ -485,7 +485,9 @@ const it = {
         termine: 'Anche sui fogli',
         testo:
           'La stessa soglia colora l’assenza nella scheda della persona, ed esce nel foglio ' +
-          'delle presenze del corso, alla voce «Da seguire».',
+          'delle presenze del corso, alla voce «Da seguire». Lì e nella scheda del corso ' +
+          '**Assenza per persona** mette una barra a testa con la riga della soglia: chi è ' +
+          'oltre ha la barra piena e la cifra in grassetto, leggibili anche in bianco e nero.',
       },
     ],
     note: [
@@ -1111,7 +1113,9 @@ export const testi = catalogo(it, {
           termine: 'Auch auf den Blättern',
           testo:
             'Dieselbe Schwelle färbt die Absenz im Personenblatt und erscheint im ' +
-            'Präsenzblatt des Kurses, unter «Im Auge behalten».',
+            'Präsenzblatt des Kurses, unter «Im Auge behalten». Dort und im Kursblatt zeigt ' +
+            '**Absenz pro Person** einen Balken pro Person mit der Linie der Schwelle: wer ' +
+            'darüber liegt, hat einen vollen Balken und eine fette Zahl, auch schwarz-weiss lesbar.',
         },
       ],
       note: [
@@ -1724,7 +1728,9 @@ export const testi = catalogo(it, {
           termine: 'Aussi sur les feuilles',
           testo:
             'Le même seuil colore l’absence dans la fiche de la personne, et figure dans la ' +
-            'feuille des présences du cours, sous « À suivre ».',
+            'feuille des présences du cours, sous « À suivre ». Là et dans la fiche du cours, ' +
+            '**Absence par personne** trace une barre par personne avec la ligne du seuil : qui ' +
+            'le dépasse a une barre pleine et un chiffre en gras, lisibles aussi en noir et blanc.',
         },
       ],
       note: [
@@ -2317,7 +2323,9 @@ export const testi = catalogo(it, {
           termine: 'On the sheets too',
           testo:
             'The same threshold colours the absence in the person’s record, and appears on the ' +
-            'course’s attendance sheet, under “To follow up”.',
+            'course’s attendance sheet, under “To follow up”. There and on the course sheet, ' +
+            '**Absence by person** draws one bar each with the threshold line: whoever is above ' +
+            'it gets a solid bar and a bold figure, readable in black and white too.',
         },
       ],
       note: [

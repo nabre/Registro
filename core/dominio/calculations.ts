@@ -718,6 +718,14 @@ export function distribuzioneAPunti (momento: MomentoValutazione): Grafico {
 }
 
 /**
+ * Fin dove arriva una scala: estremi in valore assoluto e quanti passi stanno
+ * fra minimo e massimo. Una scala da 0 a un miliardo a passo 1 farebbe una
+ * tendina da un miliardo di voci; nessun voto vero chiede più di qualche centinaio.
+ * Li usano `validaScala` e la lettura dei file.
+ */
+export const LIMITI_SCALA = { estremo: 1000, voti: 400 } as const
+
+/**
  * I voti che una scala ammette, dal minimo al massimo, sul suo passo: le voci
  * della tendina (1–6 a quarti fa ventuno valori).
  */
@@ -728,7 +736,9 @@ export function votiDellaScala (scala: Scala): string[] {
   // Per difetto: un passo che non divide la scala (1–6 a 0,3) si ferma prima
   // del massimo invece di sforarlo. Il miliardesimo tiene i passi che la
   // dividono ma che la virgola mobile fa cadere appena sotto.
-  const quanti = Math.floor((scala.max - scala.min) / passo + 1e-9)
+  // Il tetto vale anche per una scala arrivata senza passare dalle regole:
+  // meglio una tendina monca che un processo fermo.
+  const quanti = Math.min(Math.floor((scala.max - scala.min) / passo + 1e-9), LIMITI_SCALA.voti)
 
   const voti: string[] = []
   for (let i = 0; i <= quanti; i += 1) {

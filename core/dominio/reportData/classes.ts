@@ -17,7 +17,7 @@ import {
   giornoDi,
 } from '#core/dominio/dates.js'
 import type { Allievo, Classe, Corso, Registro, Semestre } from '#core/dominio/models.js'
-import type { DatiRapporto } from '#core/dominio/reports.js'
+import type { Barre, DatiRapporto } from '#core/dominio/reports.js'
 import { annoInUso } from '#core/dominio/years.js'
 import { testi } from './reportData.testi.js'
 import { aChiConsegna, perQuando, vuoto, colonne, comuni, sopraLaSoglia } from './common.js'
@@ -115,6 +115,7 @@ export function datiPresenze (
         ),
     )
   dati.valori.sogliaAssenza = String(registro.impostazioni.sogliaAssenza)
+  dati.grafici.assenze = barreAssenza(registro, matrice.righe)
 
   // Le due regole si dichiarano sul foglio, se no le due percentuali
   // sembrerebbero in contraddizione. I due numeri anche da soli, per chi
@@ -163,6 +164,41 @@ export function datiPresenze (
   }
 
   return dati
+}
+
+/**
+ * La quota di assenza di ciascuno come barra, sulla stessa scala e con la
+ * soglia: nella tabella la stessa cifra sta fra nove colonne, qui chi è lontano
+ * dagli altri si vede da lontano. Il fondo scala è la barra più lunga o la
+ * soglia, con un poco d'aria, arrotondato alla decina: non sempre 100%, se no
+ * con assenze del 5% le barre sarebbero tutte un filo.
+ */
+function barreAssenza (
+  registro: Registro,
+  righe: ReadonlyArray<{ allievo: Allievo, assenza: number | null }>,
+): Barre {
+  const t = testi()
+  const soglia = registro.impostazioni.sogliaAssenza
+  const valori = righe.map((riga) => (riga.assenza === null ? null : riga.assenza * 100))
+  const piuLunga = Math.max(soglia, ...valori.map((v) => v ?? 0))
+  const a = Math.min(100, Math.max(10, Math.ceil((piuLunga * 1.1) / 10) * 10))
+  const passo = a <= 50 ? 10 : 20
+  const tacche: number[] = []
+  for (let v = 0; v <= a; v += passo) tacche.push(v)
+  return {
+    genere: 'barre',
+    unita: t.unitaBarreAssenza,
+    a,
+    tacche,
+    // Soglia a zero: la segnalazione è spenta, e la riga non c'è.
+    ...(soglia > 0 ? { soglia: { valore: soglia, etichetta: t.lineaSogliaAssenza(soglia) } } : {}),
+    barre: righe.map((riga, i) => ({
+      etichetta: nomeCompleto(riga.allievo),
+      valore: valori[i],
+      testo: percentoAssenza(riga.assenza, soglia),
+      oltre: sopraLaSoglia(registro, riga.assenza),
+    })),
+  }
 }
 
 /**

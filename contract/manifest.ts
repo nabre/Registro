@@ -103,7 +103,7 @@ export type Formato = 'email' | 'cartella' | 'eseguibile' | 'file' | 'modello' |
 
 /**
  * Come si disegna una voce, quando non basta il tipo (§ 3.5 di
- * `docs/PIANO-IMPOSTAZIONI.md`): `segmenti` per poche scelte brevi, `tendina`
+ * `.claude/skills/impostazione/SKILL.md` § «Il sistema delle pagine»): `segmenti` per poche scelte brevi, `tendina`
  * per molte o per un elenco che cambia, `cursore` per un intervallo piccolo e
  * continuo. Assente, chi disegna segue il tipo. È un disegno, non una dogana.
  */
@@ -364,7 +364,7 @@ const DICHIARAZIONI = {
     tipo: 'boolean',
     predefinito: false,
     // La voce dettata la scrive l'assistente: spento lui, il microfono non parte
-    // (`ui/assistant.ts`).
+    // (`ui/assistant.tsx`).
     dipendeDa: 'registroDocenti.assistente.attivo',
   },
   'registroDocenti.dettatura.taglia': {

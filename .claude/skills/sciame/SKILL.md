@@ -103,7 +103,7 @@ incollare, e la raccoglie chi conduce il giro. È il pezzo che fa funzionare la
 divisione: senza, ogni agente sconfina «solo per una riga».
 
 **Che cosa va tenuto per ultimo, da solo:** i cambiamenti al cuore — `chiama()`,
-`dom.ts`, il protocollo, l'archivio. Un cambiamento che tocca tutto va verificato
+`ui/main.tsx` e `ui/state.ts`, il protocollo, l'archivio. Un cambiamento che tocca tutto va verificato
 su un albero fermo, o non si sa che cosa ha rotto.
 
 **Ogni difetto grave corretto vuole una prova che sarebbe stata rossa prima.**

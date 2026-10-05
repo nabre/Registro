@@ -1,4 +1,4 @@
-// I testi di `views/lesson/project.ts`: la scheda Progetto dell'ora.
+// I testi di `views/lesson/project.tsx`: la scheda Progetto dell'ora.
 
 import { catalogo } from '#core/i18n/index.js'
 

@@ -116,7 +116,7 @@ export const COMANDI_PROGRAMMA: readonly ComandoUI[] = [
   },
   {
     // Quel che stava in Impostazioni › «Questo file»: un file non è
-    // un'impostazione (`docs/PIANO-IMPOSTAZIONI.md` § 3.1).
+    // un'impostazione (skill `impostazione`, § «Il sistema delle pagine»).
     id: 'file.informazioni',
     titolo: t.informazioni,
     simbolo: 'informazione',
@@ -256,7 +256,7 @@ export const COMANDI_PROGRAMMA: readonly ComandoUI[] = [
   // ---------------------------------------------------------- Manutenzione
   //
   // Impostazioni non ha comandi qui: non mostra la riga delle azioni, i gesti
-  // stanno nelle sezioni (`views/settings.ts`).
+  // stanno nelle sezioni (`views/settings.tsx`).
   {
     id: 'file.ripara',
     titolo: t.ripara,

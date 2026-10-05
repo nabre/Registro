@@ -265,9 +265,63 @@ export function comeAdesso<T> (valore: T): T {
   return isDraft(valore) ? current(valore as Draft<T>) : valore
 }
 
-/** Applica delle patch su una bozza: per l'annulla, dentro `inBozza`. */
-export function applicaInBozza (bozza: Registro, patch: readonly Patch[]): void {
-  immer.applyPatches(bozza, patch)
+/**
+ * Applica delle patch fuori dallo stato, per l'annulla e il ripristina, e
+ * torna come `inBozza` il registro nuovo, le patch fatte e le loro inverse;
+ * `poi` gira sulla bozza dell'ultimo pezzo. Le patch di più scritture vanno su
+ * più bozze in fila (`aPezzi`): in una sola, dopo che una patch ha tolto o
+ * messo una voce di una lista, la voce letta lì per scendere più in fondo è
+ * quella dello stato e non una bozza (il limite in testa al file). Cambiarla
+ * cambierebbe lo stato vivo senza patch: niente ripristina né differenze.
+ */
+export function inBozzeInFila (
+  stato: Registro,
+  patch: readonly Patch[],
+  poi: (bozza: Registro) => void,
+): { nuovo: Registro; patch: Patch[]; inverse: Patch[] } {
+  const pezzi = aPezzi(patch)
+  let nuovo = stato
+  const fatte: Patch[] = []
+  const inverse: Patch[][] = []
+  pezzi.forEach((pezzo, i) => {
+    const esito = inBozza(nuovo, (bozza) => {
+      immer.applyPatches(bozza, pezzo)
+      if (i === pezzi.length - 1) poi(bozza)
+    })
+    nuovo = esito.nuovo
+    fatte.push(...esito.patch)
+    inverse.unshift(esito.inverse)
+  })
+  return { nuovo, patch: fatte, inverse: inverse.flat() }
+}
+
+/**
+ * Divide le patch dove una scende dentro una voce di una lista a cui una
+ * patch prima, nello stesso pezzo, ha tolto o messo una voce.
+ */
+function aPezzi (patch: readonly Patch[]): Patch[][] {
+  let pezzo: Patch[] = []
+  const pezzi = [pezzo]
+  let spostate: Array<Patch['path']> = []
+  for (const una of patch) {
+    if (spostate.some((lista) => dentroUnaVoce(una.path, lista))) {
+      pezzo = []
+      pezzi.push(pezzo)
+      spostate = []
+    }
+    pezzo.push(una)
+    const ultima = una.path[una.path.length - 1]
+    if ((una.op !== 'replace' && typeof ultima === 'number') || ultima === 'length') {
+      spostate.push(una.path.slice(0, -1))
+    }
+  }
+  return pezzi
+}
+
+/** Vero se `path` va oltre una voce della lista in `lista`, non solo fino alla voce. */
+function dentroUnaVoce (path: Patch['path'], lista: Patch['path']): boolean {
+  if (path.length <= lista.length + 1) return false
+  return lista.every((passo, i) => String(path[i]) === String(passo))
 }
 
 /**

@@ -1,4 +1,4 @@
-// I testi di `forms/classTeacher.ts`: i recapiti fissi della classe e le
+// I testi di `forms/classTeacher.tsx`: i recapiti fissi della classe e le
 // comunicazioni alle famiglie, dalla bozza all'invio.
 
 import { catalogo } from '#core/i18n/index.js'

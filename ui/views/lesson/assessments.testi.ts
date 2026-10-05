@@ -1,4 +1,4 @@
-// I testi delle valutazioni dell'ora (`lesson/assessments.ts`).
+// I testi delle valutazioni dell'ora (`lesson/assessments.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 

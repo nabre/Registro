@@ -94,7 +94,7 @@
   text-transform: none;
 }
 
-/* Una riga dell'elenco, non un bottone: vedi `components/palette.ts`. */
+/* Una riga dell'elenco, non un bottone: vedi `components/palette.tsx`. */
 .palette__voce {
   display: flex;
   align-items: center;

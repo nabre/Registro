@@ -1,4 +1,4 @@
-// I testi delle consegne dentro una lezione (`views/assignments.ts`).
+// I testi delle consegne dentro una lezione (`views/assignments.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { PIF } from '#core/dominio/lexicon.js'

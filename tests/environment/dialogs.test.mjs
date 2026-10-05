@@ -408,6 +408,12 @@ describe('aprire un file', () => {
       dove: percorso.join(RADICE, 'presenze.csv'),
     })
   })
+
+  it('un file che si eseguirebbe lo mostra nella cartella, senza lanciarlo', async () => {
+    const file = percorso.join(RADICE, 'Scheda.pdf.exe')
+    await dialoghi.apriDocumento(Uri.file(file), { preview: false })
+    assert.deepEqual(bancoElectron.fuori.at(-1), { cosa: 'mostra', dove: file })
+  })
 })
 
 describe('la convalida dell’input', () => {

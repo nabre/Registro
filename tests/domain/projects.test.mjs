@@ -91,6 +91,16 @@ describe('progetti: le letture del dominio', () => {
     assert.equal(fineEffettiva(registro, compito, 'al-1'), '2026-10-13')
   })
 
+  it('l’integrazione copiata tiene la fine che l’ora dice adesso, staccata dall’ora', () => {
+    const registro = registroCompleto()
+    const [compito] = integrazioneDi(registro).compiti
+    compito.fine = '2026-10-06'
+    compito.fineLezioneId = 'lez-1'
+    registro.lezioni[0].data = '2026-10-13'
+    const [copiato] = duplicaIntegrazione(integrazioneDi(registro), 'cor-2', registro).compiti
+    assert.deepEqual([copiato.fine, copiato.fineLezioneId], ['2026-10-13', null])
+  })
+
   it('la progressione: le celle di ogni criterio dalla prima, col giorno della loro ora', () => {
     const registro = registroCompleto()
     // L'ora si sposta dopo la seconda cella: vale il giorno di adesso.
@@ -340,10 +350,14 @@ describe('progetti: riferimenti rotti e riparazioni', () => {
   it('tappe e momenti che citano un progetto sparito perdono il rimando', () => {
     const registro = registroCompleto()
     registro.piani[0].attivita[0].progettoId = 'prg-sparito'
+    registro.piani[0].attivita[0].attivitaProgettoId = 'atp-sparita'
     registro.valutazioni[0].progettoId = 'prg-sparito'
     assert.equal(riferimentiRotti(registro).filter((r) => /progetto/.test(r)).length, 2)
     const proposta = riparazioni(registro).find((r) => r.collezioni.includes('piani'))
     assert.deepEqual([...proposta.collezioni].sort(), ['piani', 'valutazioni'])
+    // Da sola: anche l'origine nella scaletta, che senza progetto non rimanda a niente.
+    proposta.applica(registro)
+    assert.ok(!('attivitaProgettoId' in registro.piani[0].attivita[0]))
     ripara(registro)
     assert.equal(registro.piani[0].attivita[0].progettoId, undefined)
     assert.equal(registro.valutazioni[0].progettoId, null)

@@ -17,6 +17,12 @@ sezione: {{frase.per-persona}}
 tabella: presenze
 paragrafo: {{frase.nota-presenze}}
 
+# La stessa «% assenza» della tabella, come barra: una a testa sulla stessa
+# scala, con la riga della soglia. Chi è oltre ha la barra piena e la cifra in
+# grassetto, che si legge anche su una fotocopia in bianco e nero.
+sezione: {{frase.assenza-per-persona}}
+grafico: assenze
+
 # Chi è oltre la soglia, per nome. Nella tabella qui sopra la stessa
 # percentuale sta in una colonna di nove, e non salta all'occhio: il motivo per
 # cui questo foglio si guarda è proprio sapere di chi ci si deve occupare.

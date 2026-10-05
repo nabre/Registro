@@ -185,9 +185,21 @@ export function normalizzaRegistro (grezzo: unknown): Registro {
     check: unCheckPerCorso(
       elenco(dati.check).map((g) => normalizzaCheck(migrazione.conCorsoVero(g))),
     ),
+    // Le integrazioni del doppione passano al corso tenuto. Se il progetto vi
+    // era già integrato le due si fondono, e fa da superstite quella che era
+    // lì: per questo le spostate vanno in fondo.
     progetti: elenco(dati.progetti).map((g) => {
       const dato = oggetto(g)
-      return normalizzaProgetto({ ...dato, integrazioni: elenco(dato.integrazioni).map((i) => migrazione.conCorsoVero(i)) })
+      const restano: unknown[] = []
+      const spostate: unknown[] = []
+      for (const grezza of elenco(dato.integrazioni)) {
+        const vera = migrazione.conCorsoVero(grezza)
+        if (vera === grezza) restano.push(vera)
+        else spostate.push(vera)
+      }
+      const integrazioni = [...restano, ...spostate]
+      const fondiCon = spostate.length > 0 ? lezioni : undefined
+      return normalizzaProgetto({ ...dato, integrazioni }, fondiCon)
     }),
     smistamenti: elenco(dati.smistamenti).map(normalizzaSmistamento),
     coordinate: coordinateDellAnno(dati, classiGrezze),

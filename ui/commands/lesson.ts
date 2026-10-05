@@ -11,6 +11,7 @@ import { conferma } from '#ui/components/modal.js'
 import { notifica } from '#ui/components/notifications.js'
 import { azione } from '#ui/bridge.js'
 import { lezioneDelContesto, senzaLezione } from '#ui/context.js'
+import { moduloSupplenza } from '#ui/forms/substitute.js'
 import { stato } from '#ui/state.js'
 import { testi } from './lesson.testi.js'
 
@@ -104,4 +105,20 @@ export const COMANDI_LEZIONE: readonly ComandoUI[] = [
       await segnaLezione(lezione, valore)
     },
   })),
+
+  // Se manco io: il pacchetto per chi tiene l'ora (e le altre del giorno). Un
+  // comando e non un pulsante nella testata: un comando, una superficie (ADR-07).
+  {
+    id: 'lezione.supplenza',
+    titolo: t.supplenza,
+    simbolo: 'esporta',
+    dove: ['lezione'],
+    gruppo: G.ora,
+    aiuto: t.supplenzaAiuto,
+    soloSe: () => statoLezione() !== null && statoLezione() !== 'annullata',
+    al: () => {
+      const lezione = lezioneDelContesto()
+      if (lezione) moduloSupplenza(lezione)
+    },
+  },
 ]

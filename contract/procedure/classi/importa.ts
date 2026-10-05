@@ -20,7 +20,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     percorso: testo({ minimo: 1, aiuto: () => testi().comune.percorso }),
     classeId: identificatore({ aiuto: () => t().classeId }),
-    nome: testo({ minimo: 1, aiuto: () => t().nome }),
+    nome: testo({ minimo: 1, massimo: 120, aiuto: () => t().nome }),
     anagrafica: booleano({ aiuto: () => t().anagrafica }),
     corsi: booleano({ aiuto: () => t().corsi }),
   }),

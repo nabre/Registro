@@ -82,6 +82,14 @@ describe('i comandi dell’apparato', () => {
     assert.deepEqual(bancoElectron.fuori.at(-1), { cosa: 'apri', dove: file.fsPath })
   })
 
+  it('apparato.apri non lancia un eseguibile: lo mostra nella cartella', async () => {
+    for (const nome of ['Scheda.pdf.exe', 'guida.chm', 'avvio.jnlp']) {
+      const file = Uri.file(percorso.join(RADICE, nome))
+      await comandi.esegui('apparato.apri', file)
+      assert.deepEqual(bancoElectron.fuori.at(-1), { cosa: 'mostra', dove: file.fsPath }, nome)
+    }
+  })
+
   it('staccare la finestra riesce e non fa niente: la proiezione è già una finestra', async () => {
     // Deve *riuscire*: se il distacco fallisce `staccaFinestra()` rinuncia allo
     // schermo intero.

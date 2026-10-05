@@ -1,4 +1,4 @@
-// I testi di `forms/plan.ts`: l'editor di un piano lezione, gli avvisi che dà
+// I testi di `forms/plan.tsx`: l'editor di un piano lezione, gli avvisi che dà
 // aprendolo, e la finestra che assegna un piano a una lezione.
 
 import { catalogo } from '#core/i18n/index.js'

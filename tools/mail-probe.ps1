@@ -31,17 +31,28 @@
   fallire senza fermare il registro.
 
 .EXAMPLE
-  .\mail-probe.ps1
-  .\mail-probe.ps1 -Solo 1,3
-  .\mail-probe.ps1 -ClientId 00000000-0000-0000-0000-000000000000 -Solo 5
-  .\mail-probe.ps1 -ProvaPassword -Solo 6
+  .\mail-probe.ps1 -Indirizzo nome@scuola.example -Tenant scuola.example
+  .\mail-probe.ps1 -Indirizzo nome@scuola.example -Tenant scuola.example -Solo 1,3
+  .\mail-probe.ps1 -Indirizzo nome@scuola.example -Tenant 00000000-0000-0000-0000-000000000000 -ClientId 00000000-0000-0000-0000-000000000000 -Solo 5
+  .\mail-probe.ps1 -Indirizzo nome@scuola.example -Tenant scuola.example -ProvaPassword -Solo 6
+  .\mail-probe.ps1 -Elenco
 #>
+# Indirizzo e tenant senza valori di serie: sono di chi lancia la sonda, e uno
+# scritto qui finirebbe nel repository.
+[CmdletBinding(DefaultParameterSetName = 'Sonda')]
 param(
-  [string]$Indirizzo = 'vxg140@edu.ti.ch',
-  [string]$Tenant = '04b6c6e1-a4ce-485d-a5b6-09c0363a2609',
+  [Parameter(Mandatory, ParameterSetName = 'Sonda')]
+  [string]$Indirizzo,
+  # L'id del tenant o il dominio della scuola (`scuola.example`).
+  [Parameter(Mandatory, ParameterSetName = 'Sonda')]
+  [string]$Tenant,
+  [Parameter(ParameterSetName = 'Sonda')]
   [string]$ClientId = '',
+  [Parameter(ParameterSetName = 'Sonda')]
   [switch]$ProvaPassword,
+  [Parameter(ParameterSetName = 'Sonda')]
   [int[]]$Solo,
+  [Parameter(Mandatory, ParameterSetName = 'Elenco')]
   [switch]$Elenco
 )
 

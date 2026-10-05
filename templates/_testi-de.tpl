@@ -93,6 +93,7 @@ i-voti: Die Noten
 da-recuperare: Nachzuholen
 per-persona: Nach Lernenden
 da-seguire: Im Auge behalten
+assenza-per-persona: Absenz pro Person
 profitto: Leistungen
 le-prove: Die Prüfungen
 griglia-presenze: Präsenzraster im Detail

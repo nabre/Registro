@@ -3,10 +3,10 @@
 //   i messaggi        senza bottoni, una notifica nel pannello; con bottoni o
 //                     senza pannello, una finestra nostra (`desktop/shell/pages/dialog/`),
 //                     con `dialog.showMessageBox` come ripiego
-//   i file            i dialoghi di sistema, e `shell.openPath` per aprirli
+//   i file            i dialoghi di sistema, e `apriSeApribile` per aprirli
 //   le domande        una finestra nostra, perché Electron non le ha
 
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron'
 
 import { icona } from './context.js'
 import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, segniDellaCornice, togliMenu } from './theme.js'
@@ -15,7 +15,7 @@ import { mostraComunque } from './showAnyway.js'
 import { CANALE } from './channels.js'
 import { Uri } from '#core/apparato/uri.js'
 import { eUnPannello } from './windows.js'
-import { executeCommand, openExternal } from './commands.js'
+import { apriSeApribile, executeCommand, openExternal } from './commands.js'
 import { statoAggiornamenti } from './updates.js'
 import { limita } from '#core/dominio/calculations.js'
 import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '#core/dominio/upgrades.js'
@@ -450,10 +450,10 @@ export async function showSaveDialog (opzioni: OpzioniSalvataggio = {}): Promise
   return Uri.file(esito.filePath)
 }
 
-/** Apre un file col programma di sistema (es. un CSV o PDF appena esportato). */
+/** Apre un file col programma di sistema (es. un CSV o PDF appena esportato), con la guardia di `apriSeApribile`. */
 export async function showTextDocument (cosa: unknown, _opzioni?: unknown): Promise<void> {
   const uri = cosa instanceof Uri ? cosa : null
-  if (uri) await shell.openPath(uri.fsPath)
+  if (uri) await apriSeApribile(uri.fsPath)
 }
 
 // -------------------------------------------------------------- l'avanzamento

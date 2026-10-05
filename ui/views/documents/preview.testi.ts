@@ -1,4 +1,4 @@
-// I testi dell'anteprima della pagina Documenti (`preview.ts`).
+// I testi dell'anteprima della pagina Documenti (`preview.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

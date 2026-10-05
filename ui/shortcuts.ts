@@ -3,7 +3,7 @@
 // ogni comando in `COMANDI_UI`.
 
 import { COMANDI_UI, comandoPerId, eseguiComando } from './commands.js'
-import { dentroUnCampo } from './dom.js'
+import { dentroUnCampo } from './focus.js'
 import { avanti, indietro } from './history.js'
 import { gruppiDiPagine, vaiA } from './pages.js'
 
@@ -98,7 +98,7 @@ function tastoDelPasso (evento: KeyboardEvent): boolean {
 
 /**
  * Ctrl+1…9: le prime nove voci della barra laterale, come le numera
- * `suggerimentoDi` in `sidebar.ts`. Si legge il tasto fisico (`code`), perché
+ * `suggerimentoDi` in `sidebar.tsx`. Si legge il tasto fisico (`code`), perché
  * sulla tastiera francese la fila dei numeri scrive altro; senza Alt, perché
  * Ctrl+Alt è AltGr. Vale anche dentro un campo, dopo averlo consegnato.
  */

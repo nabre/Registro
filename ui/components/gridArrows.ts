@@ -1,7 +1,10 @@
-// Le frecce in una matrice di caselle (check, appello, comportamento): spostano
-// il fuoco da una casella all'altra, come in una griglia; Tab resta com'è.
+// Le frecce in una matrice di caselle (check, appello, comportamento), in
+// React: spostano il fuoco da una casella all'altra, come in una griglia; Tab
+// resta com'è. È il gestore da dare a `onKeyDown` della griglia.
 
-import { dentroUnCampo, gestisci } from '#ui/dom.js'
+import type { KeyboardEvent } from 'react'
+
+import { dentroUnCampo } from '#ui/focus.js'
 
 const PASSI: Record<string, [number, number]> = {
   ArrowUp: [-1, 0],
@@ -11,12 +14,13 @@ const PASSI: Record<string, [number, number]> = {
 }
 
 /**
- * Mette su `griglia` le frecce fra le caselle che rispondono a `casella`, nel
- * corpo della tabella. In un campo (i minuti, la nota dell'appello) le frecce
- * restano del campo. Legge la tabella al momento del tasto, non al disegno.
+ * Il gestore delle frecce fra le caselle che rispondono a `casella`, nel corpo
+ * della tabella: `<div onKeyDown={frecceNellaGriglia('.casella-check')}>`. In un
+ * campo (i minuti, la nota dell'appello) le frecce restano del campo. Legge la
+ * tabella al momento del tasto, non al disegno.
  */
-export function frecceNellaGriglia (griglia: Element, casella: string): void {
-  gestisci(griglia, 'keydown', (evento) => {
+export function frecceNellaGriglia (casella: string): (evento: KeyboardEvent<Element>) => void {
+  return (evento) => {
     const passo = PASSI[evento.key]
     if (!passo || evento.altKey || evento.ctrlKey || evento.metaKey) return
     if (dentroUnCampo(evento.target)) return
@@ -31,5 +35,5 @@ export function frecceNellaGriglia (griglia: Element, casella: string): void {
     // Al bordo il fuoco resta dov'è, e la pagina non scorre.
     evento.preventDefault()
     dopo?.querySelector<HTMLElement>(casella)?.focus()
-  })
+  }
 }

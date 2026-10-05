@@ -652,7 +652,7 @@ const it = {
           'Tutto il corso nel periodo, in un foglio solo. In testa il **Quadro per persona**: ' +
           'una riga a testa con media e nota, % assenza e ritardi, consegne fatte su quelle ' +
           'date, check spuntati, recuperi aperti e i segni **+** e **−** della matrice. Poi ' +
-          'presenze, voti con il loro andamento, diario, osservazioni, i piani lezione in ' +
+          'presenze con le barre dell’assenza per persona, voti con il loro andamento, diario, osservazioni, i piani lezione in ' +
           'ordine di data, **Consegne e compiti** — anche quelle già chiuse, con quanti le ' +
           'hanno fatte — e le pendenze.',
       },
@@ -1367,7 +1367,7 @@ export const testi = catalogo(it, {
             'Der ganze Kurs im Zeitraum auf einem Blatt. Oben die **Übersicht pro Person**: eine ' +
             'Zeile pro Person mit Durchschnitt und Note, % Abwesenheit und Verspätungen, ' +
             'erledigten von den erteilten Aufträgen, abgehakten Checks, offenen Nachprüfungen und ' +
-            'den Zeichen **+** und **−** der Matrix. Dann Anwesenheit, Noten mit ihrem Verlauf, ' +
+            'den Zeichen **+** und **−** der Matrix. Dann Anwesenheit mit den Absenzbalken pro Person, Noten mit ihrem Verlauf, ' +
             'Tagebuch, Beobachtungen, die Unterrichtspläne nach Datum, **Aufgaben und Abgaben** — ' +
             'auch die erledigten, mit wie vielen sie gemacht haben — und die Pendenzen.',
         },
@@ -2067,7 +2067,7 @@ export const testi = catalogo(it, {
             'Tout le cours de la période sur une seule feuille. En tête la **Vue par personne** : ' +
             'une ligne par personne avec moyenne et note, % d’absence et retards, devoirs faits ' +
             'sur ceux donnés, contrôles cochés, rattrapages ouverts et les signes **+** et **−** ' +
-            'de la matrice. Puis présences, notes avec leur évolution, journal, observations, ' +
+            'de la matrice. Puis présences avec les barres d’absence par personne, notes avec leur évolution, journal, observations, ' +
             'les plans de leçon par date, **Devoirs et travaux** — aussi ceux déjà clos, avec ' +
             'combien les ont faits — et ce qui reste en suspens.',
         },
@@ -2756,7 +2756,7 @@ export const testi = catalogo(it, {
             'The whole course for the period on one sheet. At the top the **Overview per ' +
             'person**: one row each with average and grade, % absence and late arrivals, ' +
             'assignments done out of those set, ticked checks, open resits and the matrix ' +
-            '**+** and **−** marks. Then attendance, grades with their trend, diary, ' +
+            '**+** and **−** marks. Then attendance with the absence bars by person, grades with their trend, diary, ' +
             'observations, the lesson plans by date, **Assignments and tasks** — closed ones too, ' +
             'with how many did them — and the pending tasks.',
         },

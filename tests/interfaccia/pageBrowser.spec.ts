@@ -2,7 +2,7 @@
 //
 // Prova le due cose che non si possono provare con `node --test`, perche' vivono
 // nel browser: che pdfjs disegni davvero le pagine dentro il pannello — sul filo
-// principale, senza worker, vedi `components/thumbnails.ts` — e che una pagina
+// principale, senza worker, vedi `components/thumbnails.tsx` — e che una pagina
 // trascinata su una casella della matrice faccia partire l'azione giusta, con le
 // pagine giuste.
 
@@ -47,7 +47,7 @@ test('sfoglio', async ({ browser }) => {
 
   async function prepara (page: Page): Promise<void> {
     // Anche la console: una chiusura di PDF che fallisce non fa cadere la pagina ma
-    // lascia un errore qui, così si vede se `thumbnails.ts` smette di chiudere.
+    // lascia un errore qui, così si vede se `thumbnails.tsx` smette di chiudere.
     page.on('console', (m) => {
       if (m.type() === 'error' && !m.text().includes('ERR_UNKNOWN_URL_SCHEME')) {
         consolle.push(m.text())

@@ -21,6 +21,7 @@ import type {
   GiudizioProgetto,
   CellaProgetto,
   LivelloProgetto,
+  Lezione,
 } from '#core/dominio/models.js'
 import { Uno } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
@@ -169,14 +170,44 @@ function normalizzaIntegrazione (grezzo: unknown): IntegrazioneProgetto | null {
 }
 
 /**
+ * Fonde nell'integrazione superstite quella di un corso doppione: compiti e
+ * giudizi si sommano (gli id sono unici nell'anno); delle celle sulla stessa
+ * casella vale quella del superstite, come per le spunte del check. La casella
+ * è persona, criterio e giorno, non l'ora (`celleDi`: un giorno, una cella):
+ * due ore dello stesso giorno, o un'ora e il giorno senza ora, ne fanno una.
+ * Il giorno di un'ora è quello della lezione, come in `giornoDellaVoce`.
+ */
+export function fondiIntegrazione (
+  superstite: IntegrazioneProgetto,
+  doppione: IntegrazioneProgetto,
+  lezioni: readonly Pick<Lezione, 'id' | 'data'>[],
+): void {
+  superstite.compiti.push(...doppione.compiti)
+  superstite.giudizi.push(...doppione.giudizi)
+  const giorni = new Map(lezioni.map((l) => [l.id, l.data]))
+  const giorno = (c: CellaProgetto) => (c.lezioneId ? giorni.get(c.lezioneId) : undefined) ?? c.data
+  const casella = (c: CellaProgetto) => `${c.allievoId} ${c.criterioId} ${giorno(c)}`
+  const prese = new Set(superstite.matrice.map(casella))
+  superstite.matrice.push(...doppione.matrice.filter((c) => !prese.has(casella(c))))
+}
+
+/**
  * Il progetto dal file. Criteri con id unico, una scala che non resta mai
  * vuota (senza, la matrice non saprebbe che cosa scrivere), un'integrazione
  * per corso, celle ripulite come dopo un salvataggio: niente celle di criteri
  * spariti. Il giorno di un'ora qui non si sa (manca il registro): due celle
  * dello stesso giorno, una nell'ora e una no, restano, e `progetto.cella` le
  * riscrive insieme.
+ *
+ * `fondiCon` (le lezioni dell'anno, per il giorno delle ore) quando la
+ * migrazione ha spostato un'integrazione dal corso doppione a quello tenuto
+ * (`Migrazione.conCorsoVero`): lì due integrazioni sullo stesso corso sono
+ * lavoro vero di due corsi, e si fondono invece di tenere la prima.
  */
-export function normalizzaProgetto (grezzo: unknown): Progetto {
+export function normalizzaProgetto (
+  grezzo: unknown,
+  fondiCon?: readonly Pick<Lezione, 'id' | 'data'>[],
+): Progetto {
   const dati = oggetto(grezzo)
   const ora = istanteAdesso()
 
@@ -236,14 +267,24 @@ export function normalizzaProgetto (grezzo: unknown): Progetto {
     }
   })
 
-  // Un'integrazione per corso: con due, vale la prima, come per le voci per allievo.
-  const corsi = new Set<string>()
+  // Un'integrazione per corso: con due, vale la prima, come per le voci per
+  // allievo; o si fondono, se vengono da due corsi diventati uno.
+  const perCorso = new Map<string, IntegrazioneProgetto>()
   const integrazioni: IntegrazioneProgetto[] = []
   for (const voce of elenco(dati.integrazioni)) {
     const integrazione = normalizzaIntegrazione(voce)
-    if (!integrazione || corsi.has(integrazione.corsoId)) continue
-    corsi.add(integrazione.corsoId)
-    integrazioni.push(integrazione)
+    if (!integrazione) continue
+    const gia = perCorso.get(integrazione.corsoId)
+    if (!gia) {
+      perCorso.set(integrazione.corsoId, integrazione)
+      integrazioni.push(integrazione)
+      continue
+    }
+    if (!fondiCon) continue
+    fondiIntegrazione(gia, integrazione, fondiCon)
+    // Gli id restano unici anche se i due corsi venivano da una copia.
+    idUnici(gia.compiti, nuovoIdCompitoProgetto)
+    idUnici(gia.giudizi, nuovoIdGiudizioProgetto)
   }
 
   const progetto: Progetto = {

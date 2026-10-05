@@ -19,7 +19,7 @@ nomi dei file sono in inglese (ADR-53).
 | Comando | Scopo |
 | --- | --- |
 | `npm ci` | Installa esattamente le dipendenze del lockfile; richiede Node.js 24. |
-| `npm run dev` | Avvia Electron con build in ascolto e ricarica. |
+| `npm run dev` | Avvia Electron («Regiklass-dev», bundle in `dist-dev/`) con build in ascolto e ricarica; Ctrl+Shift+F12 apre le opzioni di sviluppo; convive con `npm run start`. |
 | `npm run build` | Compila una volta in `dist/`. |
 | `npm run typecheck` | Controlla i tipi del TypeScript e, via JSDoc, di `cli/` e `tools/`. |
 | `npm run lint` | Esegue ESLint; i warning `max-len` non sono errori. |
@@ -63,6 +63,10 @@ Apri la skill pertinente prima di intervenire:
   compatibilità dei documenti `.regi`.
 - `.claude/skills/testi/SKILL.md`: qualsiasi testo visibile o traduzione; le
   lingue sono italiano, tedesco, francese e inglese.
+- `.claude/skills/react/SKILL.md`: qualsiasi file che disegna in `ui/`,
+  `core/controlli/` o `desktop/shell/pages/`: componenti, campi, modali, hook.
+- `.claude/skills/prove/SKILL.md`: aggiungere, ridurre o riordinare le prove
+  senza perdere garanzie.
 - `.claude/skills/verifica/SKILL.md`: verifica finale e lettura dei controlli.
 - `.claude/skills/sciame/SKILL.md`: lavori larghi con agenti o perimetri
   paralleli disgiunti.
@@ -81,5 +85,7 @@ Apri la skill pertinente prima di intervenire:
   vivo, rendilo interno; cancellalo solo dopo una prova.
 - Non aggiornare i conteggi documentali a memoria: usa i controlli e i test che
   li derivano dal codice.
+- Chiesta una release nuova, prima di alzare `package.json` compatta
+  `VERSIONE_DATI`: skill `formato` § «Compattare prima di una release».
 - Una voce di `docs/CANTIERE.md` si rimuove soltanto quando il lavoro è fatto e
   la verifica richiesta è verde.

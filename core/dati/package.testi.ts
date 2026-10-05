@@ -9,6 +9,8 @@ const it = {
   nonSiApre: (file: string, detto: string) => `${file} non si apre: ${detto}`,
   altroProgramma: (file: string, formato: string) =>
     `${file} è un archivio di un altro programma (${formato}).`,
+  voceTroppoGrande: (file: string, voce: string) =>
+    `${file} non si apre: la voce «${voce}» dichiara una misura che un registro non raggiunge.`,
 }
 
 export const testi = catalogo(it, {
@@ -18,17 +20,23 @@ export const testi = catalogo(it, {
     nonSiApre: (file, detto) => `${file} lässt sich nicht öffnen: ${detto}`,
     altroProgramma: (file, formato) =>
       `${file} ist ein Archiv eines anderen Programms (${formato}).`,
+    voceTroppoGrande: (file, voce) =>
+      `${file} lässt sich nicht öffnen: Der Eintrag «${voce}» gibt eine Grösse an, die kein Klassenbuch erreicht.`,
   },
   fr: {
     nonDocumento: (file) =>
       `${file} n’est pas un document du registre : le fichier ne commence pas comme une archive.`,
     nonSiApre: (file, detto) => `${file} ne s’ouvre pas : ${detto}`,
     altroProgramma: (file, formato) => `${file} est une archive d’un autre programme (${formato}).`,
+    voceTroppoGrande: (file, voce) =>
+      `${file} ne s’ouvre pas : l’entrée « ${voce} » déclare une taille qu’aucun registre n’atteint.`,
   },
   en: {
     nonDocumento: (file) =>
       `${file} isn’t a register document: the file doesn’t start like an archive.`,
     nonSiApre: (file, detto) => `${file} won’t open: ${detto}`,
     altroProgramma: (file, formato) => `${file} is an archive from another program (${formato}).`,
+    voceTroppoGrande: (file, voce) =>
+      `${file} won’t open: the entry “${voce}” declares a size no register ever reaches.`,
   },
 })

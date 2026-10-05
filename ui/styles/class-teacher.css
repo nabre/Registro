@@ -10,7 +10,7 @@
 /*
  * La forma di ogni pendenza (consegne, recuperi, riconsegne, richieste di
  * firma), scritta una volta: filo colorato a sinistra, testata con pastiglie,
- * gesti in fondo, riga quieta sotto. Marcatura di `components/pending.ts`; i
+ * gesti in fondo, riga quieta sotto. Marcatura di `components/pending.tsx`; i
  * fogli delle famiglie, dopo, aggiungono solo le differenze.
  */
 .consegne,
@@ -416,19 +416,6 @@ tr:hover .cella-documento__modifica,
 .testo-errore { color: var(--negativo); }
 
 .blocco-testo__titolo { margin: var(--spazio-3) 0 var(--spazio-1); }
-
-.elenco-materie { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-
-.materia {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-2);
-  padding: var(--spazio-1) var(--spazio-2);
-  border-radius: var(--raggio);
-}
-
-.materia:hover { background: var(--velo-sfiorato); }
-.materia strong { min-width: 10em; }
 
 /* Un giorno di chiusura si spegne invece di sparire: la settimana resta una griglia. */
 .giorno--chiuso {

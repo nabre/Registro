@@ -25,6 +25,3 @@ updates:
     groups:
       minori:
         update-types: ['minor', 'patch']
-        # idiomorph è fissato a versione esatta: `ui/dom.ts` ne usa gli
-        # interni, quindi ogni salto arriva da solo e passa da `morfosi.spec.ts`.
-        exclude-patterns: ['idiomorph']

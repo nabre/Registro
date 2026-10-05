@@ -1,6 +1,6 @@
-// I testi dei riquadri della pagina Documenti (`cards.ts`).
+// I testi dei riquadri della pagina Documenti (`cards.tsx`).
 // I nomi dei fogli («il conto delle presenze», «la scheda di …») entrano nelle
-// frasi di `sheets.ts`: si scrivono con il loro articolo.
+// frasi di `sheets.tsx`: si scrivono con il loro articolo.
 
 import { catalogo } from '#core/i18n/index.js'
 import { PIF, Molti, Uno, quanti } from '#core/dominio/lexicon.js'

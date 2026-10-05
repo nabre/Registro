@@ -1,4 +1,4 @@
-// I testi di `forms/absences.ts`: il periodo di assenze con la sua lettera
+// I testi di `forms/absences.tsx`: il periodo di assenze con la sua lettera
 // all'azienda, e l'importazione dei fogli in blocco.
 
 import { catalogo, perNumero } from '#core/i18n/index.js'

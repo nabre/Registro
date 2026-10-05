@@ -12,6 +12,9 @@ import js from '@eslint/js'
 import stilistica from '@stylistic/eslint-plugin'
 import globali from 'globals'
 import tseslint from 'typescript-eslint'
+import reactHooks from 'eslint-plugin-react-hooks'
+
+import regiklass from './tools/eslint-jsx-key.mjs'
 
 /**
  * Quel che non è codice scritto a mano: i bundle, e i file generati, la cui
@@ -134,7 +137,7 @@ export default tseslint.config(
 
   // --------------------------------------------------------- tutto il TypeScript
   {
-    files: ['core/**/*.ts', 'ui/**/*.ts', 'contract/**/*.ts', 'desktop/**/*.ts', 'tests/**/*.ts'],
+    files: ['core/**/*.{ts,tsx}', 'ui/**/*.{ts,tsx}', 'contract/**/*.ts', 'desktop/**/*.{ts,tsx}', 'tests/**/*.ts'],
     extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked],
     plugins: { '@stylistic': stilistica },
     languageOptions: {
@@ -151,7 +154,7 @@ export default tseslint.config(
   //
   // Una webview senza Node: importarlo passa la costruzione e scoppia a pagina aperta.
   {
-    files: ['ui/**/*.ts'],
+    files: ['ui/**/*.{ts,tsx}'],
     languageOptions: { globals: globali.browser },
     rules: {
       'no-restricted-imports': ['error', {
@@ -174,7 +177,7 @@ export default tseslint.config(
   // main process importano solo tipi, che esbuild cancella: un import di valore
   // trascinerebbe nel bundle Electron e mezzo registro.
   {
-    files: ['desktop/shell/pages/**/*.ts'],
+    files: ['desktop/shell/pages/**/*.{ts,tsx}'],
     languageOptions: { globals: globali.browser },
     rules: {
       'no-restricted-imports': 'off',
@@ -212,7 +215,7 @@ export default tseslint.config(
   // ponte. Da fuori della cartella solo core/i18n/, le parole di tutti e i
   // tipi di contract/.
   {
-    files: ['core/controlli/**/*.ts'],
+    files: ['core/controlli/**/*.{ts,tsx}'],
     languageOptions: { globals: globali.browser },
     rules: {
       'no-restricted-imports': 'off',
@@ -233,6 +236,34 @@ export default tseslint.config(
         ],
       }],
     },
+  },
+
+  // ------------------------------------------- le pagine in React (ADR-56)
+  //
+  // Le regole degli hook sono guasti veri: un hook dentro un `if` cambia
+  // ordine fra due disegni e prende lo stato di un altro. `innerHTML` resta
+  // vietato anche nella forma di React: un testo del documento non diventa mai
+  // codice. Le eccezioni sono i disegni SVG scritti nel programma (icone e
+  // figure della guida), elencate sotto. Le righe di una lista portano la loro
+  // `key` (regola nostra, `tools/eslint-jsx-key.mjs`).
+  {
+    files: ['ui/**/*.tsx', 'core/controlli/**/*.tsx', 'desktop/shell/pages/**/*.tsx'],
+    plugins: { 'react-hooks': reactHooks, regiklass },
+    rules: {
+      'regiklass/jsx-key': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
+      'no-restricted-syntax': ['error', {
+        selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+        message:
+          'Niente innerHTML, neanche con React: un testo del documento non diventa codice. ' +
+          'I tracciati SVG del programma passano da <Svg> (ui/svg.tsx).',
+      }],
+    },
+  },
+  {
+    files: ['ui/svg.tsx'],
+    rules: { 'no-restricted-syntax': 'off' },
   },
 
   // ------------------------- core/dati, core/azioni, desktop/pannelli: via il guscio

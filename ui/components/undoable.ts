@@ -1,7 +1,7 @@
 // Una notifica con «Annulla», per i gesti che tolgono qualcosa che si può
 // rimettere (una pausa, una chiusura, una regola): invece di chiedere prima, si
 // fa subito e si lascia il modo di tornare indietro (§ 3.6 di
-// `docs/PIANO-IMPOSTAZIONI.md`). Chi toglie qualcosa che non torna chiede
+// `.claude/skills/impostazione/SKILL.md` § «Il sistema delle pagine»). Chi toglie qualcosa che non torna chiede
 // ancora conferma.
 
 import { notifica } from './notifications.js'

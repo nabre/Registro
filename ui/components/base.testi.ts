@@ -1,4 +1,4 @@
-// I testi dei mattoni dell'interfaccia (`base.ts`): le etichette di ripiego
+// I testi dei mattoni dell'interfaccia (`base.tsx`): le etichette di ripiego
 // per chi legge con la voce e il campo della data.
 
 import { catalogo, numero } from '#core/i18n/index.js'

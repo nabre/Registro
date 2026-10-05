@@ -9,7 +9,7 @@
 @import './styles/metrics.css';
 @import './styles/foundations.css';
 @import './styles/controls.css';
-/* La «i» sotto la casella, che `chat.ts` usa per dire come si chiede. */
+/* La «i» sotto la casella, che `chat.tsx` usa per dire come si chiede. */
 @import './styles/hint.css';
 @import './styles/containers.css';
 @import './styles/assistant.css';
