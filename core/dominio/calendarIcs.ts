@@ -15,7 +15,7 @@ import type { Iso, Ora } from './models.js'
  * contano a parte.
  */
 export interface EventoCalendario {
-  /** Distingue le occorrenze di una ricorrenza: UID più il momento. */
+  /** Distingue le occorrenze di una ricorrenza: UID più il momento. Unica nel calendario letto. */
   chiave: string
   data: Iso
   inizio: Ora
@@ -415,7 +415,11 @@ export function leggiCalendario (
     if (m) riscritte.add(`${e.uid}|${sulMuroDi(m, fuso)}`)
   }
 
-  const eventi: EventoCalendario[] = []
+  // Per chiave: lo stesso UID alla stessa ora è un evento solo (un file che
+  // ripete il VEVENT, o un'occorrenza riscritta sull'ora di un'altra), e la
+  // chiave fa da `key` nelle viste del calendario. Fra i due vince la
+  // riscrittura, che è la parola più recente di chi ha scritto il calendario.
+  const eventi = new Map<string, { evento: EventoCalendario; riscritto: boolean }>()
   let scartati = 0
   for (const e of grezzi) {
     if (!e.inizio) continue
@@ -464,17 +468,21 @@ export function leggiCalendario (
         scartati += 1
         continue
       }
-      eventi.push({
-        chiave: `${e.uid || e.titolo}@${da.data}T${da.ora}`,
+      const chiave = `${e.uid || e.titolo}@${da.data}T${da.ora}`
+      const gia = eventi.get(chiave)
+      if (gia && (gia.riscritto || !e.ricorrenzaDi)) continue
+      eventi.set(chiave, { riscritto: e.ricorrenzaDi !== null, evento: {
+        chiave,
         data: da.data,
         inizio: da.ora,
         fine: a.data === da.data ? a.ora : '23:59',
         titolo: e.titolo,
         luogo: e.luogo,
         annullato: e.annullato,
-      })
+      } })
     }
   }
-  eventi.sort((a, b) => a.data.localeCompare(b.data) || a.inizio.localeCompare(b.inizio))
-  return { eventi, scartati }
+  const tenuti = [...eventi.values()].map((v) => v.evento)
+  tenuti.sort((a, b) => a.data.localeCompare(b.data) || a.inizio.localeCompare(b.inizio))
+  return { eventi: tenuti, scartati }
 }

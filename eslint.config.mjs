@@ -14,6 +14,8 @@ import globali from 'globals'
 import tseslint from 'typescript-eslint'
 import reactHooks from 'eslint-plugin-react-hooks'
 
+import regiklass from './tools/eslint-jsx-key.mjs'
+
 /**
  * Quel che non è codice scritto a mano: i bundle, e i file generati, la cui
  * forma è affare del generatore (`defaultTemplates.ts` lo scrive `npm run
@@ -242,11 +244,13 @@ export default tseslint.config(
   // ordine fra due disegni e prende lo stato di un altro. `innerHTML` resta
   // vietato anche nella forma di React: un testo del documento non diventa mai
   // codice. Le eccezioni sono i disegni SVG scritti nel programma (icone e
-  // figure della guida), elencate sotto.
+  // figure della guida), elencate sotto. Le righe di una lista portano la loro
+  // `key` (regola nostra, `tools/eslint-jsx-key.mjs`).
   {
     files: ['ui/**/*.tsx', 'core/controlli/**/*.tsx', 'desktop/shell/pages/**/*.tsx'],
-    plugins: { 'react-hooks': reactHooks },
+    plugins: { 'react-hooks': reactHooks, regiklass },
     rules: {
+      'regiklass/jsx-key': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
       'no-restricted-syntax': ['error', {

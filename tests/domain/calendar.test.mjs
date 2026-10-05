@@ -115,6 +115,42 @@ describe('leggiCalendario', () => {
     ])
   })
 
+  it('tiene una volta sola lo stesso UID alla stessa ora, e distingue le occorrenze spostate', () => {
+    const serie = [
+      'UID:dop',
+      'DTSTART;TZID=Europe/Zurich:20260915T082000',
+      'DTEND;TZID=Europe/Zurich:20260915T090500',
+      'RRULE:FREQ=WEEKLY;COUNT=3',
+      'SUMMARY:Storia',
+    ]
+    const { eventi } = leggi(ics(
+      // Lo stesso evento esportato due volte.
+      serie,
+      serie,
+      // Il martedì 22 si sposta all'ora dopo: stessa UID, inizio diverso, non è un doppione.
+      [
+        'UID:dop',
+        'RECURRENCE-ID;TZID=Europe/Zurich:20260922T082000',
+        'DTSTART;TZID=Europe/Zurich:20260922T092000',
+        'DTEND;TZID=Europe/Zurich:20260922T100500',
+        'SUMMARY:Storia spostata',
+      ],
+      // Il martedì 29 cade sull'ora del 15 già occupata: la riscrittura vince sulla regola.
+      [
+        'UID:dop',
+        'RECURRENCE-ID;TZID=Europe/Zurich:20260929T082000',
+        'DTSTART;TZID=Europe/Zurich:20260915T082000',
+        'DTEND;TZID=Europe/Zurich:20260915T090500',
+        'SUMMARY:Storia anticipata',
+      ],
+    ))
+    assert.deepEqual(eventi.map((e) => [e.data, e.inizio, e.titolo]), [
+      ['2026-09-15', '08:20', 'Storia anticipata'],
+      ['2026-09-22', '09:20', 'Storia spostata'],
+    ])
+    assert.equal(new Set(eventi.map((e) => e.chiave)).size, eventi.length)
+  })
+
   it('si ferma a UNTIL e al periodo chiesto', () => {
     const { eventi } = leggi(ics([
       'UID:u',
