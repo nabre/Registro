@@ -1,1256 +1,1372 @@
 # Graph Report - Registro  (2026-10-05)
 
 ## Corpus Check
-- Large corpus: 1524 files · ~1,800,775 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder.
+- Large corpus: 1536 files · ~1,809,605 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder.
 
 ## Summary
-- 11849 nodes · 47254 edges · 261 communities (237 shown, 24 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 582 edges (avg confidence: 0.85)
-- Token cost: 444,020 input · 0 output
+- 12305 nodes · 43701 edges · 293 communities (257 shown, 36 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 603 edges (avg confidence: 0.84)
+- Token cost: 345,990 input · 9,000 output
 
 ## Community Hubs (Navigation)
-- Prove ambiente e file temporanei
-- Prove dominio (A)
-- Prove API
-- Validazione e anno
-- Moduli del pannello
-- Prove dominio (B)
-- Cataloghi testi i18n
-- Protocollo e pannelli desktop
-- Viste e azioni del pannello
-- Procedure: definisci e letture
-- Agenda, compleanni, giornata
-- Contratto e ambito procedure
-- Check e consegne
-- Testi delle azioni
-- Appello e ritardi
-- Orario e tratti della giornata
-- Assenze e segnalazioni
-- Voti, scale e recuperi
-- Guscio Electron e pacchetto
-- Archivio consegne su disco
-- Stato UI e compleanni
-- Azioni applicative
-- Impaginazione PDF
-- Progetti nel corso (vista UI)
-- Account Microsoft
-- Testi comuni e voci sparite
-- Prove dati e archivio
-- Prove calcoli e arrotondamenti
-- Navigazione e percorso
-- Esportazioni e giornale
-- Exchange e autenticazione
-- Indirizzi e mappa
-- Procedure assenze e rapporti
-- Prove posta e allegati
-- Prove catalogo API
+- Test helper archivio e file
+- Test dominio compilati A
+- Test API scritture piani/progetti
+- Cataloghi testi viste
+- Procedure persone e comuni
+- Guida e lessico dominio
+- Schemi contratto e giornale
+- Dati dei rapporti
+- Procedure classe e anni
+- Piani e attività
+- Apparato piattaforma core
+- Finestre e canali shell
+- Test proprietà e storia
+- Contesto azioni e centralino
+- Navigazione e sidebar UI
+- Contratto procedura e contesto
+- Vassoio, corsi, regole calendario
+- Archivio dati e storia
+- Calcoli ore e appello
+- Docente di classe e smistamento
+- Viste e rapporto progetti
+- Assenze e smistatore
+- Normalizzazione dominio
+- Test dominio compilati B
+- Componenti base UI
+- Progetti e cancellazioni
+- Stato UI e oggi
+- Valutazioni, consegne, todo dominio
+- Date e calendario UI
+- Procedure smistamento assenze
+- Avvio UI e notifiche
+- Pause e griglia orario
+- Pacchetto zip .regi
 - Procedure progetti
-- Procedure anni e calendario
-- Icone e barra titolo
-- Osservatori e avvio
-- Prove date e formato
-- Tipi di attività
-- Ponte e chiamante
-- Risorse asincrone del pannello
-- Apparato e contesto
-- Documenti e avvisi del corso
-- core/apparato · enumerations.ts
-- core/dominio · calendarioToccato()
-- core/dominio · breaks.ts
-- contract/procedure · inoltra()
-- contract/procedure · esigiLezione()
-- core/dominio · cruscotto.ts
-- esterno · dist_tests_domain_catalogo_modelli
-- tests/api · prova()
-- desktop/apparato · chiamante()
-- tests/ui · ADR-0045
-- ui/views · lezioneFinita()
-- desktop/apparato · chokidar
-- desktop/apparato · requisitoMancante()
-- desktop/apparato · impianta()
-- desktop/apparato · updateInstaller.ts
-- core/azioni · motivoSicuro()
-- ui/views · voce()
-- ui/views · VoceProgramma
-- desktop/apparato · .fire()
-- core/dominio · impaginazioneDi()
-- ui/views · corrispondeAlla()
-- tests/data · dist_tests_dictation
-- contract/procedure · scrittura
-- contract/manifest.ts · manifest.ts
-- contract/procedure · consegne/common.ts
-- core/controlli · control.ts
-- ui/views · PaginaSmistamento
-- core/dominio · scriviGenerato()
-- tools/sample.mjs · assistantTools.mjs
-- cli/main.mjs · access.mjs
-- ui/views · Azione
-- ui/views · dominio/letterhead.ts
-- ui/components · bilancioSegni()
-- desktop/apparato · .joinPath()
-- ui/views · SEZIONI_ASSISTENTE
-- core/dati · dati/archive.ts
-- core/dati · dati/calendar.ts
-- tests/interfaccia · @playwright/test
-- core/dati · llamaCpp.ts
-- ui/views · attivitaConPendenza()
-- desktop/shell · bandiera()
-- tests/ui · controlli.test.mjs
-- core/dati · Archivio
-- contract/procedure · errore
-- contract/procedure · common/plans.ts
-- tools/collections.mjs · buttons.mjs
-- ui/memory.ts · Voce
-- core/dominio · richiesteAperte()
-- core/dominio · addresses.ts
-- core/dominio · normalization/check.ts
-- core/dati · .accoda()
-- package.json · scripts
-- desktop/transports · Genere
-- core/dominio · creaProgetto()
-- tests/helpers · fake-node-llama.mjs
-- ui/assistant · chat.ts
-- ui/views · help/assistant.testi.ts
-- desktop/apparato · fermaRapporti()
-- core/dati · .leggiAltroAnno()
-- core/dominio · duplicaIntegrazione()
-- package.json · eslint.config.mjs
-- ui/views · help/assistant.ts
-- desktop/transports · impagina()
-- desktop/shell · senzaAnno()
-- ui/commandBar.ts · RaggruppamentoCorsi
-- core/dati · dati/dictation.ts
-- core/dati · appData.ts
-- ui/projection.ts · AppelloProiettato
-- esterno · dist_tests_domain_chiaveindirizzo
-- cli/comandi · aspetta.mjs
-- contract/procedure · llm/annulla.ts
-- core/dominio · .suVoce()
-- ui/views · ordinalePausa()
-- ui/views · tracciatoIcona()
-- tools/calendario · argparse
-- core/dati · p()
-- ui/views · automation.testi.ts
-- ui/dom.ts · collegaRidisegno()
-- ui/views · behind.ts
-- core/dominio · formatoDi()
-- os/windows · aggiornamento.ps1
-- ui/components · pdfjs-dist/legacy/build/pdf.mjs
-- tools/icons.cjs · icons.cjs
-- ui/commands.ts · eseguiDalPulsante()
-- core/dominio · istanteAdesso()
-- ui/commands · BLOCCHI
-- desktop/shell · ParametriDialogo
-- esterno · dist_tests_domain_annidaproporre
-- tools/i18n.mjs · i18n/page.ts
-- tests/api · reads.test.mjs
-- contract/procedure · ErroreApi
-- core/dati · gguf.testi.ts
-- core/dominio · oraValida()
-- core/dominio · chiaveValore()
-- ui/dom.ts · ui/dom.ts
-- cli/uninstall.mjs · cli/common.mjs
-- contract/tools.ts · azioniSottoContratto()
-- ui/views · comeElenco()
-- ui/views · durataPiano()
-- core/dominio · calendarIcs.ts
-- core/dominio · fogliDeiProgetti()
-- core/dati · .prendiPacchetto()
-- core/dati · dati/history.ts
-- tools/layers.mjs · ADR-0055
-- ui/assistant.ts · ui/assistant.ts
-- ui/assistant · bottoneDelContesto()
-- contract/procedure · registro/altrove.ts
-- core/dati · destinazione()
-- tests/helpers · finestraChiusa()
-- ui/views · signature.ts
-- .claude/skills · nuova.mjs
-- contract/procedure · testi
-- core/dominio · Raggruppamento
-- docs/DECISIONI.md · Motore di template dei rapporti
-- tests/interfaccia · attendi()
-- esbuild.mjs · aliasApparato
-- package.json · devDependencies
-- core/azioni · UsoModello
-- desktop/shell · formerName.ts
-- ui/sidebar.ts · raggruppamentoDeiCorsi()
-- desktop/shell · BottoneMessaggio
-- esterno · dist_tests_contextparts
-- tools/licenses.mjs · applicazione
-- ui/views · search.ts
-- .claude/skills · Skill sciame
-- contract/procedure · aggiornamenti.testi.ts
-- core/controlli · Ascolta
-- core/dominio · .portaAlFormato()
-- tests/interfaccia · ref_node_child_process
-- ui/statusBar.ts · FUOCO_ANNO
-- desktop/shell · commandLine.ts
-- ui/pages.ts · voceDiCorso()
-- ui/views · outside.ts
-- core/dominio · outlook.ts
-- contract/presentation.ts · presentation.ts
-- tests/interfaccia · schermata()
-- tools/census.mjs · census.mjs
-- tools/coverage.mjs · coverage.mjs
-- tsconfig.json · tsconfig.json
-- ui/assistant · answer.ts
-- ui/views · righe()
-- .claude/skills · Skill architettura
-- .claude/skills · togli.mjs
-- desktop/transports · procedura()
-- ui/views · ImpostazioniDaSalvare
-- docs/immagini · anno_esempio (documento campione)
-- stryker.config.json · stryker.config.json
-- ui/views · casella()
-- ui/views · help/lesson.ts
-- tests/interfaccia · ADR-0007
-- docs/immagini · Screenshot: Calendario (vista Settimana)
-- ui/shortcuts.ts · COMANDI_UI
-- .claude/skills · Skill formato
-- docs/API.md · core/azioni README (copertura API delle azioni
-- tools/dev.mjs · copiaCaratteriPdf()
-- tests/interfaccia · settingsKeyboard.spec.ts
-- tools/procedures.mjs · procedures.mjs
-- core/dati · geocoding.ts
-- esterno · dist_tests_domain_allineasemestri
-- esterno · dist_tests_letterheadcourses
-- docs/immagini · Documento anno_esempio
-- tools/mutants.mjs · ref_node_util
-- tsconfig.js.json · ./tsconfig.json
-- .github/workflows · Compattare VERSIONE_DATI prima di una re
-- ui/assistant · IdVisto
-- tests/ui · domSintetico.mjs
-- tools/mail-probe.ps1 · mail-probe.ps1
-- ui/bookmark.ts · daRicordare()
-- ui/components · VoceScelta
-- .claude/skills · core/controlli: DOM condiviso dei controlli
-- .claude/skills · Riferimento prove delle procedure
-- docs/immagini · Pendenze screenshot
-- tests/interfaccia · accessibility.spec.ts
-- .claude/skills · Riferimento LLM (catalogo per il modello)
-- contract/procedure · intestazione/index.ts
-- core/i18n · flags.ts
-- tests/helpers · Emettitore
-- core/dominio · CellaOsservata
-- docs/immagini · Screenshot Valutazioni (Momenti di valutazio
-- tools/signing.mjs · ref_app_builder_lib
-- tests/helpers · .constructor()
-- tests/interfaccia · misure.spec.ts
-- ui/assistant · voice.ts
-- CODE_OF_CONDUCT.md · CODE_OF_CONDUCT.md (Codice di comportam
-- core/dominio · csvPresenze()
-- desktop/shell · reader/reader.ts
-- knip.config.ts · knip.config.ts
-- package.json · dependencies
-- tools/screenshotDocs.mjs · screenshotDocs.mjs
-- contract/procedure · cerca.testi.ts
-- docs/VALUTAZIONE-PYTHON.md · Alias apparato (fatto architett
-- tests/interfaccia · calendarContrast.spec.ts
-- core/dominio · isoValida()
-- package.json · imports
-- tests/data · oauth.test.mjs
-- .claude/settings.json · settings.json
-- core/azioni · nonSupportato()
-- .dependency-cruiser.cjs · .dependency-cruiser.cjs
-- desktop/apparato · dialogs.testi.ts
-- os/macos · aggiornamento.sh
-- ui/breadcrumb.testi.ts · breadcrumb.testi.ts
-- ui/commands · commands/plans.testi.ts
-- ui/views · projectIntegration.testi.ts
-- .claude/skills · Skill canvas-design
-- .github/ISSUE_TEMPLATE · Issue template Difetto
-- .claude/hooks · coda-sciame.sh
-- os/linux · after-remove.sh
-- ui/components · pdfjs-worker.d.ts
-- ui/components · WorkerMessageHandler
+- Vista calendario settimana
+- Test dati e formato
+- Main shell e ciclo vita
+- Main UI e storia navigazione
+- Posto e memoria UI
+- Identificatori e fabbriche
+- Palette e barra stato
+- Bridge e trasporto assistente
+- Archiviazione anni e percorsi
+- Figure controlli e bandiere
+- Test modelli rapporti
+- Guida assistente e figure
+- Eventi e finestre apparato
+- Test ambiente e CSP
+- Test condotto e CLI
+- Modelli GGUF e kit
+- Aggiornamenti app
+- Calendario dominio ed esterno
+- Calendario scolastico
+- Automazione e rigenerazione
+- Viste classi e lezione
+- Manifesto impostazioni
+- Procedure ore e appello
+- Barra comandi
+- Test API letture
+- Proiezione voti e scale
+- Pannelli webview e proiezione
+- Chat assistente e voce
+- Condotto JSON-RPC
+- Integrazione progetti
+- Test mappa e zone
+- Notifiche, vassoio, router
+- Archivio vista e documenti
+- Dialoghi apparato
+- CLI regi
+- Procedure consegne
+- Vista guida
+- Procedure calendario e modelli
+- Pannello assistente e conversazione
+- Protocollo assistente e webview
+- Indice sezioni guida
+- OneDrive e panoramica
+- Procedure valutazioni
+- Luoghi e nomi file
+- Sezioni impostazioni programma
+- Controllo impostazioni
+- Controlli statici tools
+- Validazione dominio
+- Test LLM e pause
+- Test sezioni impostazioni
+- LLM, visione, OCR
+- Corsi e osservazioni
+- Boot desktop
+- Vista modelli linguistici
+- OneDrive dati
+- Composizione rapporti
+- Tools build e CI
+- Aree impostazioni
+- Motore llama.cpp
+- Documenti aperti apparato
+- Contesto apparato e protocollo
+- Riquadro assistente
+- Procedure documenti ed esportazioni
+- Campi e formati i18n
+- Procedure piani e risorse
+- Guida calendario
+- Script package.json
+- Vista impostazioni
+- Dettatura e voce
+- Impostazioni anno e annulla
+- Importazione e migrazione
+- Vista todo
+- Decisioni architetturali ADR
+- Finto node-llama test
+- settings (core/dominio/normalization)
+- exchange (core/dati)
+- mail (core/dati)
+- reportsPdf (core/dati)
+- check (core/dominio)
+- microsoft (core/dati)
+- projection (ui)
+- package (.)
+- banco (tests/interfaccia)
+- pdf (core/dati)
+- thumbnails (ui/components)
+- plansNavigator (ui/views)
+- dictation.test (tests/data)
+- assistantWindow (ui)
+- moduli.spec (tests/interfaccia)
+- substitute (core/dominio)
+- reportsPdf (core/dati)
+- pageBrowser (ui/views/sorting)
+- virtualList (ui/components)
+- settimana.spec (tests/interfaccia)
+- bridge (ui)
+- SKILL (.claude/skills/architettura)
+- API (docs)
+- estrai_calendario_ticino (tools/calendario)
+- file (contract/procedure/llm)
+- common (ui/forms)
+- i18n (tools)
+- drawing (ui/views/help)
+- people (ui/views)
+- project (ui/forms)
+- projects (core/dominio/normalization)
+- projection (ui/commands)
+- aggiornamento (os/windows)
+- icons (tools)
+- common (contract/procedure/check)
+- class (ui/forms)
+- store (core/dati)
+- oauth (core/dati)
+- dialog (desktop/shell/pages/dialog)
+- mail (ui/views/settings)
+- ics (ui/views/calendar)
+- lists (ui/views/settings)
+- templateCheck (core/dominio)
+- Gruppo 153
+- SKILL (.claude/skills/testi)
+- uninstall (cli)
+- icsCalendar (ui/views/settings)
+- map (ui/views)
+- contacts (core/dominio)
+- calendar (ui/forms)
+- sorting (core/dominio)
+- layers (tools)
+- DECISIONI (docs)
+- check (ui/views)
+- SKILL (.claude/skills/formato)
+- sheets (ui/views/documents)
+- calendarIcs (core/dominio)
+- map (core/dominio)
+- Gruppo 168
+- esbuild (.)
+- package (.)
+- SKILL (.claude/skills/prove)
+- registry (ui/views/student)
+- pageDrop (ui/views/sorting)
+- jsonStore (desktop/apparato)
+- fake-electron (tests/helpers)
+- calendarEditor.spec (tests/interfaccia)
+- nuova (.claude/skills/procedure-api/scripts)
+- importClass.test (tests/api)
+- MODELLO-DATI (docs)
+- sample (tools)
+- Gruppo 181
+- licenses (tools)
+- stato (contract/procedure/aggiornamenti)
+- integrita (contract/procedure/registro)
+- history (core/dati)
+- map (core/dominio)
+- birthdays (core/dominio)
+- communications (core/dominio)
+- upgrades (core/dominio)
+- sfoglioIsole.spec (tests/interfaccia)
+- controlli.spec (tests/interfaccia)
+- menu (ui/components)
+- year (ui/forms)
+- commandLine (desktop/shell/system)
+- preview (ui/views/documents)
+- updates (ui/views/settings)
+- modal (ui/components)
+- signature (ui/views/settings)
+- calendar (core/dati)
+- fileAssociation (desktop/shell/system)
+- PIANO-IMPOSTAZIONI (docs)
+- tsconfig (.)
+- format (ui/assistant)
+- outside (ui/views/help)
+- CATALOGO (docs)
+- ARCHITETTURA (docs)
+- census (tools)
+- coverage (tools)
+- togli (.claude/skills/procedure-api/scripts)
+- smoke (tools)
+- document (ui/views/settings)
+- formerName (core/dati)
+- calendario-scuro (docs/immagini)
+- icon (icons)
+- stryker.config (.)
+- settings (ui/views/help)
+- presentation (contract)
+- llm (core/azioni)
+- sorter (core/dati)
+- csv (ui/views/documents)
+- calendario (docs/immagini)
+- dev (tools)
+- settingsKeyboard.spec (tests/interfaccia)
+- registerImport (ui/forms)
+- lesson (ui/views/help)
+- classe (docs/immagini)
+- mutants (tools)
+- tsconfig.js (.)
+- asyncResources (ui)
+- notifications (ui/components)
+- fields (ui)
+- fields (core/controlli)
+- geocoding (core/dati)
+- mail-probe (tools)
+- texts (cli)
+- pendenze (docs/immagini)
+- filters (ui/components)
+- fake-electron (tests/helpers)
+- accessibility.spec (tests/interfaccia)
+- valutazioni (docs/immagini)
+- signing (tools)
+- registro-app (resources)
+- fake-electron (tests/helpers)
+- misure.spec (tests/interfaccia)
+- common (ui/forms)
+- package (.)
+- knip.config (.)
+- pack (tools)
+- main (ui)
+- project (ui/views/lesson)
+- manifest.testi (contract)
+- cerca.testi (contract/procedure/persone)
+- posto.test (tests/ui)
+- calendarContrast.spec (tests/interfaccia)
+- package (.)
+- oauth.test (tests/data)
+- frame.testi (ui/components)
+- icons (ui/components)
+- settings (.claude)
+- projection.testi (core/azioni)
+- updates.testi (core/azioni)
+- calculations.testi (core/dominio)
+- templateCatalog.testi (core/dominio)
+- .dependency-cruiser (.)
+- years.testi (core/dominio)
+- dialogs.testi (desktop/apparato)
+- aggiornamento (os/macos)
+- package (.)
+- check.testi (ui/commands)
+- documents.testi (ui/commands)
+- lesson.testi (ui/commands)
+- map.testi (ui/commands)
+- plans.testi (ui/commands)
+- program.testi (ui/commands)
+- projects.testi (ui/commands)
+- register.testi (ui/commands)
+- SKILL (.claude/skills/canvas-design)
+- glossario (.claude/skills/testi)
+- difetto (.github/ISSUE_TEMPLATE)
+- coda-sciame (.claude/hooks)
+- after-remove (os/linux)
+- pdfjs-worker.d (ui/components)
+- LICENSE (.claude/skills/canvas-design)
+- PULL_REQUEST_TEMPLATE (.github)
+- pdfjs-worker.d (ui/components)
 
 ## God Nodes (most connected - your core abstractions)
-1. `h()` - 679 edges
-2. `parole` - 317 edges
-3. `inoltra()` - 311 edges
-4. `catalogo` - 308 edges
-5. `pulsante()` - 258 edges
-6. `lessico` - 243 edges
-7. `formattaData()` - 226 edges
-8. `oggetto()` - 222 edges
-9. `scrittura` - 194 edges
-10. `azione()` - 192 edges
+1. `parole` - 322 edges
+2. `inoltra()` - 311 edges
+3. `catalogo` - 308 edges
+4. `lessico` - 244 edges
+5. `classi()` - 228 edges
+6. `formattaData()` - 227 edges
+7. `oggetto()` - 222 edges
+8. `scrittura` - 194 edges
+9. `azione()` - 191 edges
+10. `identificatore()` - 166 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `corpo()` --indirect_call--> `pezzi()`  [INFERRED]
-  tests/data/templateLanguages.test.mjs → ui/assistant/format.ts
-- `leggi()` --indirect_call--> `letto()`  [INFERRED]
-  ui/forms/registerImport.ts → tests/domain/reports.test.mjs
-- `smaltisciVoce()` --indirect_call--> `bozza()`  [INFERRED]
-  ui/assistant/chat.ts → tests/domain/schoolCalendar.test.mjs
-- `D6: export vivo si rende interno, si cancella dopo una prova` --semantically_similar_to--> `Export senza consumatori non è codice morto`  [INFERRED] [semantically similar]
-  .claude/skills/verifica/SKILL.md → CLAUDE.md
-- `La firma del codice` --semantically_similar_to--> `Code signing policy (SignPath Foundation)`  [INFERRED] [semantically similar]
-  docs/GUIDA.md → README.md
+- `Progetto di biblioteca e integrazione nel corso (Progetto.integrazioni)` --references--> `VERSIONE_DATI`  [EXTRACTED]
+  docs/DECISIONI.md → core/dominio/models.ts
+- `Canale delle domande (Domanda/Riscontro)` --references--> `chiama()`  [EXTRACTED]
+  docs/API.md → contract/core.ts
+- `Procedura (contratto di un'azione)` --references--> `chiama()`  [EXTRACTED]
+  docs/API.md → contract/core.ts
+- `ADR-27 Un contratto davanti al centralino` --references--> `chiama()`  [EXTRACTED]
+  docs/DECISIONI.md → contract/core.ts
+- `ADR-11 Conta come assenza in un posto solo` --references--> `contaComeAssenza()`  [EXTRACTED]
+  docs/DECISIONI.md → core/dominio/calculations.ts
 
 ## Import Cycles
 - None detected.
 
 ## Hyperedges (group relationships)
-- **Controlli statici di architettura in CI** — _claude_skills_architettura_skill_npm_run_layers, _claude_skills_procedure_api_skill_npm_run_procedures, _claude_skills_verifica_skill_npm_run_docs, _claude_skills_verifica_skill_npm_run_i18n, _claude_skills_verifica_skill_otto_controlli_statici, _github_workflows_verifica_job_verifica [EXTRACTED 1.00]
 - **Giro di un cambiamento del formato .regi** — _claude_skills_formato_skill_versione_dati, _claude_skills_formato_skill_passi_del_formato, _claude_skills_formato_skill_normalizzazione, _claude_skills_formato_skill_campioni_formato, _claude_skills_formato_skill_impronta_campi [EXTRACTED 1.00]
 - **Punti d'aggancio di una procedura API** — _claude_skills_procedure_api_skill_definisci_chiama, _claude_skills_procedure_api_skill_npm_run_procedures, _claude_skills_procedure_api_skill_npm_run_tools, _claude_skills_procedure_api_references_llm_catalogo_modello, _claude_skills_procedure_api_references_schemi_valibot, _claude_skills_procedure_api_references_prove_conti_scritti_a_mano [INFERRED 0.85]
-- **Pagine del guscio: CSP registro:// e testi da catalogo** — desktop_shell_pages_dev_dev, desktop_shell_pages_dialog_dialog, desktop_shell_pages_reader_reader, desktop_shell_pages_settings_settings, desktop_shell_pages_splash_splash, desktop_shell_pages_welcome_welcome [EXTRACTED 1.00]
-- **Chiamanti dietro il contratto: procedure, centralino, domande, condotto, assistente** — docs_api_procedura, docs_api_centralino, docs_api_canale_domande, docs_api_condotto, docs_api_assistente, docs_api_riga_di_comando [EXTRACTED 1.00]
-- **Documento .regi: ZIP+JSON, storico, serratura informativa, migrazioni a passi** — docs_decisioni_adr_17, docs_decisioni_adr_18, docs_decisioni_adr_19, docs_decisioni_adr_37, docs_modello_dati_versione_dati [INFERRED 0.85]
+- **Controlli statici di architettura in CI** — _claude_skills_architettura_skill_npm_run_layers, _claude_skills_procedure_api_skill_npm_run_procedures, _claude_skills_verifica_skill_otto_controlli_statici, _github_workflows_verifica_job_verifica [EXTRACTED 1.00]
 - **Navigazione del calendario** — docs_immagini_calendario_scuro_navigazione_temporale, docs_immagini_calendario_scuro_selettore_viste, docs_immagini_calendario_scuro_settimane_dell_anno, docs_immagini_calendario_scuro_filtri_periodo_corso [INFERRED 0.85]
 - **Lettura della settimana: griglia, striscia annuale e riepilogo** — docs_immagini_calendario_settimane_dell_anno, docs_immagini_calendario_blocco_lezione, docs_immagini_calendario_riepilogo_settimana, docs_immagini_calendario_lezione_da_svolgere [INFERRED 0.85]
 - **Scheda Amministrazione della lezione: appello, consegne e check per la classe** — docs_immagini_classe_appello, docs_immagini_classe_consegne, docs_immagini_classe_check, docs_immagini_classe_persona_in_formazione [INFERRED 0.85]
+- **Native shell pages: empty HTML shell + React .tsx + strict registro: CSP** — desktop_shell_pages_dev_dev_page, desktop_shell_pages_dialog_dialog_page, desktop_shell_pages_settings_settings_page, desktop_shell_pages_welcome_welcome_page, desktop_shell_pages_shell_page_csp [EXTRACTED 1.00]
+- **Layer boundary rules enforced by npm run layers** — _claude_skills_architettura_skill_dominio_puro, _claude_skills_architettura_skill_import_type_core_contract, _claude_skills_architettura_skill_barriera_webview, _claude_skills_architettura_skill_cli_autonoma, _claude_skills_architettura_skill_alias_strati_adr55, _claude_skills_architettura_skill_npm_run_layers [EXTRACTED 1.00]
+- **Settings flow: manifest -> gate -> sections -> two surfaces** — _claude_skills_impostazione_skill_manifesto_unico_elenco, _claude_skills_impostazione_skill_valoreconmotivo, _claude_skills_impostazione_skill_divisioni_aree, _claude_skills_impostazione_skill_due_superfici, _claude_skills_architettura_skill_core_controlli [EXTRACTED 1.00]
+- **Evoluzione del ridisegno UI: ADR-06, ADR-48, ADR-50, ADR-56** — docs_decisioni_adr_06, docs_decisioni_adr_48, docs_decisioni_adr_50, docs_decisioni_adr_56, docs_piano_react [EXTRACTED 1.00]
+- **Formato .regi: ZIP, storico incrementale, serratura, passi di formato** — docs_decisioni_adr_17, docs_decisioni_adr_18, docs_decisioni_adr_19, docs_decisioni_adr_20, docs_decisioni_adr_37, docs_architettura_un_regi_per_anno [INFERRED 0.85]
+- **Contratto unico chiama() per pannello, condotto, CLI e assistente** — docs_decisioni_adr_27, docs_decisioni_adr_29, docs_decisioni_adr_31, docs_api_condotto, docs_api_assistente, docs_api_riga_di_comando, contract_core_chiama [EXTRACTED 1.00]
+- **App Icon Size Set (16-1024 px)** — icons_icon_image, icons_png_16x16_image, icons_png_20x20_image, icons_png_24x24_image, icons_png_32x32_image, icons_png_40x40_image, icons_png_48x48_image, icons_png_64x64_image, icons_png_96x96_image, icons_png_128x128_image, icons_png_256x256_image, icons_png_512x512_image, icons_png_1024x1024_image [INFERRED 0.95]
+- **Tray Template Icon Set** — icons_traytemplate_image, icons_traytemplate_2x_image, icons_icon_segmented_wheel_concept [INFERRED 0.85]
+- **Regiklass year-spiral brand mark family** — resources_registro_app_icon, resources_registro_app_piccola_icon, resources_registro_segno_mark, resources_registro_outline_icon, resources_registro_fascia_banner [INFERRED 0.95]
 
-## Communities (261 total, 24 thin omitted)
+## Communities (293 total, 36 thin omitted)
 
-### Community 0 - "Prove ambiente e file temporanei"
-Cohesion: 0.02
-Nodes (102): PREFISSI, archivio, domanda(), MODELLI, radice, radice, radice, SCRIPT (+94 more)
-
-### Community 1 - "Prove dominio (A)"
+### Community 0 - "Test helper archivio e file"
 Cohesion: 0.01
-Nodes (35): esegui(), { radice, lavoro, dati }, scuola(), dueClassi(), conOraEVerifica(), documento(), dueDiTutto(), foglio() (+27 more)
+Nodes (122): PREFISSI, creaConsegna(), finti, { radice, lavoro, dati }, archivio, domanda(), MODELLI, radice (+114 more)
 
-### Community 2 - "Prove API"
-Cohesion: 0.02
-Nodes (100): PRIMO, { radice, lavoro, dati }, SECONDO, creaConsegna(), finti, { radice, lavoro, dati }, DEROGHE, { radice, lavoro, dati } (+92 more)
-
-### Community 3 - "Validazione e anno"
-Cohesion: 0.02
-Nodes (163): annoValido(), Conto, Conto, erroriImpostazioni(), TestaAnno, Indirizzo, LIMITI_PAUSE, lezioneDelPiano() (+155 more)
-
-### Community 4 - "Moduli del pannello"
-Cohesion: 0.05
-Nodes (162): titoloComando(), etichettaPeriodo(), spunteCheCadono(), corsiDellaMateria(), formattaData(), giorniLunghi(), minutiDaUd(), oggi() (+154 more)
-
-### Community 5 - "Prove dominio (B)"
-Cohesion: 0.02
-Nodes (34): PERIODO, scuolaConRitirata(), PERIODO, scuolaConOre(), scuola(), scuolaDiDodici(), allineate(), scelta() (+26 more)
-
-### Community 6 - "Cataloghi testi i18n"
+### Community 1 - "Test dominio compilati A"
 Cohesion: 0.01
-Nodes (90): it, it, it, it, it, it, it, it (+82 more)
+Nodes (42): esegui(), { radice, lavoro, dati }, PERIODO, scuolaConRitirata(), PERIODO, scuolaConOre(), scuola(), scuola() (+34 more)
 
-### Community 7 - "Protocollo e pannelli desktop"
-Cohesion: 0.03
-Nodes (114): convalidaRisultato(), convalidaTurni(), BloccoRisultato, ContestoAssistente, Conversazione, Dettatura, ElencoVisibile, GiroAssistente (+106 more)
-
-### Community 8 - "Viste e azioni del pannello"
-Cohesion: 0.04
-Nodes (145): criterioRegola(), parole, azione(), segnaLezione(), allega(), allegatoDi(), OpzioniPostoAllegato, postoAllegato() (+137 more)
-
-### Community 9 - "Procedure: definisci e letture"
-Cohesion: 0.06
-Nodes (127): definisci(), c(), procedura, t(), c(), p(), procedura, t() (+119 more)
-
-### Community 10 - "Agenda, compleanni, giornata"
-Cohesion: 0.05
-Nodes (132): Compleanno, fraseCompleanno(), testi, lezioniDelGiorno(), EventiSenzaCorso, LezioneDaCalendario, daIso(), formattaMese() (+124 more)
-
-### Community 11 - "Contratto e ambito procedure"
-Cohesion: 0.03
-Nodes (103): Ambito, Contesto, Lessico, NomeTermine, Procedura, ProceduraQualunque, Spia, termineDetto() (+95 more)
-
-### Community 12 - "Check e consegne"
-Cohesion: 0.05
-Nodes (126): attivitaValutata(), colonneCheckDi(), conColonnaCheck(), verificaColonna(), avanzamentoConsegna, consegneDaFare, consegneDelCorso(), consegneDocumento() (+118 more)
-
-### Community 13 - "Testi delle azioni"
-Cohesion: 0.03
-Nodes (79): it, testi, it, testi, it, it, testi, it (+71 more)
-
-### Community 14 - "Appello e ritardi"
-Cohesion: 0.04
-Nodes (121): p(), procedura, t(), allieviAttivi(), ammetteRitardo(), minutiRitardoUd(), ordinaAllievi(), SIGLE_PRESENZA (+113 more)
-
-### Community 15 - "Orario e tratti della giornata"
-Cohesion: 0.04
-Nodes (123): TrattoDellaGiornata, BloccoUd, fineLezione(), inizioLezione(), minutiTotali(), slotDelCalendario(), slotLiberi(), UnitaDidattica (+115 more)
-
-### Community 16 - "Assenze e segnalazioni"
-Cohesion: 0.04
-Nodes (125): avanzamentoAssenze, daSpedire(), destinatariAssenze, FaseAssenze, faseRiga(), firmati(), foglioDi(), inviata() (+117 more)
-
-### Community 17 - "Voti, scale e recuperi"
-Cohesion: 0.04
-Nodes (117): SegnalazioneAssenza, votiDellaScala(), dataDaTesto(), Allegato, Recupero, Riconsegna, descriviFamiglia(), FamigliaTodo (+109 more)
-
-### Community 18 - "Guscio Electron e pacchetto"
-Cohesion: 0.05
-Nodes (115): èPacchetto(), percorsoPacchetto(), icona(), impostaCartellaLavoro(), impostazioniSviluppo, posizioneDellaConsole(), tipoDellaFinestra(), èTipoFinestra() (+107 more)
-
-### Community 19 - "Archivio consegne su disco"
-Cohesion: 0.04
-Nodes (95): chiDellaConsegna(), segnaInvio(), ricopiaRisorse(), archivia(), percorsoConsegna(), aBitmap(), apri(), Bitmap (+87 more)
-
-### Community 20 - "Stato UI e compleanni"
-Cohesion: 0.04
-Nodes (113): classiDove(), compleanniDelGiorno(), compleanniPerGiorno(), compleannoDi(), etaCompiuta(), ordina(), ricorrenza(), lezioniDellaClasse() (+105 more)
-
-### Community 21 - "Azioni applicative"
-Cohesion: 0.04
-Nodes (89): fuoriClasse(), collezioniDocumento(), Fetta, fettaDelDocumento(), haFette(), segnaSpedito(), staccaFette(), ApriFinestra (+81 more)
-
-### Community 22 - "Impaginazione PDF"
-Cohesion: 0.04
-Nodes (117): aCapo(), altaRigaGalleria(), altaRiquadro(), altaVoce(), altezzaBanda(), altezzaBlocco(), andamento(), attacco() (+109 more)
-
-### Community 23 - "Progetti nel corso (vista UI)"
-Cohesion: 0.05
-Nodes (109): consegneDellaLezione, ProgettoNelCorso, avanzamentoDelProgetto(), celleDi(), giornoDellaVoce(), lezioniDelProgetto(), lezioniScelte(), momentiDelProgetto() (+101 more)
-
-### Community 24 - "Account Microsoft"
-Cohesion: 0.04
-Nodes (106): accountMicrosoft(), AccountSalvato, aggiungiAccount(), aGraph(), alCambio, cambiAccount, caricaElenco(), chiaveRinnovo() (+98 more)
-
-### Community 25 - "Testi comuni e voci sparite"
-Cohesion: 0.04
-Nodes (86): it, it, sparita(), it, testi, it, accorda(), ai() (+78 more)
-
-### Community 26 - "Prove dati e archivio"
-Cohesion: 0.03
-Nodes (41): annoAperto(), lavoro, posto(), radice, annoScritto(), documento(), { radice, lavoro, dati }, cartella (+33 more)
-
-### Community 27 - "Prove calcoli e arrotondamenti"
+### Community 2 - "Test API scritture piani/progetti"
 Cohesion: 0.02
-Nodes (11): GIORNATA, PAUSE, SENZA_PAUSE, scala(), applica(), azione(), Elemento, FINTI (+3 more)
+Nodes (104): PRIMO, { radice, lavoro, dati }, SECONDO, DEROGHE, { radice, lavoro, dati }, { radice, lavoro, dati }, { radice, lavoro, dati }, { radice, lavoro, dati } (+96 more)
 
-### Community 28 - "Navigazione e percorso"
-Cohesion: 0.04
-Nodes (98): nonElencate(), ANELLI_SOLO_A_VOCE, elementoAperto(), passiDelPercorso(), Passo, Ruolo, suCheCosa(), finestraMese (+90 more)
-
-### Community 29 - "Esportazioni e giornale"
-Cohesion: 0.05
-Nodes (70): ultimeVociGiornale(), semestreDiEsportazione(), it, testi, procedureEsporta, procedura, procedura, procedura (+62 more)
-
-### Community 30 - "Exchange e autenticazione"
-Cohesion: 0.05
-Nodes (86): apri(), attendi(), autentica(), autenticaConGettone(), cifra(), collegato(), collegatoNoto(), Colloquio (+78 more)
-
-### Community 31 - "Indirizzi e mappa"
-Cohesion: 0.05
-Nodes (100): scriviIndirizzo(), anniCompiuti(), conSecolo(), numeriDi(), barraScala(), chiaveIndirizzo(), Condivisione, condivisioni() (+92 more)
-
-### Community 32 - "Procedure assenze e rapporti"
-Cohesion: 0.07
-Nodes (66): daGestore(), procedura, RAPPORTI, t(), procedureSmistamentoAssenze, procedura, t(), procedureSmistamentoBozza (+58 more)
-
-### Community 33 - "Prove posta e allegati"
-Cohesion: 0.03
-Nodes (25): @cantoo/pdf-lib, dati, documentoDi(), impostazioni, lavoro, radice, dati, impostazioni (+17 more)
-
-### Community 34 - "Prove catalogo API"
+### Community 3 - "Cataloghi testi viste"
 Cohesion: 0.02
-Nodes (38): AZIONI, protocollo, APERTO, BYTE_FOTO, FUTURO, { radice, lavoro, dati }, SCORSO, APERTO (+30 more)
+Nodes (108): it, it, it, it, it, it, it, it (+100 more)
 
-### Community 35 - "Procedure progetti"
+### Community 4 - "Procedure persone e comuni"
+Cohesion: 0.05
+Nodes (146): definisci(), p(), procedura, t(), c(), p(), procedura, t() (+138 more)
+
+### Community 5 - "Guida e lessico dominio"
+Cohesion: 0.03
+Nodes (129): it, it, testi, it, sparita(), it, it, it (+121 more)
+
+### Community 6 - "Schemi contratto e giornale"
+Cohesion: 0.03
+Nodes (112): Codice, EsitoScrittura, VoceGiornale, VoceGiornaleRegistrata, BUFFER_GIORNALE, daEsitoAzione(), Di, EsitoDiInoltro (+104 more)
+
+### Community 7 - "Dati dei rapporti"
+Cohesion: 0.05
+Nodes (143): procedura, motivoSicuro(), Ancora, ancoraAdesso(), conPosto(), DatiComposti, documentiDelCorso(), fogliDeiProgetti() (+135 more)
+
+### Community 8 - "Procedure classe e anni"
+Cohesion: 0.05
+Nodes (98): scrittura, it, testi, procedura, t(), calendarioDellAnno, procedura, sospensione (+90 more)
+
+### Community 9 - "Piani e attività"
+Cohesion: 0.03
+Nodes (135): attivitaConPendenza(), attivitaValutata(), ChiaveParametro, colonneCheckDi(), conColonnaCheck(), nomeTipoAttivita(), PARAMETRI_ATTIVITA, parametriDi() (+127 more)
+
+### Community 10 - "Apparato piattaforma core"
+Cohesion: 0.02
+Nodes (88): StatoAggiornamenti, AmbitoImpostazione, CartellaDiLavoro, Global, Workspace, ViewColumn, Beside, One (+80 more)
+
+### Community 11 - "Finestre e canali shell"
+Cohesion: 0.04
+Nodes (122): titoloImpostazioni(), fermaRapporti(), CANALE, CANALE_INTERFACCIA, CANALE_LINGUA, DISCRIMINANTI_CANALE, haDiscriminanteCanale(), icona() (+114 more)
+
+### Community 12 - "Test proprietà e storia"
+Cohesion: 0.02
+Nodes (47): ADR-0003, fast-check, testate(), valore(), SEMESTRE, campioni, giorno, guastato() (+39 more)
+
+### Community 13 - "Contesto azioni e centralino"
+Cohesion: 0.04
+Nodes (94): Origine, Opzioni, GESTORI, fuoriClasse(), chiDellaConsegna(), collezioniDocumento(), Fetta, fettaDelDocumento() (+86 more)
+
+### Community 14 - "Navigazione e sidebar UI"
+Cohesion: 0.05
+Nodes (107): raggruppamentoDeiCorsi(), confrontaNomi(), nonElencate(), ANELLI_SOLO_A_VOCE, elementoAperto(), passiDelPercorso(), Passo, percorso() (+99 more)
+
+### Community 15 - "Contratto procedura e contesto"
+Cohesion: 0.03
+Nodes (83): Contesto, Lessico, Procedura, ProceduraQualunque, Spia, termineDetto(), registra(), ColonnaPiana (+75 more)
+
+### Community 16 - "Vassoio, corsi, regole calendario"
+Cohesion: 0.04
+Nodes (104): procedura, p(), procedura, t(), procedura, procedura, classeCambiata(), consegneDellaLezione (+96 more)
+
+### Community 17 - "Archivio dati e storia"
+Cohesion: 0.04
+Nodes (49): AltroAnno, Archivio, COLLEZIONI, controllaDichiarate(), controllaSenzaBozze(), controllaVivo(), dichiarazioneSevera(), FilePersistito (+41 more)
+
+### Community 18 - "Calcoli ore e appello"
+Cohesion: 0.04
+Nodes (98): procedura, voce(), appelloCompleto(), appelloScritto(), citataFuoriDalCorso(), ritardiValidi(), scriviAppello(), csvPresenze() (+90 more)
+
+### Community 19 - "Docente di classe e smistamento"
+Cohesion: 0.05
+Nodes (100): procedura, testoAssenze(), avanzamentoConsegna, consegneDocumento(), daConsegnareA(), destinatariConsegna(), documentoPer(), haFatto() (+92 more)
+
+### Community 20 - "Viste e rapporto progetti"
+Cohesion: 0.05
+Nodes (98): nomeDelCorso(), p(), personeDelProgetto(), procedura, t(), testata(), Risposta, csvValutazioni() (+90 more)
+
+### Community 21 - "Assenze e smistatore"
+Cohesion: 0.05
+Nodes (101): copiaFoglio(), segnaComunicazione(), segnaInvio(), fascicoloDi(), FileScelto, ricopiaRisorse(), archivia(), percorsoConsegna() (+93 more)
+
+### Community 22 - "Normalizzazione dominio"
 Cohesion: 0.07
-Nodes (66): c(), procedura, t(), esigiCompito(), esigiIntegrazione(), esigiProgetto(), c(), procedura (+58 more)
+Nodes (101): leggiIndirizzo(), nuovoIdBlocco(), nuovoIdSmistamento(), chiaviDi(), SIGLE_PRESENZA, AvanzamentoAttivita, Documento, Fascicolo (+93 more)
 
-### Community 36 - "Procedure anni e calendario"
-Cohesion: 0.05
-Nodes (59): it, testi, procedura, t(), calendarioDellAnno, procedura, sospensione, t() (+51 more)
-
-### Community 37 - "Icone e barra titolo"
-Cohesion: 0.06
-Nodes (87): percorso(), pulsanteTendina(), icona(), TRACCIATI, logo(), tendinaAperta(), andaturaScorrimento(), h() (+79 more)
-
-### Community 38 - "Osservatori e avvio"
-Cohesion: 0.06
-Nodes (82): annota(), osserva(), esegui(), registraProiettore(), registraNavigatore(), dividiClasseEAllievi(), dividiPerOrigine(), migraArchivio() (+74 more)
-
-### Community 39 - "Prove date e formato"
+### Community 23 - "Test dominio compilati B"
 Cohesion: 0.03
-Nodes (36): ADR-0003, fast-check, campioni, giorno, guastato(), guasto, ADR-0050, opzioni() (+28 more)
+Nodes (23): conFile(), raccolta(), ANNO, conScaletta(), preparato(), inDueFasi(), integrazioneDi(), ADR-0054 (+15 more)
 
-### Community 40 - "Tipi di attività"
-Cohesion: 0.06
-Nodes (80): ChiaveParametro, nomeTipoAttivita(), NOMI_TIPO_ATTIVITA, PARAMETRI_ATTIVITA, parametriDi(), ParametroAttivita, riassuntoParametri(), Scheletro (+72 more)
-
-### Community 41 - "Ponte e chiamante"
-Cohesion: 0.05
-Nodes (60): gestoriDelleProcedure(), ChiamanteNodo, FunzioneChiamabile, OpzioniChiamata, Codice, EsitoScrittura, Origine, Risultato (+52 more)
-
-### Community 42 - "Risorse asincrone del pannello"
-Cohesion: 0.05
-Nodes (80): Risposta, OpzioniLettura, risorse, annota(), avvia(), mostra(), Voce, api (+72 more)
-
-### Community 43 - "Apparato e contesto"
+### Community 24 - "Componenti base UI"
 Cohesion: 0.03
-Nodes (26): Event, Smaltibile, CartellaDiLavoro, ContestoApplicazione, DepositoSegreti, Impianto, InterfacciaFileSystem, OpzioniWebview (+18 more)
+Nodes (70): spostaData(), RuoloAllegato, react, classi(), allega(), allegatoDi(), PostoAllegato(), it (+62 more)
 
-### Community 44 - "Documenti e avvisi del corso"
+### Community 25 - "Progetti e cancellazioni"
+Cohesion: 0.04
+Nodes (90): nomePiano(), LezioneAssente, VoceConfronto, allegateAComunicazioni(), chiusura(), contaAllievi(), contaVoti(), eliminazione (+82 more)
+
+### Community 26 - "Stato UI e oggi"
+Cohesion: 0.05
+Nodes (95): lezioniDellaClasse(), lezioniDellAnno(), faseDellOra(), indiceDiagnosi, daRicordare(), alMinuto, battiMinuto(), iscritti (+87 more)
+
+### Community 27 - "Valutazioni, consegne, todo dominio"
+Cohesion: 0.05
+Nodes (87): ordinaRichieste(), richiesteAperte(), richiesteFirma, SegnalazioneAssenza, segnalazioniAssenza(), consegneDaFare, Allegato, MomentoValutazione (+79 more)
+
+### Community 28 - "Date e calendario UI"
+Cohesion: 0.06
+Nodes (80): daIso(), formattaMese(), from(), giorno(), giornoDelMese(), giornoSettimana(), grigliaMese(), inizialiGiorno() (+72 more)
+
+### Community 29 - "Procedure smistamento assenze"
+Cohesion: 0.07
+Nodes (63): daGestore(), procedura, RAPPORTI, t(), procedureSmistamentoAssenze, procedura, t(), procedureSmistamentoBozza (+55 more)
+
+### Community 30 - "Avvio UI e notifiche"
+Cohesion: 0.04
+Nodes (55): MessaggioStato, carica(), datiGrandi, immer, registro, Ambito, COMANDI_CHECK, t (+47 more)
+
+### Community 31 - "Pause e griglia orario"
+Cohesion: 0.07
+Nodes (85): ancorataSullePause(), ancoreDeiCapi(), fineConUd(), fineNellaGiornata(), fineSullaGriglia(), inizioAllIndietro(), inizioConUd(), inizioSullaGriglia() (+77 more)
+
+### Community 32 - "Pacchetto zip .regi"
+Cohesion: 0.04
+Nodes (52): codifica, daTenere(), decodifica, fileSerratura(), FORMATO, MANIFESTO, momentoDellaCopia(), nomeMacchina() (+44 more)
+
+### Community 33 - "Procedure progetti"
+Cohesion: 0.07
+Nodes (62): c(), procedura, t(), esigiCompito(), esigiIntegrazione(), esigiProgetto(), c(), procedura (+54 more)
+
+### Community 34 - "Vista calendario settimana"
+Cohesion: 0.06
+Nodes (77): lezioniDelGiorno(), finestraSettimana, ancorataAIcs(), eventiDellaLezione(), coloreDiLezione(), compleanniDi(), corsoDiLezione(), nomeClasseDiLezione() (+69 more)
+
+### Community 35 - "Test dati e formato"
+Cohesion: 0.03
+Nodes (29): @cantoo/pdf-lib, dati, documentoDi(), impostazioni, lavoro, radice, apri(), CAMPIONI (+21 more)
+
+### Community 36 - "Main shell e ciclo vita"
+Cohesion: 0.06
+Nodes (76): èPacchetto(), percorsoPacchetto(), executeCommand(), registerCommand(), impostaCartellaLavoro(), avviaRicaricamento(), ricaricaFinestre(), escludiDaiDialoghi() (+68 more)
+
+### Community 37 - "Main UI e storia navigazione"
+Cohesion: 0.04
+Nodes (47): comandoPerId(), eseguiComando(), dentroUnCampo(), avanti(), azzeraStoria(), fila, indietro(), installaCammino() (+39 more)
+
+### Community 38 - "Posto e memoria UI"
+Cohesion: 0.05
+Nodes (68): Voce, ammesso(), booleano(), CampiVecchi, contestoDa(), conVoce(), copiaDefiniti(), coppie() (+60 more)
+
+### Community 39 - "Identificatori e fabbriche"
+Cohesion: 0.07
+Nodes (75): rigenerazioniInAttesa(), adesso(), etichettaAnno(), istanteAdesso(), udArrotondate(), coloreLibero(), COLORI_CLASSE, corpoConsegna() (+67 more)
+
+### Community 40 - "Palette e barra stato"
+Cohesion: 0.05
+Nodes (67): ricentraMese(), scegliModoCalendario(), scorriCalendario(), vaiAOggi(), apriPalette(), chiudiPalette(), corrisponde(), GruppoTrovato (+59 more)
+
+### Community 41 - "Bridge e trasporto assistente"
+Cohesion: 0.06
+Nodes (67): azioniSottoContratto(), gestoriDelleProcedure(), Risultato, VERSIONE_API, aEsitoAzione(), chiama(), comeErroreApi(), inFila() (+59 more)
+
+### Community 42 - "Archiviazione anni e percorsi"
+Cohesion: 0.07
+Nodes (69): archiviPresenti(), diventatiDelCorso(), dividiClasseEAllievi(), dividiPerOrigine(), documentiGenerati(), EsitoArchivio, migraArchivio(), paroleDelleStampe() (+61 more)
+
+### Community 43 - "Figure controlli e bandiere"
+Cohesion: 0.05
+Nodes (60): it, ComeWindows(), figuraDellaLingua(), figuraTema(), Miniatura(), Raffigura, Raffigurazione, RAFFIGURAZIONI (+52 more)
+
+### Community 44 - "Test modelli rapporti"
+Cohesion: 0.04
+Nodes (15): pngGrigio(), scansione(), ALTRE, corpo(), italiano, modelli, conIGruppi(), datiPerModello() (+7 more)
+
+### Community 45 - "Guida assistente e figure"
+Cohesion: 0.13
+Nodes (71): parole, bottone(), figuraConfine(), figuraContesto(), figuraDettatura(), figuraModelli(), figuraRiquadro(), interruttore() (+63 more)
+
+### Community 46 - "Eventi e finestre apparato"
+Cohesion: 0.05
+Nodes (39): Event, EventEmitter, Smaltitore, limita(), appunti, aSchermoIntero(), Comando, dellApparato (+31 more)
+
+### Community 47 - "Test ambiente e CSP"
+Cohesion: 0.04
+Nodes (43): esbuild, typescript, DATI_JSON, LINGUE, IMPRONTA, RADICE, pagina(), PAGINE_NATIVE (+35 more)
+
+### Community 48 - "Test condotto e CLI"
+Cohesion: 0.05
+Nodes (46): leggiChiave(), prova(), PARTENZA, { radice, lavoro, dati }, chiedi(), PARTENZA, { radice, lavoro, dati }, apri() (+38 more)
+
+### Community 49 - "Modelli GGUF e kit"
+Cohesion: 0.07
+Nodes (60): cartellaApplicazione(), Avanzamento, biglietto(), calcolaImpronta(), cartellaModelli(), cartellaPronta(), copieInCorso, destinazione() (+52 more)
+
+### Community 50 - "Aggiornamenti app"
+Cohesion: 0.08
+Nodes (61): diSistema(), aggiornamentoInCorso(), argomentiAiutante(), concludiAggiornamento(), Consegna, consegnaAllAiutante(), decidiAllAvvio(), Decisione (+53 more)
+
+### Community 51 - "Calendario dominio ed esterno"
+Cohesion: 0.06
+Nodes (64): conIdDi(), slotDelCalendario(), slotLiberi(), allineamentiAutomatici, allineamentoAutomatico, AllineamentoDaCalendario, allineamentoDaSoloAmmesso(), arco() (+56 more)
+
+### Community 52 - "Calendario scolastico"
+Cohesion: 0.07
+Nodes (63): calendarioToccato(), CalendarioDellAnno, anniDaProporre(), annoDelMarcatore(), annoUfficiale, applicaVoci(), BozzaAnno, bozzaDaAnnoUfficiale() (+55 more)
+
+### Community 53 - "Automazione e rigenerazione"
+Cohesion: 0.08
+Nodes (64): riferimentiDi(), rigeneraDopoScrittura(), classiDegliAllievi(), corsiDaRifare(), giornoDaRifare(), Impronta, improntaDi(), MODI_PDF (+56 more)
+
+### Community 54 - "Viste classi e lezione"
+Cohesion: 0.06
+Nodes (48): classeDiLezione(), lezioneDiRiferimento(), lezioniDiCorso(), ModoCalendario, SchedaDocumenti, SchedaLezione, SchedaPersona, SchedaStrumentiLezione (+40 more)
+
+### Community 55 - "Manifesto impostazioni"
+Cohesion: 0.05
+Nodes (54): ACCESSI_DEL_CONDOTTO, aiutoDellaScelta(), CHIAVI_DEL_COLLEGAMENTO, CHIAVI_DISMESSE, COMANDI, Comando, Controllo, Dichiarazione (+46 more)
+
+### Community 56 - "Procedure ore e appello"
+Cohesion: 0.11
+Nodes (41): esigiLezione(), STATI_APPELLO, STATI_PREDEFINITI, procedura, t(), procedura, t(), procedura (+33 more)
+
+### Community 57 - "Barra comandi"
+Cohesion: 0.07
+Nodes (61): lezioneFinita(), RaggruppamentoCorsi, Modifiche, ADR-0047, anticipaElenco(), avvisaGuardiani(), barraComandi(), comandiInVolo (+53 more)
+
+### Community 58 - "Test API letture"
+Cohesion: 0.04
+Nodes (25): AZIONI, protocollo, APERTO, BYTE_FOTO, BYTE_LOGO, BYTE_SCHEDA, { radice, lavoro, dati }, SCORSO (+17 more)
+
+### Community 59 - "Proiezione voti e scale"
+Cohesion: 0.06
+Nodes (58): distribuzione(), distribuzioneAPunti(), formattaVoto(), mediaMomento(), votiDellaScala(), votiEffettivi(), LetteraSettimana, Scala (+50 more)
+
+### Community 60 - "Pannelli webview e proiezione"
+Cohesion: 0.07
+Nodes (35): Domanda, Richiesta, MessaggioNavigazione, MessaggioProiezione, MessaggioVersoWebview, azioneValida(), registraAvanzamentoScarico(), cambiAccount (+27 more)
+
+### Community 61 - "Chat assistente e voce"
+Cohesion: 0.07
+Nodes (54): bozza(), abbandona(), accendiVoce(), Ambiente, annullaVoce(), attesa(), attrezzo(), AttrezzoVisto (+46 more)
+
+### Community 62 - "Condotto JSON-RPC"
+Cohesion: 0.07
+Nodes (53): Genere, descrivi(), Forma, formaInBreve(), formaInBreveSemplice(), Accesso, avviaCondotto(), breviDeiCampi() (+45 more)
+
+### Community 63 - "Integrazione progetti"
+Cohesion: 0.08
+Nodes (51): progettiPerTitolo(), STATI_PROGETTO, LinguettaProgetto, conLinguetta(), dettaglio(), elencoIntegrati(), faseAperta(), fasiAperte (+43 more)
+
+### Community 64 - "Test mappa e zone"
+Cohesion: 0.04
+Nodes (7): INDIRIZZI, PUNTI, { radice, lavoro, dati }, riga(), punto(), rubricaPiena(), TUTTO
+
+### Community 65 - "Notifiche, vassoio, router"
+Cohesion: 0.08
+Nodes (46): chiamante(), ChiamanteNodo, FunzioneChiamabile, OpzioniChiamata, minutiDiAvviso(), alberoProcedure, foglie(), isProcedura() (+38 more)
+
+### Community 66 - "Archivio vista e documenti"
+Cohesion: 0.07
+Nodes (49): Conto, Conto, Indirizzo, raccoltiDiClasse(), MatriceNelPeriodo, Allievo, Classe, Consegna (+41 more)
+
+### Community 67 - "Dialoghi apparato"
+Cohesion: 0.06
+Nodes (52): openExternal(), aperti, ascolta(), Avanzamento, Bottone, BottoneMessaggio, chiediMessaggio(), delRegistro() (+44 more)
+
+### Community 68 - "CLI regi"
+Cohesion: 0.09
+Nodes (43): fileDellaChiave(), indirizzo(), nomeUtente(), processoCondottoAttivo(), segretoDelCondotto(), comandoAspetta(), comandoChiama(), componiIngresso() (+35 more)
+
+### Community 69 - "Procedure consegne"
+Cohesion: 0.14
+Nodes (35): inoltra(), chiRiguarda(), chiSpunta, esigiConsegna(), perChi, procedura, t(), it (+27 more)
+
+### Community 70 - "Vista guida"
+Cohesion: 0.10
+Nodes (55): contenitore(), riprendi(), andaturaScorrimento(), postoDaVista(), accendiIndice(), ancora(), ancoreInPagina(), apriGuida() (+47 more)
+
+### Community 71 - "Procedure calendario e modelli"
+Cohesion: 0.10
+Nodes (40): errore, procedura, t(), procedura, t(), procedura, t(), procedura (+32 more)
+
+### Community 72 - "Pannello assistente e conversazione"
+Cohesion: 0.08
+Nodes (40): it, testi, convalidaRisultato(), convalidaTurni(), procedura, RISULTATO, t(), TURNO (+32 more)
+
+### Community 73 - "Protocollo assistente e webview"
+Cohesion: 0.07
+Nodes (46): BloccoRisultato, ContestoAssistente, Conversazione, Dettatura, ElencoVisibile, GiroAssistente, GiroDaRiprendere, IdVisto (+38 more)
+
+### Community 74 - "Indice sezioni guida"
+Cohesion: 0.07
+Nodes (45): SEZIONI_ASSISTENTE, SEZIONI_QUINTE, SEZIONI_DOCENTE, GUIDA, PARTI, SEZIONI_CALENDARI_UFFICIALI, T, testi (+37 more)
+
+### Community 75 - "OneDrive e panoramica"
+Cohesion: 0.08
+Nodes (45): etichettaPeriodo(), nomePeriodo(), SEGNAPOSTO_ASSENZE, azione(), moduloBloccoAssenze(), moduloImportaAssenze(), testi, apriInformazioniDocumento() (+37 more)
+
+### Community 76 - "Procedure valutazioni"
 Cohesion: 0.12
-Nodes (75): documentiDelCorso(), supplenzeDelCorso(), tuttoDelCorso(), datiDiProva(), oltreSoglia(), percentoAssenza(), percentoDaLeggere(), segnalazioniDelCorso() (+67 more)
+Nodes (34): procedura, RUOLI, t(), procedura, procedura, procedureValutazioniAllegato, esigiAllegato(), esigiMomento() (+26 more)
 
-### Community 45 - "core/apparato · enumerations.ts"
-Cohesion: 0.04
-Nodes (64): AmbitoImpostazione, CartellaDiLavoro, Global, Workspace, ViewColumn, Beside, One, testi (+56 more)
-
-### Community 46 - "core/dominio · calendarioToccato()"
-Cohesion: 0.07
-Nodes (76): calendarioToccato(), AnnoScolastico, CalendarioDellAnno, Sospensione, anniDaProporre(), annoDelMarcatore(), annoUfficiale, applicaVoci() (+68 more)
-
-### Community 47 - "core/dominio · breaks.ts"
-Cohesion: 0.07
-Nodes (75): ancorataSullePause(), fineNellaGiornata(), fineSullaGriglia(), inizioAllIndietro(), inizioSullaGriglia(), intervalli(), Intervallo, invadeLePause() (+67 more)
-
-### Community 48 - "contract/procedure · inoltra()"
-Cohesion: 0.09
-Nodes (49): inoltra(), procedura, t(), procedura, t(), procedura, procedureClasseAssenzeFoglio, procedura (+41 more)
-
-### Community 49 - "contract/procedure · esigiLezione()"
-Cohesion: 0.10
-Nodes (48): esigiLezione(), STATI_APPELLO, procedura, t(), procedura, t(), procedura, procedureOreAppello (+40 more)
-
-### Community 50 - "core/dominio · cruscotto.ts"
-Cohesion: 0.07
-Nodes (67): p(), procedura, t(), procedura, p(), procedura, t(), p() (+59 more)
-
-### Community 51 - "esterno · dist_tests_domain_catalogo_modelli"
-Cohesion: 0.04
-Nodes (16): pngGrigio(), scansione(), ALTRE, corpo(), italiano, modelli, letto(), conIGruppi() (+8 more)
-
-### Community 52 - "tests/api · prova()"
-Cohesion: 0.05
-Nodes (47): prova(), bussa(), chiedi(), PARTENZA, { radice, lavoro, dati }, chiedi(), PARTENZA, { radice, lavoro, dati } (+39 more)
-
-### Community 53 - "desktop/apparato · chiamante()"
-Cohesion: 0.06
-Nodes (59): chiamante(), linkDiretto(), minutiDiAvviso(), alberoProcedure, foglie(), isProcedura(), verificaPercorsi(), percorsoIcona() (+51 more)
-
-### Community 54 - "tests/ui · ADR-0045"
-Cohesion: 0.04
-Nodes (42): ADR-0045, electron-builder, esbuild, typescript, IMPRONTA, RADICE, configurazione(), file() (+34 more)
-
-### Community 55 - "ui/views · lezioneFinita()"
-Cohesion: 0.09
-Nodes (65): lezioneFinita(), riepilogaPresenze(), lezioneCompilata(), ancorataAIcs(), eventiDellaLezione(), coloreDiLezione(), corsoDiLezione(), nomeClasseDiLezione() (+57 more)
-
-### Community 56 - "desktop/apparato · chokidar"
-Cohesion: 0.05
-Nodes (56): EventEmitter, Smaltitore, impostaLingua(), apriConsole(), avviaConsoleAllAvvio(), avviaRicaricamento(), cambiaImpostazioniSviluppo(), chiediRiavvio() (+48 more)
-
-### Community 57 - "desktop/apparato · requisitoMancante()"
-Cohesion: 0.06
-Nodes (55): requisitoMancante(), sospesa(), titoloImpostazioni(), DialogoPercorso, alCambioLingua(), executeCommand(), registerCommand(), caricate() (+47 more)
-
-### Community 58 - "desktop/apparato · impianta()"
-Cohesion: 0.05
-Nodes (59): impianta(), limita(), appunti, aSchermoIntero(), Comando, dellApparato, finestraDeiContenuti(), openExternal() (+51 more)
-
-### Community 59 - "desktop/apparato · updateInstaller.ts"
+### Community 77 - "Luoghi e nomi file"
 Cohesion: 0.08
-Nodes (59): aggiornamentoInCorso(), argomentiAiutante(), concludiAggiornamento(), Consegna, consegnaAllAiutante(), decidiAllAvvio(), Decisione, FaseAiutante (+51 more)
+Nodes (44): fuori, percorsoCsv(), conSecolo(), dataNelNome(), due(), giornoTreLettere(), Instant, istanteNelNome() (+36 more)
 
-### Community 60 - "core/azioni · motivoSicuro()"
-Cohesion: 0.07
-Nodes (57): motivoSicuro(), esitoDi(), it, testi, torna(), Ancora, ancoraAdesso(), conPosto() (+49 more)
-
-### Community 61 - "ui/views · voce()"
+### Community 78 - "Sezioni impostazioni programma"
 Cohesion: 0.08
-Nodes (58): voce(), testoLezione(), voceRisorsa(), contaComeAssenza(), contaUd(), deciso(), momentoLezione(), prossimaLezione() (+50 more)
+Nodes (48): DIVISIONI, gruppoDi(), SezioneDiProgramma, Globali, areaDellaSezione(), AreaImpostazioni, SezioneImpostazioni, apriModelli() (+40 more)
 
-### Community 62 - "ui/views · VoceProgramma"
-Cohesion: 0.07
-Nodes (56): VoceProgramma, Area, AREE, AREE_DELL_ANNO, avvertenzaCondotto(), Divisione, divisioneDi(), DIVISIONI (+48 more)
-
-### Community 63 - "desktop/apparato · .fire()"
-Cohesion: 0.07
-Nodes (48): CANALE, CANALE_INTERFACCIA, CANALE_LINGUA, DISCRIMINANTI_CANALE, haDiscriminanteCanale(), escludiDaiDialoghi(), caricate(), deposito (+40 more)
-
-### Community 64 - "core/dominio · impaginazioneDi()"
-Cohesion: 0.07
-Nodes (51): impaginazioneDi(), Contesto, FORMATI_LOGO, leggiModello(), Letto, nomiDelModello(), perchéNiente(), provaModello() (+43 more)
-
-### Community 65 - "ui/views · corrispondeAlla()"
+### Community 79 - "Controllo impostazioni"
 Cohesion: 0.08
-Nodes (54): corrispondeAlla(), pezziDiRicerca(), EVENTO_MODALE_APERTA, apriPalette(), chiudiPalette(), corrisponde(), GruppoTrovato, ORDINE (+46 more)
+Nodes (45): VoceProgramma, Gruppo, Aggiunte, Annuncio, Cambia, CampoNumero(), CampoTesto(), Contesto (+37 more)
 
-### Community 66 - "tests/data · dist_tests_dictation"
-Cohesion: 0.04
-Nodes (16): FILE, USERDATA, voiceboxFinto(), finto, FILE, MAGIA, USERDATA, servitore() (+8 more)
-
-### Community 67 - "contract/procedure · scrittura"
-Cohesion: 0.11
-Nodes (37): scrittura, procedura, RUOLI, t(), procedura, procedura, procedureValutazioniAllegato, esigiAllegato() (+29 more)
-
-### Community 68 - "contract/manifest.ts · manifest.ts"
+### Community 80 - "Controlli statici tools"
 Cohesion: 0.05
-Nodes (48): ACCESSI_DEL_CONDOTTO, aiutoDellaLingua(), aiutoDellaScelta(), ChiaveImpostazione, CHIAVI_DEL_COLLEGAMENTO, CHIAVI_DISMESSE, COMANDI, Comando (+40 more)
+Nodes (37): percorsi, CARTELLE, daGuardare, DEFINISCONO, file, FILE_DI, REGISTRO, rilievi (+29 more)
 
-### Community 69 - "contract/procedure · consegne/common.ts"
-Cohesion: 0.13
-Nodes (35): chiRiguarda(), chiSpunta, esigiConsegna(), perChi, procedura, t(), it, testi (+27 more)
+### Community 81 - "Validazione dominio"
+Cohesion: 0.08
+Nodes (48): erroriImpostazioni(), LIMITI_PAUSE, pauseDentroIlGiorno(), oreConAppello(), corsiDellaMateria(), dataDaTesto(), isoValida(), LIMITI_UD (+40 more)
 
-### Community 70 - "core/controlli · control.ts"
-Cohesion: 0.10
-Nodes (50): Aggiunte, attese, campoNumero(), campoTesto(), collegamento(), Contesto, controllo(), conUnita() (+42 more)
-
-### Community 71 - "ui/views · PaginaSmistamento"
-Cohesion: 0.10
-Nodes (54): PaginaSmistamento, RiquadroPagina, dicePagine(), impostaCaratteri(), gestisci(), ZOOM_PREDEFINITO, alClic(), anteprimeDellHost() (+46 more)
-
-### Community 72 - "core/dominio · scriviGenerato()"
-Cohesion: 0.07
-Nodes (49): scriviGenerato(), diventatiDelCorso(), documentiGenerati(), EsitoArchivio, paroleDelleStampe(), percorsoRisorsaPiano(), percorsoValutazione(), radiceDelNome() (+41 more)
-
-### Community 73 - "tools/sample.mjs · assistantTools.mjs"
+### Community 82 - "Test LLM e pause"
 Cohesion: 0.04
-Nodes (38): nuovo, PERCORSO, lavori, PREPARAZIONE, riepilogo, WORKFLOW, BUNDLE, CACHE (+30 more)
+Nodes (9): conModello(), FILE, MODELLI, modello(), scritte(), USERDATA, GIORNATA, PAUSE (+1 more)
 
-### Community 74 - "cli/main.mjs · access.mjs"
+### Community 83 - "Test sezioni impostazioni"
+Cohesion: 0.04
+Nodes (19): comandiNelMenu(), menu(), tutteLeVoci(), USERDATA, FILE, ADR-0052, USERDATA, differenzeDiForma() (+11 more)
+
+### Community 84 - "LLM, visione, OCR"
+Cohesion: 0.08
+Nodes (44): p(), procedura, t(), LLAMA_CPP, Attrezzo, Battuta, ChiamataAttrezzo, collegamento (+36 more)
+
+### Community 85 - "Corsi e osservazioni"
 Cohesion: 0.09
-Nodes (41): fileDellaChiave(), leggiChiave(), presentati(), indirizzo(), nomeUtente(), processoCondottoAttivo(), segretoDelCondotto(), comandoCatalogo() (+33 more)
+Nodes (42): NOMI_TIPO_ATTIVITA, siglaMateria(), corto(), lessico, CellaOsservata, SegnoOsservato, bilancioSegni(), CellaDiOra (+34 more)
 
-### Community 75 - "ui/views · Azione"
-Cohesion: 0.13
-Nodes (49): Azione, dataDalNome(), carica(), aggiorna(), nomeSemestreScelto(), delCorso(), delDocente(), dellaClasse() (+41 more)
+### Community 86 - "Boot desktop"
+Cohesion: 0.09
+Nodes (41): annota(), osserva(), esegui(), registraProiettore(), registraNavigatore(), registraPortachiaviMicrosoft(), fermaLetture(), cartellaDellUltimoDocumento() (+33 more)
 
-### Community 76 - "ui/views · dominio/letterhead.ts"
+### Community 87 - "Vista modelli linguistici"
 Cohesion: 0.11
-Nodes (50): cartaDeiCorsi(), cartaDelCorso(), cartaVuota(), completaCarte(), spostaCorsi(), togliCarta(), ALTEZZA_LOGO, CartaIntestata (+42 more)
+Nodes (43): UsoModello, Richiesta, apri(), ascoltaScarico(), Consigliato, DatiModelli, elimina(), FileRemoto (+35 more)
 
-### Community 77 - "ui/components · bilancioSegni()"
-Cohesion: 0.09
-Nodes (47): bilancioSegni(), telefoniDi(), testataVista(), colFuoco(), contenitore(), controlla(), dopoIlDisegno(), finestra (+39 more)
-
-### Community 78 - "desktop/apparato · .joinPath()"
-Cohesion: 0.09
-Nodes (41): ZOOM_MASSIMO, cartellaBundle(), cartellaCopie(), cartellaLavoro(), CARTELLE_BUNDLE, cartelleDiLavoro(), ContestoApplicazione, creaContesto() (+33 more)
-
-### Community 79 - "ui/views · SEZIONI_ASSISTENTE"
-Cohesion: 0.06
-Nodes (43): SEZIONI_ASSISTENTE, AZIONI_CALENDARIO, COLONNE, FIGURA_CONFRONTO, FIGURA_ICS, FIGURA_PENDENZE, FIGURA_SETTIMANA, FIGURA_SMISTARE (+35 more)
-
-### Community 80 - "core/dati · dati/archive.ts"
-Cohesion: 0.09
-Nodes (30): AltroAnno, COLLEZIONI, controllaDichiarate(), controllaSenzaBozze(), controllaVivo(), dichiarazioneSevera(), FilePersistito, GiroTrattenuto (+22 more)
-
-### Community 81 - "core/dati · dati/calendar.ts"
+### Community 88 - "OneDrive dati"
 Cohesion: 0.10
-Nodes (21): copiaDallOrigine(), daFile(), eliminaCopia(), inRete(), leggiOrigine(), letti, percorsoCopia(), percorsoCopiaCalendario() (+13 more)
+Nodes (43): leggiDaGraph(), rileggiOneDriveLocali(), apriDaOneDrive(), apriLocale(), CartellaOneDrive, cartelleLocali(), cercaDaGraph(), cercaLocale() (+35 more)
 
-### Community 82 - "tests/interfaccia · @playwright/test"
-Cohesion: 0.11
-Nodes (17): @playwright/test, attendiRisposte(), FOTOGRAMMA, FRAME, OpzioniPannello, pannello(), valutaTutti(), Telaio (+9 more)
+### Community 89 - "Composizione rapporti"
+Cohesion: 0.07
+Nodes (46): misuraImmagine(), Andamento, applicaCorpi(), applicaStile(), Blocco, chiusura(), COMANDI, componiCorpo() (+38 more)
 
-### Community 83 - "core/dati · llamaCpp.ts"
+### Community 90 - "Tools build e CI"
+Cohesion: 0.05
+Nodes (30): nuovo, PERCORSO, COMPORTAMENTO_ALTROVE, daGuardare, FABBRICHE, letti, muti, lavori (+22 more)
+
+### Community 91 - "Aree impostazioni"
+Cohesion: 0.09
+Nodes (42): Area, AREE, AREE_DELL_ANNO, avvertenzaCondotto(), Divisione, divisioneDi(), nomeSezione(), presa() (+34 more)
+
+### Community 92 - "Motore llama.cpp"
 Cohesion: 0.07
 Nodes (38): addormenta(), addormentaPesi(), apparecchia(), apri(), Budget, Caldo, carica(), chiusura() (+30 more)
 
-### Community 84 - "ui/views · attivitaConPendenza()"
-Cohesion: 0.10
-Nodes (41): attivitaConPendenza(), indirizzoScrivibile(), numeroComponibile(), collegamento(), GenereRecapito, recapitoPremibile(), testi, mostraFiloDiLavoro() (+33 more)
+### Community 93 - "Documenti aperti apparato"
+Cohesion: 0.09
+Nodes (40): ESTENSIONE, caricate(), deposito, dimenticaDocumento(), documentiNoti(), dopoTutti(), emettitore, Esito (+32 more)
 
-### Community 85 - "desktop/shell · bandiera()"
+### Community 94 - "Contesto apparato e protocollo"
+Cohesion: 0.10
+Nodes (39): ZOOM_MASSIMO, cartellaBundle(), cartellaCopie(), cartellaLavoro(), CARTELLE_BUNDLE, cartelleDiLavoro(), creaContesto(), dentro() (+31 more)
+
+### Community 95 - "Riquadro assistente"
+Cohesion: 0.11
+Nodes (42): acceso(), altrove(), assistenteAperto(), bottoneDelContesto(), contesto(), dentroAlRiquadro(), dettaturaAccesa(), imposta() (+34 more)
+
+### Community 96 - "Procedure documenti ed esportazioni"
+Cohesion: 0.09
+Nodes (30): NomeTermine, GENERI, it, testi, procedureDocumenti, DOCUMENTO, modelliDelProgramma(), p() (+22 more)
+
+### Community 97 - "Campi e formati i18n"
+Cohesion: 0.07
+Nodes (33): aiutoDellaLingua(), Campo(), disegnoDi(), scalare(), SceltaCampo, scelteDi(), SpecCampo, TipoCampo (+25 more)
+
+### Community 98 - "Procedure piani e risorse"
+Cohesion: 0.16
+Nodes (26): esigiPiano(), procedura, t(), procedura, procedura, p(), t(), it (+18 more)
+
+### Community 99 - "Guida calendario"
 Cohesion: 0.08
-Nodes (38): bandiera(), DocumentoNoto, disegnaAmbiente(), allEsc(), ascolta(), ATTRIBUTI_DA_LEGGERE, elemento(), manda() (+30 more)
+Nodes (40): testi, AZIONI_CALENDARIO, COLONNE, FIGURA_CONFRONTO, FIGURA_ICS, FIGURA_PENDENZE, FIGURA_SETTIMANA, FIGURA_SMISTARE (+32 more)
 
-### Community 86 - "tests/ui · controlli.test.mjs"
-Cohesion: 0.09
-Nodes (19): BOOLEANE, cambia(), cercaTutti(), clic(), combacia(), discendenti(), DURATE, Elemento (+11 more)
-
-### Community 87 - "core/dati · Archivio"
-Cohesion: 0.10
-Nodes (4): Archivio, motivoDi(), sottoEsportazioni(), nomeDelPacchetto()
-
-### Community 88 - "contract/procedure · errore"
-Cohesion: 0.13
-Nodes (33): errore, procedura, t(), procedura, t(), procedura, t(), procedura (+25 more)
-
-### Community 89 - "contract/procedure · common/plans.ts"
-Cohesion: 0.15
-Nodes (28): esigiPiano(), procedura, t(), procedura, procedura, procedurePiani, p(), procedura (+20 more)
-
-### Community 90 - "tools/collections.mjs · buttons.mjs"
-Cohesion: 0.05
-Nodes (29): COMPORTAMENTO_ALTROVE, daGuardare, FABBRICHE, letti, muti, percorsi, CARTELLE, daGuardare (+21 more)
-
-### Community 91 - "ui/memory.ts · Voce"
-Cohesion: 0.09
-Nodes (42): Voce, ammesso(), booleano(), CampiVecchi, contestoDa(), conVoce(), copiaDefiniti(), coppie() (+34 more)
-
-### Community 92 - "core/dominio · richiesteAperte()"
-Cohesion: 0.10
-Nodes (38): richiesteAperte(), segnalazioniAssenza(), RecuperoProva, valoriDi(), assenteAllOra(), documentoDelRecupero(), ordina(), recuperiDaFare (+30 more)
-
-### Community 93 - "core/dominio · addresses.ts"
-Cohesion: 0.06
-Nodes (40): CASELLE_POSTALI, INDIRIZZO_VUOTO, leggiIndirizzo(), PAROLE_TOPONIMO, sembraToponimo(), chiaviDi(), SIGLE_PRESENZA, AvanzamentoAttivita (+32 more)
-
-### Community 94 - "core/dominio · normalization/check.ts"
-Cohesion: 0.17
-Nodes (41): fondiCheck(), normalizzaCheck(), normalizzaSpuntaCheck(), unCheckPerCorso(), compitiDiventatiConsegne(), conSpunteDiChiusura(), booleano(), coordinateDellAnno() (+33 more)
-
-### Community 95 - "core/dati · .accoda()"
-Cohesion: 0.09
-Nodes (31): ultimiByte(), Voce, apriZip(), assembla(), comprimi(), comprimiAsync(), conCorpo(), corpi() (+23 more)
-
-### Community 96 - "package.json · scripts"
+### Community 100 - "Script package.json"
 Cohesion: 0.05
 Nodes (41): scripts, build, buttons, calendario, census, ci, clean, collections (+33 more)
 
-### Community 97 - "desktop/transports · Genere"
-Cohesion: 0.10
-Nodes (37): Genere, Forma, Accesso, avviaCondotto(), bustaEsito(), bustaGuasto(), cartellaDelSocket(), cartellaUtentePredefinita() (+29 more)
+### Community 101 - "Vista impostazioni"
+Cohesion: 0.09
+Nodes (27): contenutoModelliLinguistici(), aiModelliDalFiltro(), areaAperta(), arriva(), BLOCCHI, Blocco, campoCerca(), corpo() (+19 more)
 
-### Community 98 - "core/dominio · creaProgetto()"
-Cohesion: 0.10
-Nodes (37): creaProgetto(), nuovoIdFaseProgetto(), nuovoIdGiudizioProgetto(), nuovoIdProgetto(), coloreValido(), CellaProgetto, CompitoProgetto, CriterioProgetto (+29 more)
+### Community 102 - "Dettatura e voce"
+Cohesion: 0.09
+Nodes (33): Collegamento, collegamentoDettatura(), dettaturaAccesa(), durataMs(), forza(), MotoreVoce, MOTORI, portaDi() (+25 more)
 
-### Community 99 - "tests/helpers · fake-node-llama.mjs"
+### Community 103 - "Impostazioni anno e annulla"
+Cohesion: 0.10
+Nodes (29): ordinalePausa(), PausaSeguente, LaPausa(), notificaAnnullabile(), aperte, AvanzateAnno(), it, testi (+21 more)
+
+### Community 104 - "Importazione e migrazione"
+Cohesion: 0.09
+Nodes (24): CopiaIcs, esitoImportRegistro(), importaClasse(), importaRegistro(), impostazioniDaLa(), leggiElencoAllievi(), materiaAbbinata(), SceltaClasse (+16 more)
+
+### Community 105 - "Vista todo"
+Cohesion: 0.10
+Nodes (34): descriviFamiglia(), FamigliaTodo, FAMIGLIE_CONSEGNA, FAMIGLIE_TODO, nomeFamiglia(), testi, CON_CORSO, consegneDella() (+26 more)
+
+### Community 106 - "Decisioni architetturali ADR"
+Cohesion: 0.07
+Nodes (6): Il fatto architetturale centrale: alias apparato, Rapporti, GenereRapporto e CATALOGO_MODELLI, DECISIONI.md - Decisioni architetturali, Otto Codice di errore in contract/contract.ts, Come e fatto (mappa funzione -> file), La firma del codice
+
+### Community 107 - "Finto node-llama test"
 Cohesion: 0.07
 Nodes (18): azzera(), Contesto, LlamaChatSession, Modello, parole(), resa(), Sequenza, altriCataloghi() (+10 more)
 
-### Community 100 - "ui/assistant · chat.ts"
-Cohesion: 0.12
-Nodes (38): accendiVoce(), annullaVoce(), attesa(), attrezzo(), AttrezzoVisto, bolla(), chiudiGiro(), codaVoce (+30 more)
-
-### Community 101 - "ui/views · help/assistant.testi.ts"
-Cohesion: 0.06
-Nodes (29): DE, EN, FR, it, it, DE, EN, FR (+21 more)
-
-### Community 102 - "desktop/apparato · fermaRapporti()"
-Cohesion: 0.08
-Nodes (21): fermaRapporti(), Deposito, depositoJson(), EsitoLettura, leggiJson(), mancante(), OCCUPATO, rinominaConPazienzaSync() (+13 more)
-
-### Community 103 - "core/dati · .leggiAltroAnno()"
-Cohesion: 0.08
-Nodes (10): jsonDi(), registroDa(), stessoDocumento(), testaDa(), testi, versioneDati(), Pacchetto, uguali() (+2 more)
-
-### Community 104 - "core/dominio · duplicaIntegrazione()"
+### Community 108 - "settings (core/dominio/normalization)"
 Cohesion: 0.10
-Nodes (38): duplicaIntegrazione(), duplicaPiano(), casuale(), identificatore(), nuovoIdAllegato(), nuovoIdAllievo(), nuovoIdAnno(), nuovoIdAttivita() (+30 more)
+Nodes (30): fileDalDialogo(), motivoDi(), testi, minutiInUd(), IMPOSTAZIONI_PREDEFINITE, cartaDeiCorsi(), cartaDelCorso(), cartaVuota() (+22 more)
 
-### Community 105 - "package.json · eslint.config.mjs"
-Cohesion: 0.06
-Nodes (36): FORMA, FUORI, ADR-0052, SOSTANZA, SOSTANZA_TIPATA, author, bugs, url (+28 more)
-
-### Community 106 - "ui/views · help/assistant.ts"
-Cohesion: 0.18
-Nodes (37): bottone(), figuraConfine(), figuraContesto(), figuraDettatura(), figuraModelli(), figuraRiquadro(), interruttore(), largoBottone() (+29 more)
-
-### Community 107 - "desktop/transports · impagina()"
+### Community 109 - "exchange (core/dati)"
 Cohesion: 0.11
-Nodes (37): impagina(), contestoDelRegistro(), Battuta, conMotivo(), accorcia(), ammetteNiente(), Argomenti, AttrezzoUsato (+29 more)
+Nodes (25): apri(), attendi(), autentica(), autenticaConGettone(), cifra(), Colloquio, consegna(), ContoExchange (+17 more)
 
-### Community 108 - "desktop/shell · senzaAnno()"
-Cohesion: 0.08
-Nodes (30): senzaAnno(), titoloArea(), Valore, Annuncio, cerca, chiedi(), controlloDi(), disegna() (+22 more)
-
-### Community 109 - "ui/commandBar.ts · RaggruppamentoCorsi"
-Cohesion: 0.13
-Nodes (36): RaggruppamentoCorsi, anticipaElenco(), barraComandi(), comandiInVolo, DocumentoInElenco, elementiDeiRegistri(), elementiDelProgramma(), filtriAgenda() (+28 more)
-
-### Community 110 - "core/dati · dati/dictation.ts"
-Cohesion: 0.10
-Nodes (30): Collegamento, collegamentoDettatura(), dettaturaAccesa(), durataMs(), forza(), MotoreVoce, MOTORI, portaDi() (+22 more)
-
-### Community 111 - "core/dati · appData.ts"
-Cohesion: 0.12
-Nodes (32): cartellaApplicazione(), Avanzamento, biglietto(), calcolaImpronta(), cartellaModelli(), cartellaPronta(), copieInCorso, dimenticaSorgente() (+24 more)
-
-### Community 112 - "ui/projection.ts · AppelloProiettato"
+### Community 110 - "mail (core/dati)"
 Cohesion: 0.14
-Nodes (32): AppelloProiettato, DocumentoProiettato, agenda(), appello(), argomenti(), calendario(), cellaAnno(), classiGiorno() (+24 more)
+Nodes (36): collegato(), collegatoNoto(), conto(), contoScritto(), provaExchange(), spedisciConExchange(), apriBozza(), apriBozzaSingola() (+28 more)
 
-### Community 113 - "esterno · dist_tests_domain_chiaveindirizzo"
-Cohesion: 0.06
-Nodes (7): INDIRIZZI, PUNTI, { radice, lavoro, dati }, riga(), punto(), rubricaPiena(), TUTTO
+### Community 111 - "reportsPdf (core/dati)"
+Cohesion: 0.07
+Nodes (38): altezzaBanda(), BRUTTO, BUONO, CaricaImmagine, chiudiRiserva(), componiPdf(), conDuePunti(), corpiDi() (+30 more)
 
-### Community 114 - "cli/comandi · aspetta.mjs"
+### Community 112 - "check (core/dominio)"
+Cohesion: 0.12
+Nodes (34): p(), procedura, t(), FileRaccolto, allieviAttivi(), allieviDelCheck(), applicaData(), applicaLezione() (+26 more)
+
+### Community 113 - "microsoft (core/dati)"
 Cohesion: 0.11
-Nodes (27): comandoAspetta(), comandoChiama(), componiIngresso(), converti(), deduci(), ErroreUso, FALSO, SENZA_VALORE (+19 more)
+Nodes (34): accountMicrosoft(), AccountSalvato, aggiungiAccount(), aGraph(), alCambio, caricaElenco(), chiaveRinnovo(), chiediAGraph() (+26 more)
 
-### Community 115 - "contract/procedure · llm/annulla.ts"
+### Community 114 - "projection (ui)"
 Cohesion: 0.13
-Nodes (26): procedura, t(), p(), procedura, t(), procedura, t(), p() (+18 more)
+Nodes (34): AppelloProiettato, DocumentoProiettato, agenda(), appello(), argomenti(), calendario(), cellaAnno(), classiGiorno() (+26 more)
 
-### Community 116 - "core/dominio · .suVoce()"
+### Community 115 - "package (.)"
+Cohesion: 0.06
+Nodes (34): FORMA, FUORI, ADR-0052, ADR-0056, SOSTANZA, SOSTANZA_TIPATA, author, bugs (+26 more)
+
+### Community 116 - "banco (tests/interfaccia)"
 Cohesion: 0.13
-Nodes (30): allegateAComunicazioni(), chiusura(), contaAllievi(), contaVoti(), eliminazione, FileDaTogliere, fileDellaConsegna(), fileDelProgetto() (+22 more)
+Nodes (14): @playwright/test, apri(), attendiRisposte(), FOTOGRAMMA, OpzioniPannello, PAGINA_CON_TITOLO, ponte(), valutaSu() (+6 more)
 
-### Community 117 - "ui/views · ordinalePausa()"
+### Community 117 - "pdf (core/dati)"
+Cohesion: 0.10
+Nodes (27): aBitmap(), apri(), Bitmap, codificaPng(), CompitoPdf, contaPagine(), crc32(), DocumentoPdf (+19 more)
+
+### Community 118 - "thumbnails (ui/components)"
+Cohesion: 0.09
+Nodes (26): serve(), pdfjs-dist, Arrivata, chiaveDi(), chiudi(), coda, compiti, CompitoPdf (+18 more)
+
+### Community 119 - "plansNavigator (ui/views)"
 Cohesion: 0.13
-Nodes (29): ordinalePausa(), PausaSeguente, LaPausa(), notificaAnnullabile(), avanzateAnno(), campoAnno(), it, testi (+21 more)
+Nodes (31): durataPiano(), minutiDiScarto(), BloccoRisorse(), moduloCollegamento(), moduloRisorsa(), RigaRisorsa(), it, testi (+23 more)
 
-### Community 118 - "ui/views · tracciatoIcona()"
+### Community 120 - "dictation.test (tests/data)"
+Cohesion: 0.06
+Nodes (10): FILE, USERDATA, voiceboxFinto(), finto, FILE, MAGIA, USERDATA, servitore() (+2 more)
+
+### Community 121 - "assistantWindow (ui)"
+Cohesion: 0.11
+Nodes (24): FotoDelRiquadro, FotografoDelRiquadro, disegna(), Finestra(), Foto, Fotografo, radice, riattacca() (+16 more)
+
+### Community 122 - "moduli.spec (tests/interfaccia)"
+Cohesion: 0.07
+Nodes (23): attendi(), eseguiTesto(), OGGI, ULTIMA, Azione, C1, C2, C3 (+15 more)
+
+### Community 123 - "substitute (core/dominio)"
 Cohesion: 0.13
-Nodes (31): tracciatoIcona(), testi, figuraDueComputer(), figuraOggi(), mucchio(), oraDiOggi(), largaPastiglia(), larghezzaTesto() (+23 more)
+Nodes (30): formatoDi(), ricopiaFoto(), nomeRitaglio(), supplenza, it, testi, percorsoFoto(), percorsoProvvisorio() (+22 more)
 
-### Community 119 - "tools/calendario · argparse"
+### Community 124 - "reportsPdf (core/dati)"
+Cohesion: 0.18
+Nodes (34): aCapo(), altaRigaGalleria(), altaRiquadro(), altaVoce(), altezzaBlocco(), andamento(), attacco(), avviso() (+26 more)
+
+### Community 125 - "pageBrowser (ui/views/sorting)"
+Cohesion: 0.11
+Nodes (31): RiquadroPagina, ZOOM_PREDEFINITO, alClic(), anteprimeDellHost(), CASELLA_BERSAGLIO, colonneDi(), CORPO_IN_VOLO, cursoreZoom() (+23 more)
+
+### Community 127 - "virtualList (ui/components)"
+Cohesion: 0.11
+Nodes (32): react-dom, @tanstack/virtual-core, colFuoco(), controlla(), DatiVoce, dopoIlDisegno(), Finestra, finestraDi() (+24 more)
+
+### Community 128 - "settimana.spec (tests/interfaccia)"
+Cohesion: 0.10
+Nodes (19): FRAME, pannello(), schermata(), Telaio, ADR-0048, Impostazioni, DATI_ITALIANI, SOLO_ITALIANO (+11 more)
+
+### Community 129 - "bridge (ui)"
+Cohesion: 0.10
+Nodes (32): api, ascoltaFilo(), Ascoltatore, ascoltatori, attendenti, BustaAssistente, chiedi(), chiediStatoIntero() (+24 more)
+
+### Community 130 - "SKILL (.claude/skills/architettura)"
+Cohesion: 0.08
+Nodes (24): apparato host abstraction (core/apparato -> desktop/apparato), core/controlli shared settings controls (ADR-52), Decision guide: where to put new code, npm run layers (tools/layers.mjs + dependency-cruiser), Skill architettura, DIVISIONI / areas.ts settings sections, Two settings surfaces: panel page and native window, Riferimento albero delle procedure (+16 more)
+
+### Community 131 - "API (docs)"
+Cohesion: 0.08
+Nodes (22): Config issue template, CODE_OF_CONDUCT.md (Codice di comportamento), Contributor Covenant 2.1, CONTRIBUTING.md (Contribuire a Regiklass), API.md - L'interfaccia di programmazione, L'assistente (LLM locale che chiama procedure di lettura), La busta (api, versione, id), Canale delle domande (Domanda/Riscontro) (+14 more)
+
+### Community 132 - "estrai_calendario_ticino (tools/calendario)"
 Cohesion: 0.09
 Nodes (12): aggiungi_vacanze_estive(), _data(), estrai(), aggiungi(), intestato(), main(), _norm(), scarica() (+4 more)
 
-### Community 120 - "core/dati · p()"
-Cohesion: 0.10
-Nodes (28): p(), procedura, t(), LLAMA_CPP, Attrezzo, ChiamataAttrezzo, collegamento, Domanda (+20 more)
+### Community 133 - "file (contract/procedure/llm)"
+Cohesion: 0.14
+Nodes (24): procedura, t(), p(), procedura, t(), procedura, t(), p() (+16 more)
 
-### Community 121 - "ui/views · automation.testi.ts"
+### Community 134 - "common (ui/forms)"
 Cohesion: 0.07
-Nodes (22): it, it, ordinaleInglese(), testi, PIF, un(), it, testi (+14 more)
+Nodes (22): tipiDiAttivita(), alloStatoNuovo(), applicaOrario(), AttributiPresa, AttributiRiga, CampoCollegato(), chiaviDiVoce, corsoBuono() (+14 more)
 
-### Community 122 - "ui/dom.ts · collegaRidisegno()"
-Cohesion: 0.11
-Nodes (29): collegaRidisegno(), disegna(), finestra(), radice, ADR-0048, aggiornaElemento(), contenutoTestuale(), inFondo() (+21 more)
+### Community 135 - "i18n (tools)"
+Cohesion: 0.09
+Nodes (28): argomenti, ATTRIBUTI_JSX_DA_LEGGERE, attributoJsx(), CARTELLE, CHIAMATE_DI_CODICE, contiene(), daSaltare(), dentroUnaFunzione() (+20 more)
 
-### Community 123 - "ui/views · behind.ts"
-Cohesion: 0.13
-Nodes (30): figuraAvvisi(), figuraCopie(), figuraDate(), figuraDati(), SEZIONI_QUINTE, T, testi, rigaDelTrascinamento() (+22 more)
+### Community 136 - "drawing (ui/views/help)"
+Cohesion: 0.08
+Nodes (28): ALTEZZA, casella(), casellaSigla(), Corpo, esc(), OpzioniRiquadro, OpzioniTesto, PassoCatena (+20 more)
 
-### Community 124 - "core/dominio · formatoDi()"
+### Community 137 - "people (ui/views)"
+Cohesion: 0.12
+Nodes (23): corrispondeAlla(), classiVisibili(), ricorda(), voceDiAdesso(), schedeDelCorso(), testi, vistaDocumenti(), apertaDaChiGuarda() (+15 more)
+
+### Community 138 - "project (ui/forms)"
 Cohesion: 0.16
-Nodes (27): formatoDi(), ricopiaFoto(), immaginiDelDocumento(), nomeRitaglio(), pdfDi(), testi, percorsoFoto(), documentoFoglio() (+19 more)
+Nodes (28): ProgettoDaSalvare, periodoDelProgetto(), aggiungiFase(), allieviDelProgetto(), campoNudo(), celleCheCadono(), Collegamenti(), coloreLivello() (+20 more)
 
-### Community 125 - "os/windows · aggiornamento.ps1"
+### Community 139 - "projects (core/dominio/normalization)"
+Cohesion: 0.16
+Nodes (28): colonneRipulite(), oggi(), duplicaIntegrazione(), nuovoIdCheck(), nuovoIdCompitoProgetto(), nuovoIdFaseProgetto(), nuovoIdGiudizioProgetto(), nuovoIdProgetto() (+20 more)
+
+### Community 140 - "projection (ui/commands)"
+Cohesion: 0.12
+Nodes (26): BLOCCHI, blocchiAccesi(), bloccoAperto(), BloccoProiezione, bloccoScorrendo(), riservato(), schedeProiezione(), VISTE_CALENDARIO (+18 more)
+
+### Community 141 - "aggiornamento (os/windows)"
 Cohesion: 0.22
 Nodes (29): Addio(), Avvia-Installatore(), Barra-Colore(), Barra-Corre(), Barra-Misura(), Cartella-Scrivibile(), Chiudi-Bene(), Concludi-Installazione() (+21 more)
 
-### Community 126 - "ui/components · pdfjs-dist/legacy/build/pdf.mjs"
-Cohesion: 0.11
-Nodes (21): pdfjs-dist, chiaveDi(), chiudi(), coda, CompitoPdf, disegna(), documentoDi(), DocumentoPdf (+13 more)
-
-### Community 127 - "tools/icons.cjs · icons.cjs"
+### Community 142 - "icons (tools)"
 Cohesion: 0.10
 Nodes (24): aMisura(), conDistintivo(), disegno(), disegnoDisinstallatore(), disegnoFascia(), disegnoInstallatore(), disegnoPortabile(), disegnoTestata() (+16 more)
 
-### Community 128 - "ui/commands.ts · eseguiDalPulsante()"
-Cohesion: 0.11
-Nodes (29): eseguiDalPulsante(), interruttore(), pulsanteComando(), rinasceInVolo(), voceDiComando(), aiutoDi(), Ambito, COMANDI_CHECK (+21 more)
-
-### Community 129 - "core/dominio · istanteAdesso()"
-Cohesion: 0.18
-Nodes (27): istanteAdesso(), Documento, SpuntaConsegna, DESTINATARI_CONSEGNA, documentiDiventatiConsegne(), MODI_CONSEGNA, normalizzaConsegna(), normalizzaSpunta() (+19 more)
-
-### Community 130 - "ui/commands · BLOCCHI"
-Cohesion: 0.13
-Nodes (25): BLOCCHI, blocchiAccesi(), bloccoAperto(), BloccoProiezione, bloccoScorrendo(), riservato(), schedeProiezione(), VISTE_CALENDARIO (+17 more)
-
-### Community 131 - "desktop/shell · ParametriDialogo"
-Cohesion: 0.12
-Nodes (27): ParametriDialogo, RispostaDialogo, annulla(), combacia(), dichiaraAltezza(), disegnaElenco(), conferma(), disegna() (+19 more)
-
-### Community 132 - "esterno · dist_tests_domain_annidaproporre"
-Cohesion: 0.09
-Nodes (11): bozza(), CALENDARIO, componiFile(), FILE_GENERATO, FILE_JSON, fondi(), indirizzi(), python() (+3 more)
-
-### Community 133 - "tools/i18n.mjs · i18n/page.ts"
-Cohesion: 0.10
-Nodes (25): argomenti, CARTELLE, CHIAMATE_DI_CODICE, contiene(), daSaltare(), dentroUnaFunzione(), elenco, esamina() (+17 more)
-
-### Community 134 - "tests/api · reads.test.mjs"
-Cohesion: 0.07
-Nodes (12): ANNO_SCORSO, CALENDARIO, { radice, lavoro, dati }, momento(), byte(), deposito(), esegui(), pianoConFile() (+4 more)
-
-### Community 135 - "contract/procedure · ErroreApi"
-Cohesion: 0.21
-Nodes (20): ErroreApi, it, testi, procedura, t(), esigiAllievoDelCorso(), esigiCasella(), esigiCheck() (+12 more)
-
-### Community 136 - "core/dati · gguf.testi.ts"
-Cohesion: 0.13
-Nodes (22): Consigliato, it, testi, Deposito, FileRemoto, Avanzamento, consegna(), estrai() (+14 more)
-
-### Community 137 - "core/dominio · oraValida()"
-Cohesion: 0.16
-Nodes (23): oraValida(), IMPOSTAZIONI_PREDEFINITE, nuovoIdCarta(), coloreLetto(), normalizzaListe(), normalizzaRicorrenza(), normalizzaScala(), numero() (+15 more)
-
-### Community 138 - "core/dominio · chiaveValore()"
-Cohesion: 0.12
-Nodes (25): chiaveValore(), DIRETTIVE, FORMATI, NOME_LOGO, APRONO, CHIAVI_TESTA, controllaImmagine(), controllaMisura() (+17 more)
-
-### Community 139 - "ui/dom.ts · ui/dom.ts"
-Cohesion: 0.10
-Nodes (24): aggiungi(), allaDiscesa(), allaSalita(), applicaClasse(), cammino(), campoDaScrivere(), chiama(), chiaveDiMorfosi() (+16 more)
-
-### Community 140 - "cli/uninstall.mjs · cli/common.mjs"
-Cohesion: 0.15
-Nodes (25): cartellaDelSistema(), cartellaUtente(), cartellaUtentePrecedente(), NOME_APPLICAZIONE, NOME_PRECEDENTE, maiAcceso(), argomenti(), attendiChiusura() (+17 more)
-
-### Community 141 - "contract/tools.ts · azioniSottoContratto()"
-Cohesion: 0.15
-Nodes (24): azioniSottoContratto(), procedure, presentazioneDetta(), registraTutte(), TUTTE, schemaJson(), azioneValida(), passaDaChiama() (+16 more)
-
-### Community 142 - "ui/views · comeElenco()"
-Cohesion: 0.18
-Nodes (26): comeElenco(), ancoreDeiCapi(), fineConUd(), inizioConUd(), MINIMO_UD_AI_CAPI, udAiCapi(), oreConAppello(), gruppoAnno() (+18 more)
-
-### Community 143 - "ui/views · durataPiano()"
+### Community 143 - "common (contract/procedure/check)"
 Cohesion: 0.19
-Nodes (25): durataPiano(), minutiDiScarto(), numeriDelleLezioni(), formattaDurata(), lezioneDiPiano(), pianoPerId(), pianoMostrato(), apriElenco() (+17 more)
+Nodes (21): Ambito, ErroreApi, it, testi, procedura, t(), esigiAllievoDelCorso(), esigiCasella() (+13 more)
 
-### Community 144 - "core/dominio · calendarIcs.ts"
-Cohesion: 0.12
-Nodes (25): CalendarioLetto, eventiGrezzi(), EventoGrezzo, fusiValidi, fusoValido(), GIORNI_ICS, istanteDa(), leggiCalendario() (+17 more)
+### Community 144 - "class (ui/forms)"
+Cohesion: 0.14
+Nodes (23): titoloComando(), INDIRIZZO_VUOTO, coloreDelCorso(), mescola(), creaTelefono(), conPrefissoInternazionale(), ETICHETTE, campiIndirizzo() (+15 more)
 
-### Community 145 - "core/dominio · fogliDeiProgetti()"
-Cohesion: 0.20
-Nodes (23): fogliDeiProgetti(), allieviDelProgetto(), contiPresenze(), data(), datiProgetto(), datiProgettoAllievo(), durataDi(), fasiDi() (+15 more)
+### Community 145 - "store (core/dati)"
+Cohesion: 0.16
+Nodes (4): chiudiSeFinito(), togliAnteprime(), dentroIlDocumento(), deposito
 
-### Community 146 - "core/dati · .prendiPacchetto()"
-Cohesion: 0.12
-Nodes (19): codifica, daTenere(), decodifica, ErrorePacchetto, fileSerratura(), FORMATO, MANIFESTO, momentoDellaCopia() (+11 more)
-
-### Community 147 - "core/dati · dati/history.ts"
+### Community 146 - "oauth (core/dati)"
 Cohesion: 0.13
-Nodes (5): Passo, PassoAperto, perDisfare(), Storia, ADR-0050
+Nodes (28): aCaso(), accediDalBrowser(), aMicrosoft(), aspettaIlRitorno(), collegaConOauth(), EsitoOauth, Gettoni, idClientOauth() (+20 more)
 
-### Community 148 - "tools/layers.mjs · ADR-0055"
+### Community 147 - "dialog (desktop/shell/pages/dialog)"
+Cohesion: 0.10
+Nodes (23): ParametriDialogo, RispostaDialogo, annulla(), combacia(), dichiaraAltezza(), Elenco(), Input(), Messaggio() (+15 more)
+
+### Community 149 - "mail (ui/views/settings)"
+Cohesion: 0.16
+Nodes (22): chiediIndirizzo(), doveFinisce(), firmaDiSerie(), parametriCasella(), sceltaMittente(), scelteDellaPosta(), schedaFirma(), schedaPosta() (+14 more)
+
+### Community 150 - "ics (ui/views/calendar)"
+Cohesion: 0.20
+Nodes (27): eventiEsterni(), icsInVista(), ancora(), BloccoEvento(), ChipEvento(), classiDivergenza(), cliccaEvento(), dettagliEvento() (+19 more)
+
+### Community 151 - "lists (ui/views/settings)"
+Cohesion: 0.16
+Nodes (25): CHIAVI_LISTA, COLORE_DI_RIPIEGO, coloreDiVoce(), definizioneLista, listaCambiata(), listaConColore(), VoceLista, AggiuntaVoce() (+17 more)
+
+### Community 152 - "templateCheck (core/dominio)"
+Cohesion: 0.12
+Nodes (25): chiaveValore(), DIRETTIVE, FORMATI, APRONO, CHIAVI_TESTA, controllaImmagine(), controllaMisura(), CORPI (+17 more)
+
+### Community 153 - "Gruppo 153"
+Cohesion: 0.09
+Nodes (10): CALENDARIO, componiFile(), FILE_GENERATO, FILE_JSON, fondi(), indirizzi(), python(), rileggi() (+2 more)
+
+### Community 154 - "SKILL (.claude/skills/testi)"
+Cohesion: 0.08
+Nodes (22): CHIAVI_DISMESSE and MIGRAZIONI, Skill impostazione, valoreConMotivo settings gate (dogana), Fotografo (focus/scroll snapshot via data-fuoco, data-scorrimento), Modal stack (ui/components/modal.tsx), Skill react, catalogo() *.testi.ts catalogs beside code, lessico() registry terms (+14 more)
+
+### Community 155 - "uninstall (cli)"
+Cohesion: 0.15
+Nodes (24): cartellaDelSistema(), cartellaUtente(), cartellaUtentePrecedente(), NOME_APPLICAZIONE, NOME_PRECEDENTE, argomenti(), attendiChiusura(), BLOCCHI (+16 more)
+
+### Community 156 - "icsCalendar (ui/views/settings)"
+Cohesion: 0.24
+Nodes (26): criterioRegola(), paroleDi(), calendarioOra(), conInvio(), ContoRegola(), dataCopia(), doppione(), ElencoCalendari() (+18 more)
+
+### Community 157 - "map (ui/views)"
+Cohesion: 0.16
+Nodes (26): NOMI_GENERE, Rubrica, scriviDistanza(), SEDE, StratiMappa, UsoIndirizzo, SchedaMappa, apriScheda() (+18 more)
+
+### Community 158 - "contacts (core/dominio)"
+Cohesion: 0.12
+Nodes (22): apriConOutlook(), candidatiWindows(), dalRegistro(), eseguibileOutlook(), esiste(), outlookAccettabile(), primoCheEsiste(), argomentiOutlook() (+14 more)
+
+### Community 159 - "calendar (ui/forms)"
+Cohesion: 0.15
+Nodes (25): Confronto, EsitoConfronto, FasciaProposta, calendari(), ConfrontoCalendario(), aggiungi(), assenti(), casella() (+17 more)
+
+### Community 160 - "sorting (core/dominio)"
+Cohesion: 0.12
+Nodes (24): BloccoDaSmistare, MotivoQuarantena, aMano(), aPasso(), Assegnazione, Chiave, DIVISIONE_PREDEFINITA, DocenzaDiClasse (+16 more)
+
+### Community 161 - "layers (tools)"
 Cohesion: 0.09
 Nodes (23): ADR-0055, dependency-cruiser, piano(), chiaviGiri, codiceTs, conTrePunti, daGuardare, derogate (+15 more)
 
-### Community 149 - "ui/assistant.ts · ui/assistant.ts"
-Cohesion: 0.19
-Nodes (24): acceso(), altrove(), assistenteAperto(), abbandona(), conversazioneInCorso(), prendi(), rimetti(), svuota() (+16 more)
+### Community 162 - "DECISIONI (docs)"
+Cohesion: 0.11
+Nodes (10): Gli schemi d'ingresso, Riordini (mappa da -> a), Fasi e sciami, PIANO-REACT.md - Piano interfaccia in React, Avanzamento (fatto 2026-10-05), Bozza di ADR-56, Comportamenti trasversali da non perdere, Le fasi F0-F11 (+2 more)
 
-### Community 150 - "ui/assistant · bottoneDelContesto()"
-Cohesion: 0.12
-Nodes (25): bottoneDelContesto(), conGruppo(), conTendina(), eNonElencate(), ID_DELLA_TENDINA, NOME_DI_ADESSO, ParteAccendibile, PARTI (+17 more)
+### Community 163 - "check (ui/views)"
+Cohesion: 0.20
+Nodes (24): apriMenu(), assegnaAllaLezione(), casellaCheck(), casellaDelCheck(), chiaveCasella(), comeSpuntata(), grigliaCheck(), inVolo (+16 more)
 
-### Community 151 - "contract/procedure · registro/altrove.ts"
-Cohesion: 0.19
-Nodes (18): p(), procedura, t(), procedura, t(), procedureRegistro, p(), procedura (+10 more)
+### Community 164 - "SKILL (.claude/skills/formato)"
+Cohesion: 0.11
+Nodes (18): Skill formato, Campioni tests/samples/formato (npm run sample), Impronta dei campi (AGGIORNA_IMPRONTA=1 npm test), Normalizzazione con predefiniti (core/dominio/normalization), PASSI_DEL_FORMATO e porta (core/dominio/upgrades.ts), VERSIONE_DATI (core/dominio/models.ts), Skill sciame, Tempo zero: linea di partenza verde (+10 more)
 
-### Community 152 - "core/dati · destinazione()"
-Cohesion: 0.17
-Nodes (20): destinazione(), importaInDisparte(), perchéNonEntra(), Pacco, argomenti(), esegui(), programmaDa(), programmaValido() (+12 more)
+### Community 165 - "sheets (ui/views/documents)"
+Cohesion: 0.15
+Nodes (20): Azione, dataDalNome(), alClicSullaRiga(), annuncia(), aperto(), apribili(), buttaVia(), conto() (+12 more)
 
-### Community 154 - "ui/views · signature.ts"
-Cohesion: 0.17
-Nodes (22): AMMESSI, ATTRIBUTI, barra(), campoFirma(), chiediCollegamento(), comando(), consegna(), costruisci() (+14 more)
+### Community 166 - "calendarIcs (core/dominio)"
+Cohesion: 0.14
+Nodes (23): CalendarioLetto, eventiGrezzi(), EventoGrezzo, fusiValidi, fusoValido(), GIORNI_ICS, istanteDa(), leggiCalendario() (+15 more)
 
-### Community 155 - ".claude/skills · nuova.mjs"
+### Community 167 - "map (core/dominio)"
+Cohesion: 0.16
+Nodes (23): Coordinate, ingrandisci(), Inquadratura, inquadraturaPer(), posizioneNelRiquadro(), proietta(), riproietta(), SegnoMappa (+15 more)
+
+### Community 169 - "esbuild (.)"
+Cohesion: 0.09
+Nodes (20): aliasApparato, applicazioneIn(), cataloghi(), comune, CON_FINTO, CON_FINTO_E_APPARATO, conTemporal, filePagine() (+12 more)
+
+### Community 170 - "package (.)"
+Cohesion: 0.08
+Nodes (25): devDependencies, axe-core, @cantoo/pdf-lib, chokidar, dependency-cruiser, electron, electron-builder, esbuild (+17 more)
+
+### Community 171 - "SKILL (.claude/skills/prove)"
+Cohesion: 0.09
+Nodes (17): Riferimento LLM (catalogo per il modello), Catalogo per il modello (resources/tools.json), Comando regi catalogo, Riferimento prove delle procedure, Conti scritti a mano (tests/counts.test.mjs), Prove che leggono il sorgente, Riferimento schemi d'ingresso, Convalida valibot (ADR-28, ADR-50) (+9 more)
+
+### Community 172 - "registry (ui/views/student)"
+Cohesion: 0.18
+Nodes (22): anniCompiuti(), chiaveIndirizzo(), coordinataDi(), distanzaKm(), indirizzoDi(), rubricaDi(), scriviCoordinate(), segniDiAllievo() (+14 more)
+
+### Community 173 - "pageDrop (ui/views/sorting)"
+Cohesion: 0.18
+Nodes (21): dicePagine(), assegnaChiedendo(), menuDellaPagina(), scartaChiedendo(), it, testi, accesa(), accettaPagine() (+13 more)
+
+### Community 174 - "jsonStore (desktop/apparato)"
+Cohesion: 0.13
+Nodes (11): Deposito, depositoJson(), EsitoLettura, leggiJson(), mancante(), OCCUPATO, rinominaConPazienzaSync(), scriviJson() (+3 more)
+
+### Community 176 - "calendarEditor.spec (tests/interfaccia)"
+Cohesion: 0.13
+Nodes (16): riquadro(), valuta(), Azione, oltreLeFrecce(), scegliOra(), EVENTI, ridisegnaPiuVolte(), rispondi() (+8 more)
+
+### Community 177 - "nuova (.claude/skills/procedure-api/scripts)"
 Cohesion: 0.11
 Nodes (21): azione, cammello(), capitale(), cartelle, collezioni, corpoLettura, dentro, fatti (+13 more)
 
-### Community 156 - "contract/procedure · testi"
-Cohesion: 0.15
-Nodes (17): testi, procedura, t(), VOCE, procedureAssistente, procedura, RISULTATO, t() (+9 more)
-
-### Community 157 - "core/dominio · Raggruppamento"
-Cohesion: 0.10
-Nodes (16): Raggruppamento, TipoAttivita, TipoConsegna, TipoOsservazione, TipoValutazione, agganciato(), MomentoOrfano, MOTIVI_ORFANO (+8 more)
-
-### Community 158 - "docs/DECISIONI.md · Motore di template dei rapporti"
-Cohesion: 0.11
-Nodes (12): Motore di template dei rapporti, Integrita referenziale e cascata, contaComeAssenza (regola di calcolo), Le dodici collezioni persistite, Entita Impostazioni (Intestazione, CartaIntestata), Unita didattiche e minutiUd, Entita Progetto (IntegrazioneProgetto, FaseProgetto), Entita Registro (+4 more)
-
-### Community 159 - "tests/interfaccia · attendi()"
-Cohesion: 0.11
-Nodes (18): attendi(), eseguiTesto(), OGGI, ponte(), ULTIMA, Azione, C1, C2 (+10 more)
-
-### Community 160 - "esbuild.mjs · aliasApparato"
-Cohesion: 0.10
-Nodes (17): aliasApparato, applicazioneIn(), cataloghi(), comune, CON_FINTO, CON_FINTO_E_APPARATO, conTemporal, filePagine() (+9 more)
-
-### Community 161 - "package.json · devDependencies"
+### Community 178 - "importClass.test (tests/api)"
 Cohesion: 0.09
-Nodes (22): devDependencies, axe-core, @cantoo/pdf-lib, chokidar, dependency-cruiser, electron, electron-builder, esbuild (+14 more)
+Nodes (11): APERTO, BYTE_FOTO, FUTURO, { radice, lavoro, dati }, SCORSO, anagrafe, classi, corsi (+3 more)
 
-### Community 162 - "core/azioni · UsoModello"
-Cohesion: 0.14
-Nodes (19): UsoModello, avvia(), CHIAVI_DEI_MODELLI, coda, imposta(), nomiInCoda(), racconta(), raccontaCoda() (+11 more)
+### Community 179 - "MODELLO-DATI (docs)"
+Cohesion: 0.10
+Nodes (16): Progetto di biblioteca e integrazione nel corso (Progetto.integrazioni), Integrita referenziale e cascata, contaComeAssenza (regola di calcolo), Le dodici collezioni persistite, Unita didattiche e minutiUd, Entita Progetto (IntegrazioneProgetto, FaseProgetto), Entita Registro, VERSIONE_DATI = 7 (+8 more)
 
-### Community 163 - "desktop/shell · formerName.ts"
-Cohesion: 0.17
-Nodes (17): comeLiConfronta(), EsitoTrasloco, FILE_CON_PERCORSI, ripassa(), riscriviPercorsi(), sostituisciPrefisso(), traslocaDati(), èCartella() (+9 more)
+### Community 180 - "sample (tools)"
+Cohesion: 0.09
+Nodes (19): archivio, banco, biblioteca, cella, classe, corso, DESTINAZIONE, diQuestaVersione (+11 more)
 
-### Community 164 - "ui/sidebar.ts · raggruppamentoDeiCorsi()"
-Cohesion: 0.22
-Nodes (19): raggruppamentoDeiCorsi(), scegliClasseDelFascicolo(), guscio(), chiudiSidebarMobile(), entraNelGruppo(), imposta(), interruttoreSidebar(), sfondoSidebar() (+11 more)
-
-### Community 165 - "desktop/shell · BottoneMessaggio"
-Cohesion: 0.19
-Nodes (18): BottoneMessaggio, chiediMessaggio(), onDidChangeConfiguration, applicaAvvioConWindows(), osservaAvvioConWindows(), togliAvvioConWindows(), voceDiAvvio(), chiedi() (+10 more)
-
-### Community 167 - "tools/licenses.mjs · applicazione"
+### Community 182 - "licenses (tools)"
 Cohesion: 0.10
 Nodes (16): applicazione, license-checker-rseidelsohn, AMMESSE, AMMESSE_RISORSE, AMMESSE_SVILUPPO, avvisi, dichiarate, eccezioni (+8 more)
 
-### Community 168 - "ui/views · search.ts"
-Cohesion: 0.19
-Nodes (19): campo(), cerca(), distanza(), formeDi(), forseCercavi(), parolaInFila(), paroleDellaGuida(), paroleDi() (+11 more)
-
-### Community 169 - ".claude/skills · Skill sciame"
-Cohesion: 0.18
-Nodes (12): Skill sciame, Tempo zero: linea di partenza verde, Skill verifica, Config issue template, AGENTS.md (istruzioni agenti), CLAUDE.md (istruzioni progetto), CONTRIBUTING.md (Contribuire a Regiklass), CANTIERE.md (lavoro aperto) (+4 more)
-
-### Community 170 - "contract/procedure · aggiornamenti.testi.ts"
+### Community 183 - "stato (contract/procedure/aggiornamenti)"
 Cohesion: 0.27
 Nodes (12): it, testi, procedura, procedureAggiornamenti, procedura, procedura, procedura, p() (+4 more)
 
-### Community 171 - "core/controlli · Ascolta"
-Cohesion: 0.15
-Nodes (18): Ascolta, Cambia, Disegno, Esito, Scelta, ValoreCampo, campo(), disegnoDi() (+10 more)
+### Community 184 - "integrita (contract/procedure/registro)"
+Cohesion: 0.23
+Nodes (14): procedura, t(), procedureRegistro, p(), procedura, t(), it, testi (+6 more)
 
-### Community 172 - "core/dominio · .portaAlFormato()"
-Cohesion: 0.15
-Nodes (17): DatiGrezzi, ErroreVersionePiuRecente, FormatoAggiornato, fraseVersionePiuRecente(), integrazioneDalCorso(), letterale(), noteNeiPrerequisiti(), PASSI_DEL_FORMATO (+9 more)
+### Community 186 - "map (core/dominio)"
+Cohesion: 0.16
+Nodes (19): CASELLE_POSTALI, barraScala(), Condivisione, condivisioni(), contiDellaMappa(), ContiMappa, GenerePunto, indirizziDaRisolvere() (+11 more)
 
-### Community 173 - "tests/interfaccia · ref_node_child_process"
+### Community 187 - "birthdays (core/dominio)"
+Cohesion: 0.19
+Nodes (16): classiDove(), compleanniDelGiorno(), compleanniPerGiorno(), Compleanno, compleannoDi(), etaCompiuta(), fraseCompleanno(), ordina() (+8 more)
+
+### Community 188 - "communications (core/dominio)"
+Cohesion: 0.21
+Nodes (19): allegatiComunicazione(), allegatiMancanti(), AllegatoPosta, aRighe(), comeHtml(), componiEml(), componiPerInvio(), corpoDelMessaggio() (+11 more)
+
+### Community 189 - "upgrades (core/dominio)"
+Cohesion: 0.15
+Nodes (18): aggiornaFormato(), DatiGrezzi, ErroreVersionePiuRecente, FormatoAggiornato, fraseVersionePiuRecente(), integrazioneDalCorso(), letterale(), noteNeiPrerequisiti() (+10 more)
+
+### Community 190 - "sfoglioIsole.spec (tests/interfaccia)"
 Cohesion: 0.11
-Nodes (11): sorgente(), BUNDLE, RADICE, Dom, ADR-0050, Assegnazione, pdf, STILI (+3 more)
+Nodes (11): ADR-0045, BUNDLE, RADICE, CAMPIONE, PRINCIPALE, Assegnazione, pdf, STILI (+3 more)
 
-### Community 174 - "ui/statusBar.ts · FUOCO_ANNO"
-Cohesion: 0.22
-Nodes (19): FUOCO_ANNO, menuDeiRegistri(), alternaMenuSotto(), stessoPulsante(), barraStato(), nomeDelModello(), quando(), schedaDelCorso() (+11 more)
+### Community 191 - "controlli.spec (tests/interfaccia)"
+Cohesion: 0.12
+Nodes (17): ACCESO, ALTEZZA, annuncia(), AVVISO, BLOCCATO, breve(), CINQUE, finestraNativa() (+9 more)
 
-### Community 175 - "desktop/shell · commandLine.ts"
+### Community 192 - "menu (ui/components)"
+Cohesion: 0.17
+Nodes (18): alternaMenuSotto(), apriMenu(), collocaMenu(), collocaSotto(), ElementoMenu, Gesti, menuContestuale(), menuSotto() (+10 more)
+
+### Community 193 - "year (ui/forms)"
+Cohesion: 0.24
+Nodes (16): annoValido(), differenzaGiorni(), primoAnnoScolastico(), allineaSemestri(), annoAllineato(), intervalloAnno(), campoVicino(), CorpoAnno() (+8 more)
+
+### Community 194 - "commandLine (desktop/shell/system)"
 Cohesion: 0.20
 Nodes (17): aggiungiAlPercorsoDiUnix(), aggiungiAlPercorsoDiWindows(), BLOCCO, cartellaDeiComandi(), giàNelPercorso(), installa(), percorsoDelPonte(), perLaShell() (+9 more)
 
-### Community 177 - "ui/pages.ts · voceDiCorso()"
-Cohesion: 0.21
-Nodes (17): voceDiCorso(), nomeDelCorso(), gruppiDiPagine(), GruppoPagina, nomeDelGruppo(), ORDINE, Pagina, paginaVisibile() (+9 more)
-
-### Community 178 - "ui/views · outside.ts"
-Cohesion: 0.12
-Nodes (16): eccesso(), FIGURA_CONDOTTO, FIGURA_PROMEMORIA, FIGURA_RISERVATI, FIGURA_VASSOIO, figuraProiezione(), IT, MENU_VASSOIO (+8 more)
-
-### Community 179 - "core/dominio · outlook.ts"
+### Community 196 - "preview (ui/views/documents)"
 Cohesion: 0.18
-Nodes (16): apriConOutlook(), candidatiWindows(), dalRegistro(), eseguibileOutlook(), esiste(), outlookAccettabile(), primoCheEsiste(), argomentiOutlook() (+8 more)
+Nodes (15): Avatar(), CellaNome(), iniziali(), Persona, tintaDi(), TINTE, uriDato(), anteprima() (+7 more)
 
-### Community 180 - "contract/presentation.ts · presentation.ts"
-Cohesion: 0.17
-Nodes (16): allinea(), Blocco, BloccoLetto, campo(), cella(), Colonna, ColonnaAnnidata, ColonnaLetta (+8 more)
+### Community 197 - "updates (ui/views/settings)"
+Cohesion: 0.20
+Nodes (18): ascolta(), allaPagina(), avviaAggiornamenti(), cambiaFuori(), controllaDallaBarra(), corpo(), diciLEsito(), esegui() (+10 more)
 
-### Community 181 - "tests/interfaccia · schermata()"
-Cohesion: 0.19
-Nodes (11): schermata(), valutaSu(), Anno, apri(), Misura, Ora, aspetto(), provaNativa() (+3 more)
+### Community 198 - "modal (ui/components)"
+Cohesion: 0.15
+Nodes (15): apriModale(), conferma(), ContestoModale, entraNellaPila(), esceDallaPila(), EVENTO_MODALE_APERTA, Leve, Modale() (+7 more)
 
-### Community 182 - "tools/census.mjs · census.mjs"
+### Community 199 - "signature (ui/views/settings)"
+Cohesion: 0.16
+Nodes (17): AMMESSI, ATTRIBUTI, campoFirma, comando(), DA_BUTTARE, Gesto(), inserisci(), MISURE (+9 more)
+
+### Community 200 - "calendar (core/dati)"
+Cohesion: 0.25
+Nodes (16): copiaDallOrigine(), daFile(), eliminaCopia(), inRete(), leggiOrigine(), letti, percorsoCopia(), percorsoCopiaCalendario() (+8 more)
+
+### Community 201 - "fileAssociation (desktop/shell/system)"
+Cohesion: 0.18
+Nodes (16): aggiornaIndice(), datiUtente(), descrizioneDelTipo(), FILE_DEL_TIPO, FILE_ICONA_DEL_TIPO, FILE_ICONA_VOCE, FILE_VOCE, perExec() (+8 more)
+
+### Community 202 - "PIANO-IMPOSTAZIONI (docs)"
+Cohesion: 0.13
+Nodes (14): Impostazioni: chiavi del programma, Entita Impostazioni (Intestazione, CartaIntestata), PIANO-IMPOSTAZIONI.md - Piano pagine impostazioni, Doppioni da togliere, Filtro unico, Gerarchia: 4 aree, 3 livelli, Guasti trovati G0-G8, Inventario: impostazioni dell'anno (+6 more)
+
+### Community 203 - "tsconfig (.)"
+Cohesion: 0.11
+Nodes (17): compilerOptions, exactOptionalPropertyTypes, jsx, lib, module, moduleResolution, noEmit, noFallthroughCasesInSwitch (+9 more)
+
+### Community 204 - "format (ui/assistant)"
+Cohesion: 0.23
+Nodes (16): corpoDellaRisposta(), disegna(), paragrafo(), scritti(), tabella(), tabellaAssistente(), allineamenti(), Allineamento (+8 more)
+
+### Community 205 - "outside (ui/views/help)"
+Cohesion: 0.12
+Nodes (15): eccesso(), FIGURA_CONDOTTO, FIGURA_PROMEMORIA, FIGURA_RISERVATI, FIGURA_VASSOIO, IT, MENU_VASSOIO, posti() (+7 more)
+
+### Community 206 - "CATALOGO (docs)"
+Cohesion: 0.12
+Nodes (14): core/azioni README (copertura API delle azioni), Procedura (contratto di un'azione), Mappa delle uscite di dati dalla macchina, CATALOGO.md - Catalogo delle funzioni, Azioni del protocollo, Canali del guscio e autorita di registro://, Comandi dell'interfaccia, Comandi del programma (+6 more)
+
+### Community 207 - "ARCHITETTURA (docs)"
+Cohesion: 0.12
+Nodes (12): Aggiungere, cambiare, togliere una procedura, ARCHITETTURA.md - Architettura di Regiklass, Vista dei componenti C4 livello 3, Vista dei contenitori C4 livello 2, Vista di contesto C4 livello 1, Concorrenza, atomicita, garanzie reali, Flusso: avvio completo, Flusso: un PDF che si rifa da se (+4 more)
+
+### Community 208 - "census (tools)"
 Cohesion: 0.12
 Nodes (14): CARTELLE, citazioni, dichiarati, doppi, ESTENSIONI, fileMorti, giàQui, mai (+6 more)
 
-### Community 183 - "tools/coverage.mjs · coverage.mjs"
+### Community 209 - "coverage (tools)"
 Cohesion: 0.18
 Nodes (14): conteggiNeiPunti(), GREZZI, gruppo(), percento(), preparaScript(), registra(), riassunto(), riporta() (+6 more)
 
-### Community 184 - "tsconfig.json · tsconfig.json"
-Cohesion: 0.12
-Nodes (16): compilerOptions, exactOptionalPropertyTypes, lib, module, moduleResolution, noEmit, noFallthroughCasesInSwitch, noImplicitOverride (+8 more)
-
-### Community 185 - "ui/assistant · answer.ts"
-Cohesion: 0.24
-Nodes (15): corpoDellaRisposta(), disegna(), paragrafo(), scritti(), tabella(), allineamenti(), Allineamento, blocchi() (+7 more)
-
-### Community 186 - "ui/views · righe()"
-Cohesion: 0.19
-Nodes (16): righe(), tastino(), figuraFoglio(), menu(), doveSiVedeLaVersione(), eccesso(), GIORNATA_ESEMPIO, giornataDisegnata() (+8 more)
-
-### Community 187 - ".claude/skills · Skill architettura"
-Cohesion: 0.17
-Nodes (11): Skill architettura, Guida decisionale «Dove metto questo codice?», npm run layers (tools/layers.mjs), Posto e navigazione vai()/vaiA() (ADR-47), Riferimento albero delle procedure, Contratto davanti al nucleo (contract/), Decisione D8 (cinque strati), Trasporti condotto/assistente (+3 more)
-
-### Community 188 - ".claude/skills · togli.mjs"
+### Community 210 - "togli (.claude/skills/procedure-api/scripts)"
 Cohesion: 0.13
 Nodes (11): argomenti, cammello(), capitale(), cartelle, citazioni, fatti, nome, segmenti (+3 more)
 
-### Community 189 - "desktop/transports · procedura()"
-Cohesion: 0.19
-Nodes (14): procedura(), breviDeiCampi(), chiaveIntoccabile(), eseguiMetodo(), GuastoRpc, INGRESSO_ATTREZZI, permessoMancante(), permessoMancantePerMetodo() (+6 more)
-
-### Community 190 - "ui/views · ImpostazioniDaSalvare"
+### Community 211 - "smoke (tools)"
 Cohesion: 0.23
-Nodes (14): ImpostazioniDaSalvare, sezioneAnno(), daSalvare(), detto(), IntestazioneDaSalvare, ModificheImpostazioni, PASSI_FINE_SEMESTRE, PASSI_VOTI (+6 more)
+Nodes (14): presentati(), conversazione(), CAMPIONE, cartelleVere(), chiedi(), differenze(), dormi(), fotografia() (+6 more)
 
-### Community 191 - "docs/immagini · anno_esempio (documento campione)"
+### Community 212 - "document (ui/views/settings)"
+Cohesion: 0.23
+Nodes (14): ImpostazioniDaSalvare, daSalvare(), detto(), IntestazioneDaSalvare, ModificheImpostazioni, oraBattuta(), PASSI_FINE_SEMESTRE, PASSI_VOTI (+6 more)
+
+### Community 213 - "formerName (core/dati)"
+Cohesion: 0.23
+Nodes (13): comeLiConfronta(), EsitoTrasloco, FILE_CON_PERCORSI, ripassa(), riscriviPercorsi(), sostituisciPrefisso(), traslocaDati(), èCartella() (+5 more)
+
+### Community 214 - "calendario-scuro (docs/immagini)"
 Cohesion: 0.17
 Nodes (16): anno_esempio (documento campione), Barra di stato (prossima lezione, pendenze), Barra laterale di navigazione (Agenda, Registro corso, Docente di classe, L'anno, Il programma), Corsi (I MEC A, III INF C, II ELE B), Filtri Anno/Periodo/Corso, Lezione corrente evidenziata (bordo tratteggiato rosa), Azioni Modifica / Proietta, Navigazione Oggi/Indietro/Avanti/Prossima lezione (+8 more)
 
-### Community 192 - "stryker.config.json · stryker.config.json"
+### Community 215 - "icon (icons)"
+Cohesion: 0.13
+Nodes (16): Regiklass App Icon: green rounded square with segmented wheel (white/translucent segments, one orange), Segmented Wheel Motif (lessons/periods progress, one highlighted orange), App Icon 1024x1024 (segmented progress wheel on green), App Icon 128x128, App Icon 16x16, App Icon 20x20, App Icon 24x24, App Icon 256x256 (+8 more)
+
+### Community 216 - "stryker.config (.)"
 Cohesion: 0.12
 Nodes (15): buildCommand, concurrency, coverageAnalysis, htmlReporter, fileName, ignorePatterns, jsonReporter, fileName (+7 more)
 
-### Community 193 - "ui/views · casella()"
-Cohesion: 0.17
-Nodes (14): casella(), casellaSigla(), BARRA_LATERALE, figuraMatrice(), figuraPersone(), figuraScheda(), forte, linguette() (+6 more)
-
-### Community 194 - "ui/views · help/lesson.ts"
-Cohesion: 0.14
-Nodes (15): casella(), CICLO_ORA, COLONNE_UD, ELENCO_ORE, LATERALI, MATRICE_APPELLO, MODULO_CONSEGNA, PAGINA_LEZIONE (+7 more)
-
-### Community 195 - "tests/interfaccia · ADR-0007"
+### Community 217 - "settings (ui/views/help)"
 Cohesion: 0.22
-Nodes (10): ADR-0007, riquadro(), valuta(), assesta(), griglia(), ADR-0050, salvaSenzaRisposta(), apriOggi() (+2 more)
+Nodes (15): tastino(), tastiniADestra(), doveSiVedeLaVersione(), dueMondi(), eccesso(), fila(), GIORNATA_ESEMPIO, giornataDisegnata() (+7 more)
 
-### Community 196 - "docs/immagini · Screenshot: Calendario (vista Settimana)"
+### Community 218 - "presentation (contract)"
+Cohesion: 0.20
+Nodes (14): allinea(), Blocco, BloccoLetto, campo(), cella(), Colonna, ColonnaAnnidata, ColonnaLetta (+6 more)
+
+### Community 219 - "llm (core/azioni)"
+Cohesion: 0.22
+Nodes (13): avvia(), CHIAVI_DEI_MODELLI, coda, imposta(), nomiInCoda(), racconta(), raccontaCoda(), raccontano (+5 more)
+
+### Community 221 - "csv (ui/views/documents)"
+Cohesion: 0.24
+Nodes (12): cella(), leggiCsv(), scopri(), anteprimaCsv(), fogli, leggi(), numerica(), pareggia() (+4 more)
+
+### Community 222 - "calendario (docs/immagini)"
 Cohesion: 0.15
 Nodes (15): Screenshot: Calendario (vista Settimana), Documento anno_esempio, Barra di stato (prossima lezione, pendenze), Barra laterale di navigazione (Agenda, Registro, Docente di classe, L'anno, Il programma), Blocco lezione (orario, classe, corso, numero lezione, UD), Filtri Anno / Periodo / Corso, Lezione da svolgere (bordo tratteggiato), Modalità vista (Settimana / Mese / Anno / Agenda) (+7 more)
 
-### Community 197 - "ui/shortcuts.ts · COMANDI_UI"
-Cohesion: 0.31
-Nodes (14): COMANDI_UI, comandoPerId(), dentroUnCampo(), avanti(), indietro(), vaiA(), consegnaIlCampo(), coperta() (+6 more)
-
-### Community 198 - ".claude/skills · Skill formato"
-Cohesion: 0.19
-Nodes (10): Skill formato, Campioni tests/samples/formato (npm run sample), Impronta dei campi (AGGIORNA_IMPRONTA=1 npm test), Normalizzazione con predefiniti (core/dominio/normalization), PASSI_DEL_FORMATO e porta (core/dominio/upgrades.ts), VERSIONE_DATI (core/dominio/models.ts), Glossario del registro, Skill testi (+2 more)
-
-### Community 199 - "docs/API.md · core/azioni README (copertura API delle azioni"
-Cohesion: 0.19
-Nodes (9): core/azioni README (copertura API delle azioni), API.md (interfaccia di programmazione), Assistente LLM (solo letture, dati non passano dal modello), Canale delle domande (letture fuori coda), Centralino delle Azioni (contract/switchboard.ts), Condotto JSON-RPC, Procedura API (busta, codici, schema), Riga di comando regi (+1 more)
-
-### Community 200 - "tools/dev.mjs · copiaCaratteriPdf()"
+### Community 223 - "dev (tools)"
 Cohesion: 0.24
 Nodes (10): copiaCaratteriPdf(), applicazione, avviaElectron(), chiudi(), contesti, dice(), finitoIlPrimoGiro(), primoGiro (+2 more)
 
-### Community 201 - "tests/interfaccia · settingsKeyboard.spec.ts"
+### Community 224 - "settingsKeyboard.spec (tests/interfaccia)"
 Cohesion: 0.14
 Nodes (11): ACCESO, ALTEZZA, annuncia(), CONTROLLI, DIMENSIONE, FIGLIA, MINUTI, RECAPITI (+3 more)
 
-### Community 202 - "tools/procedures.mjs · procedures.mjs"
+### Community 225 - "registerImport (ui/forms)"
+Cohesion: 0.25
+Nodes (12): Blocchi(), Importa(), leggi(), sfoglia(), Memoria, moduloImportaRegistro(), Origine, Quanto() (+4 more)
+
+### Community 226 - "lesson (ui/views/help)"
 Cohesion: 0.14
-Nodes (12): aree, azioni, cartelle, DICHIARA, doppie, file, generale, indici (+4 more)
+Nodes (13): TONI_SIGLA, CICLO_ORA, COLONNE_UD, ELENCO_ORE, LATERALI, MODULO_CONSEGNA, PAGINA_LEZIONE, PAGINA_PIANI (+5 more)
 
-### Community 203 - "core/dati · geocoding.ts"
-Cohesion: 0.24
-Nodes (11): chiedi(), Domanda, domandePer(), EsitoGeocodifica, geocodifica(), PuntoTrovato, rispettaIlPasso(), RispostaNominatim (+3 more)
-
-### Community 205 - "esterno · dist_tests_letterheadcourses"
-Cohesion: 0.15
-Nodes (5): anagrafe, classi, corsi, materie, visibili
-
-### Community 206 - "docs/immagini · Documento anno_esempio"
+### Community 227 - "classe (docs/immagini)"
 Cohesion: 0.21
 Nodes (13): Documento anno_esempio, Appello (presenze P/X/R per UD, minuti ritardo, nota), Barra laterale di navigazione (Agenda, Registro, Docente di classe, L'anno, Il programma), Check (documenti da firmare per persona in formazione), Consegne (compiti aperti con avanzamento per persona), Navigatore lezioni (20 di 36), Pendenze (contatore in barra laterale e di stato), Persona in formazione (+5 more)
 
-### Community 207 - "tools/mutants.mjs · ref_node_util"
+### Community 228 - "mutants (tools)"
 Cohesion: 0.15
 Nodes (9): @stryker-mutator/core, inizio, minuti, prove, sopravvissuti, sorgente, UCCISI, { values: opzioni, positionals: sciolti } (+1 more)
 
-### Community 208 - "tsconfig.js.json · ./tsconfig.json"
+### Community 229 - "tsconfig.js (.)"
 Cohesion: 0.15
 Nodes (12): ./tsconfig.json, compilerOptions, allowJs, checkJs, lib, noImplicitAny, paths, strict (+4 more)
 
-### Community 209 - ".github/workflows · Compattare VERSIONE_DATI prima di una re"
-Cohesion: 0.17
-Nodes (10): Prova del fumo (tools/smoke.mjs), Tre controlli d'obbligo: typecheck, eslint, npm test, Pull request template, Workflow rilascio, latest.yml per electron-updater, Firma del codice con SignPath, Workflow verifica, Job fumo (build + smoke) (+2 more)
+### Community 230 - "asyncResources (ui)"
+Cohesion: 0.26
+Nodes (11): OpzioniLettura, risorse, annota(), avvia(), mostra(), Voce, inAttesa, isolaPresente() (+3 more)
 
-### Community 210 - "ui/assistant · IdVisto"
+### Community 231 - "notifications (ui/components)"
+Cohesion: 0.19
+Nodes (12): AzioneNotifica, disegna(), DURATE, erroriInVista, LivelloNotifica, notifica, OpzioniNotifica, Pila() (+4 more)
+
+### Community 232 - "fields (ui)"
 Cohesion: 0.27
-Nodes (11): IdVisto, RisultatoAssistente, tabellaAssistente(), Turno, blocco(), coda(), haForma(), risultatoLetto() (+3 more)
+Nodes (12): AttributiArea, AttributiInput, AttributiSelect, Input(), scriviValore(), Select(), TextArea(), ADR-0056 (+4 more)
 
-### Community 211 - "tests/ui · domSintetico.mjs"
-Cohesion: 0.21
-Nodes (4): preparaDomSintetico(), suDocumento, NIENTE, TABELLA
+### Community 233 - "fields (core/controlli)"
+Cohesion: 0.24
+Nodes (10): AttributiInput, AttributiSelect, Input(), Select(), ADR-0052, ADR-0056, unisci(), useCambioNativo() (+2 more)
 
-### Community 212 - "tools/mail-probe.ps1 · mail-probe.ps1"
+### Community 234 - "geocoding (core/dati)"
+Cohesion: 0.26
+Nodes (11): chiedi(), Domanda, domandePer(), EsitoGeocodifica, geocodifica(), PuntoTrovato, rispettaIlPasso(), RispostaNominatim (+3 more)
+
+### Community 235 - "mail-probe (tools)"
 Cohesion: 0.35
 Nodes (11): Base64(), Chiedi-Microsoft(), Decodifica-Jwt(), Gettone-ConCodice(), Leggi-Smtp(), Prova-AuthSmtp(), Prova-Oauth(), Prova-Password() (+3 more)
 
-### Community 213 - "ui/bookmark.ts · daRicordare()"
-Cohesion: 0.21
-Nodes (11): daRicordare(), contenitore(), misura(), riprendi(), seguiScorrimento(), scriviStatoPersistito(), setState(), Segnalibro (+3 more)
+### Community 236 - "texts (cli)"
+Cohesion: 0.25
+Nodes (10): CATALOGO, de, en, fr, it, linguaDaEtichetta(), linguaDellaRiga(), linguaDelSistema() (+2 more)
 
-### Community 214 - "ui/components · VoceScelta"
-Cohesion: 0.17
-Nodes (12): VoceScelta, OpzioniPulsante, NomeIcona, TitoloMenu, VoceMenu, Voce, GruppoDiPagine, Porzione (+4 more)
-
-### Community 215 - ".claude/skills · core/controlli: DOM condiviso dei controlli"
-Cohesion: 0.20
-Nodes (8): core/controlli: DOM condiviso dei controlli (ADR-52), Skill impostazione, Dogana valoreConMotivo, Due superfici: pagina del pannello e finestra nativa, Manifesto IMPOSTAZIONI (contract/manifest.ts), Riferimento schemi d'ingresso, Convalida valibot (ADR-28, ADR-50), Dependabot config
-
-### Community 216 - ".claude/skills · Riferimento prove delle procedure"
-Cohesion: 0.18
-Nodes (9): Riferimento prove delle procedure, Conti scritti a mano (tests/counts.test.mjs), Prove che leggono il sorgente, Skill prove, Proprietà con fast-check, Prove sul sorgente diventano regole ESLint, Prove protette (ADR-03, 05, 11, 12, 13, 17, 18, 28, 37, 43), Snapshot per i rapporti (+1 more)
-
-### Community 217 - "docs/immagini · Pendenze screenshot"
+### Community 238 - "pendenze (docs/immagini)"
 Cohesion: 0.22
 Nodes (11): Pendenze screenshot, anno_esempio (documento campione), Barra laterale di navigazione, Raggruppamento per corso (I MEC A - Calcolo professionale), Momenti di valutazione, Nuova consegna, Selettore Anno e Periodo, Recuperi da fissare / da riconsegnare (+3 more)
 
-### Community 218 - "tests/interfaccia · accessibility.spec.ts"
-Cohesion: 0.18
-Nodes (7): AXE, CONFIGURAZIONE, prepara(), SCELTE, TUTTI_I_CONTROLLI, Violazione, PAGINA_CON_TITOLO
+### Community 239 - "filters (ui/components)"
+Cohesion: 0.22
+Nodes (5): COME_SI_PARTE, eseguiOAvvisa(), StatoVuotoAnno(), it, testi
 
-### Community 219 - ".claude/skills · Riferimento LLM (catalogo per il modello)"
-Cohesion: 0.27
-Nodes (6): Riferimento LLM (catalogo per il modello), Catalogo per il modello (resources/tools.json), Comando regi catalogo, Skill procedure-api, npm run procedures, npm run tools / resources/tools.json
-
-### Community 220 - "contract/procedure · intestazione/index.ts"
-Cohesion: 0.38
-Nodes (6): procedureIntestazione, it, testi, procedura, procedura, modelli
-
-### Community 221 - "core/i18n · flags.ts"
-Cohesion: 0.24
-Nodes (7): BANDIERE, Disegno, figuraLingua(), Forma, REGNO_UNITO, schermo(), span()
-
-### Community 222 - "tests/helpers · Emettitore"
+### Community 240 - "fake-electron (tests/helpers)"
 Cohesion: 0.20
 Nodes (3): Emettitore, FintoIpc, Tray
 
-### Community 223 - "core/dominio · CellaOsservata"
-Cohesion: 0.31
-Nodes (7): CellaOsservata, SegnoOsservato, CellaDiOra, ContoAspetto, NOMI_SEGNO, it, testi
+### Community 241 - "accessibility.spec (tests/interfaccia)"
+Cohesion: 0.20
+Nodes (6): AXE, CONFIGURAZIONE, prepara(), SCELTE, TUTTI_I_CONTROLLI, Violazione
 
-### Community 224 - "docs/immagini · Screenshot Valutazioni (Momenti di valutazio"
+### Community 242 - "valutazioni (docs/immagini)"
 Cohesion: 0.31
 Nodes (9): Screenshot Valutazioni (Momenti di valutazione), anno_esempio (documento campione), Barra laterale di navigazione Registro, Filtri Anno / Periodo / Corso, Griglia voti per persona in formazione, Media pesata, Momento di valutazione, Pannello dettaglio valutazione con statistiche (+1 more)
 
-### Community 225 - "tools/signing.mjs · ref_app_builder_lib"
+### Community 243 - "signing (tools)"
 Cohesion: 0.28
 Nodes (6): [comando, argomento], fileDiAggiornamento(), firmati(), impronta(), NON_AGGIORNAMENTO, PACCHETTI
 
-### Community 228 - "tests/interfaccia · misure.spec.ts"
+### Community 244 - "registro-app (resources)"
+Cohesion: 0.42
+Nodes (8): Green accent gradient background (#468515 to #2f6108), Regiklass app icon (10-month year spiral on green rounded square), Orange 'today' attention accent (#ff9a4d), Regiklass small app icon (3-segment year spiral, 16-48px), Regiklass installer side banner (164x1200, green with spiral, generated), Regiklass outline/stroke spiral icon (24px, currentColor), Regiklass monochrome mark (currentColor spiral, macOS tray template), tools/icons.cjs (npm run icons) icon generator
+
+### Community 247 - "misure.spec (tests/interfaccia)"
 Cohesion: 0.31
 Nodes (8): aTurno(), campione(), Caso, confronta(), migliore(), Misura, ADR-0006, ADR-0050
 
-### Community 229 - "ui/assistant · voice.ts"
-Cohesion: 0.33
-Nodes (8): apriMicrofono(), Ascolto, forza(), FREQUENZA, interi(), perchéNo(), Presa, unisci()
+### Community 248 - "common (ui/forms)"
+Cohesion: 0.25
+Nodes (9): cestinoPer(), chiediEliminazione(), inviaDalModulo(), PresaDiRiga(), richiedeAnno(), salva(), tastoDuplica, tastoElimina (+1 more)
 
-### Community 230 - "CODE_OF_CONDUCT.md · CODE_OF_CONDUCT.md (Codice di comportam"
-Cohesion: 0.29
-Nodes (5): CODE_OF_CONDUCT.md (Codice di comportamento), Contributor Covenant 2.1, La firma del codice, README.md (Regiklass vetrina), SECURITY.md (Sicurezza)
+### Community 249 - "package (.)"
+Cohesion: 0.25
+Nodes (8): dependencies, electron-updater, immer, node-llama-cpp, react, react-dom, @tanstack/virtual-core, valibot
 
-### Community 231 - "core/dominio · csvPresenze()"
-Cohesion: 0.38
-Nodes (6): csvPresenze(), csvValutazioni(), cella(), leggiCsv(), righe(), scopri()
-
-### Community 232 - "desktop/shell · reader/reader.ts"
-Cohesion: 0.29
-Nodes (3): cornice, segni, titolo
-
-### Community 233 - "knip.config.ts · knip.config.ts"
+### Community 250 - "knip.config (.)"
 Cohesion: 0.33
 Nodes (5): citatiComeStringa(), fileSotto(), giàVisti, PERCORSO, ADR-0047
 
-### Community 234 - "package.json · dependencies"
+### Community 251 - "pack (tools)"
 Cohesion: 0.29
-Nodes (7): dependencies, electron-updater, idiomorph, immer, node-llama-cpp, @tanstack/virtual-core, valibot
+Nodes (5): electron-builder, { build, configureBuildCommand, createYargs }, ICONA_PORTABILE, require, { wrap }
 
-### Community 235 - "tools/screenshotDocs.mjs · screenshotDocs.mjs"
-Cohesion: 0.48
-Nodes (6): attendiDisegno(), cartellaDaArgomenti(), creaPagina(), dimensioniPng(), generaTutto(), SCATTI
+### Community 252 - "main (ui)"
+Cohesion: 0.38
+Nodes (4): chiaveDiEntrata(), disegna(), Fotografo, segnaEntrata()
 
-### Community 236 - "contract/procedure · cerca.testi.ts"
+### Community 253 - "project (ui/views/lesson)"
+Cohesion: 0.43
+Nodes (6): progettiDellOra(), apriProgettoDellOra(), fasiDellOra(), scelti, schedaProgettoDellOra(), testi
+
+### Community 254 - "manifest.testi (contract)"
+Cohesion: 0.47
+Nodes (5): ChiaveImpostazione, IdComando, it, TestiManifesto, TestoImpostazione
+
+### Community 255 - "cerca.testi (contract/procedure/persone)"
 Cohesion: 0.53
 Nodes (5): fraCaporali(), fraGuillemets(), fraVirgolette(), it, testi
 
-### Community 238 - "tests/interfaccia · calendarContrast.spec.ts"
+### Community 256 - "posto.test (tests/ui)"
+Cohesion: 0.40
+Nodes (3): preparaDomSintetico(), NIENTE, TABELLA
+
+### Community 257 - "calendarContrast.spec (tests/interfaccia)"
 Cohesion: 0.40
 Nodes (4): Colore, luminanza(), rapporto(), Stile
 
-### Community 239 - "core/dominio · isoValida()"
-Cohesion: 0.40
-Nodes (5): isoValida(), conRiconsegnaDelMomento(), validaRicorrenza(), letteraValida(), ordinaSettimane()
-
-### Community 242 - "package.json · imports"
+### Community 260 - "package (.)"
 Cohesion: 0.40
 Nodes (5): imports, #contract/*, #core/*, #desktop/*, #ui/*
 
-### Community 244 - ".claude/settings.json · settings.json"
+### Community 262 - "frame.testi (ui/components)"
+Cohesion: 0.60
+Nodes (3): CorniceDocumento(), it, testi
+
+### Community 263 - "icons (ui/components)"
+Cohesion: 0.50
+Nodes (4): Icona(), NomeIcona, TRACCIATI, tracciatoIcona()
+
+### Community 264 - "settings (.claude)"
 Cohesion: 0.50
 Nodes (3): hooks, UserPromptSubmit, $schema
 
-### Community 245 - "core/azioni · nonSupportato()"
+### Community 265 - "projection.testi (core/azioni)"
+Cohesion: 0.50
+Nodes (3): spento(), it, testi
+
+### Community 266 - "updates.testi (core/azioni)"
 Cohesion: 0.50
 Nodes (3): nonSupportato(), it, testi
 
-### Community 246 - ".dependency-cruiser.cjs · .dependency-cruiser.cjs"
+### Community 267 - "calculations.testi (core/dominio)"
+Cohesion: 0.67
+Nodes (3): it, ordinaleInglese(), testi
+
+### Community 268 - "templateCatalog.testi (core/dominio)"
+Cohesion: 0.50
+Nodes (3): it, NomeModello, TestoModello
+
+### Community 269 - ".dependency-cruiser (.)"
 Cohesion: 0.50
 Nodes (3): ADR-0050, ADR-0052, VALORE
+
+### Community 273 - "package (.)"
+Cohesion: 0.67
+Nodes (3): repository, type, url
 
 ## Ambiguous Edges - Review These
 - `Consegne (compiti aperti con avanzamento per persona)` → `Pendenze (contatore in barra laterale e di stato)`  [AMBIGUOUS]
@@ -1259,9 +1375,9 @@ Nodes (3): ADR-0050, ADR-0052, VALORE
   docs/immagini/valutazioni.png · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **2065 isolated node(s):** `coda-sciame.sh script`, `$schema`, `UserPromptSubmit`, `{ liberi, opzioni }`, `genere` (+2060 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3202 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2237 isolated node(s):** `coda-sciame.sh script`, `$schema`, `UserPromptSubmit`, `{ liberi, opzioni }`, `genere` (+2232 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3548 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **36 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -1270,13 +1386,13 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `Momento di valutazione` and `Indicatore R (recupero)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `parole` connect `Viste e azioni del pannello` to `desktop/shell · ParametriDialogo`, `Moduli del pannello`, `Procedure: definisci e letture`, `Agenda, compleanni, giornata`, `Check e consegne`, `Appello e ritardi`, `Orario e tratti della giornata`, `Assenze e segnalazioni`, `core/dominio · fogliDeiProgetti()`, `Guscio Electron e pacchetto`, `Voti, scale e recuperi`, `Azioni applicative`, `ui/assistant · bottoneDelContesto()`, `contract/procedure · registro/altrove.ts`, `Account Microsoft`, `Progetti nel corso (vista UI)`, `Navigazione e percorso`, `Esportazioni e giornale`, `Indirizzi e mappa`, `Procedure progetti`, `Procedure anni e calendario`, `desktop/shell · BottoneMessaggio`, `Osservatori e avvio`, `Icone e barra titolo`, `Tipi di attività`, `contract/procedure · aggiornamenti.testi.ts`, `Risorse asincrone del pannello`, `Documenti e avvisi del corso`, `core/dominio · calendarioToccato()`, `contract/procedure · inoltra()`, `contract/procedure · esigiLezione()`, `core/dominio · cruscotto.ts`, `contract/presentation.ts · presentation.ts`, `ui/views · lezioneFinita()`, `desktop/apparato · chokidar`, `desktop/apparato · requisitoMancante()`, `desktop/apparato · impianta()`, `desktop/apparato · updateInstaller.ts`, `ui/views · righe()`, `ui/views · voce()`, `ui/views · ImpostazioniDaSalvare`, `core/dominio · impaginazioneDi()`, `ui/views · casella()`, `ui/views · help/lesson.ts`, `contract/procedure · scrittura`, `core/controlli · control.ts`, `ui/views · PaginaSmistamento`, `ui/views · Azione`, `ui/views · dominio/letterhead.ts`, `ui/components · bilancioSegni()`, `ui/views · SEZIONI_ASSISTENTE`, `ui/views · attivitaConPendenza()`, `desktop/shell · bandiera()`, `contract/procedure · errore`, `core/dominio · csvPresenze()`, `ui/views · help/assistant.ts`, `ui/commandBar.ts · RaggruppamentoCorsi`, `ui/projection.ts · AppelloProiettato`, `ui/views · tracciatoIcona()`, `ui/views · behind.ts`, `core/dominio · formatoDi()`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Why does `h()` connect `Icone e barra titolo` to `ui/commands.ts · eseguiDalPulsante()`, `ui/commands · BLOCCHI`, `Moduli del pannello`, `Viste e azioni del pannello`, `Agenda, compleanni, giornata`, `ui/dom.ts · ui/dom.ts`, `Check e consegne`, `Appello e ritardi`, `ui/views · comeElenco()`, `Assenze e segnalazioni`, `Voti, scale e recuperi`, `Orario e tratti della giornata`, `ui/views · durataPiano()`, `Stato UI e compleanni`, `ui/assistant.ts · ui/assistant.ts`, `Progetti nel corso (vista UI)`, `ui/views · signature.ts`, `Navigazione e percorso`, `Indirizzi e mappa`, `ui/sidebar.ts · raggruppamentoDeiCorsi()`, `Tipi di attività`, `Risorse asincrone del pannello`, `core/controlli · Ascolta`, `core/dominio · calendarioToccato()`, `core/dominio · breaks.ts`, `ui/statusBar.ts · FUOCO_ANNO`, `ui/views · lezioneFinita()`, `ui/assistant · answer.ts`, `ui/views · voce()`, `ui/views · ImpostazioniDaSalvare`, `ui/views · corrispondeAlla()`, `ui/views · PaginaSmistamento`, `ui/views · Azione`, `ui/views · dominio/letterhead.ts`, `ui/components · bilancioSegni()`, `ui/assistant · IdVisto`, `ui/views · attivitaConPendenza()`, `ui/assistant · chat.ts`, `ui/commandBar.ts · RaggruppamentoCorsi`, `ui/projection.ts · AppelloProiettato`, `ui/views · ordinalePausa()`, `ui/dom.ts · collegaRidisegno()`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `lingua()` connect `Account Microsoft` to `core/dominio · impaginazioneDi()`, `Icone e barra titolo`, `core/controlli · control.ts`, `Cataloghi testi i18n`, `Protocollo e pannelli desktop`, `Prove date e formato`, `ui/views · search.ts`, `Documenti e avvisi del corso`, `Testi delle azioni`, `core/dati · dati/dictation.ts`, `desktop/shell · commandLine.ts`, `Guscio Electron e pacchetto`, `esterno · dist_tests_domain_catalogo_modelli`, `desktop/shell · bandiera()`, `desktop/apparato · chokidar`, `desktop/apparato · updateInstaller.ts`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `parole` connect `Guida assistente e figure` to `Procedure persone e comuni`, `Dati dei rapporti`, `Procedure classe e anni`, `Piani e attività`, `Finestre e canali shell`, `Contesto azioni e centralino`, `Navigazione e sidebar UI`, `Vassoio, corsi, regole calendario`, `Calcoli ore e appello`, `Docente di classe e smistamento`, `Viste e rapporto progetti`, `Assenze e smistatore`, `Componenti base UI`, `Valutazioni, consegne, todo dominio`, `Date e calendario UI`, `Avvio UI e notifiche`, `Pause e griglia orario`, `Vista calendario settimana`, `Main shell e ciclo vita`, `Main UI e storia navigazione`, `Palette e barra stato`, `Figure controlli e bandiere`, `Aggiornamenti app`, `Calendario scolastico`, `Automazione e rigenerazione`, `Viste classi e lezione`, `Manifesto impostazioni`, `Procedure ore e appello`, `Barra comandi`, `Proiezione voti e scale`, `Integrazione progetti`, `Archivio vista e documenti`, `Dialoghi apparato`, `Vista guida`, `Procedure calendario e modelli`, `Indice sezioni guida`, `OneDrive e panoramica`, `Procedure valutazioni`, `Luoghi e nomi file`, `Controllo impostazioni`, `Validazione dominio`, `Corsi e osservazioni`, `Boot desktop`, `Vista modelli linguistici`, `OneDrive dati`, `Riquadro assistente`, `Guida calendario`, `Vista todo`, `settings (core/dominio/normalization)`, `check (core/dominio)`, `projection (ui)`, `plansNavigator (ui/views)`, `substitute (core/dominio)`, `pageBrowser (ui/views/sorting)`, `common (ui/forms)`, `drawing (ui/views/help)`, `people (ui/views)`, `project (ui/forms)`, `class (ui/forms)`, `oauth (core/dati)`, `dialog (desktop/shell/pages/dialog)`, `mail (ui/views/settings)`, `ics (ui/views/calendar)`, `lists (ui/views/settings)`, `icsCalendar (ui/views/settings)`, `map (ui/views)`, `calendar (ui/forms)`, `check (ui/views)`, `sheets (ui/views/documents)`, `registry (ui/views/student)`, `pageDrop (ui/views/sorting)`, `stato (contract/procedure/aggiornamenti)`, `integrita (contract/procedure/registro)`, `year (ui/forms)`, `preview (ui/views/documents)`, `modal (ui/components)`, `document (ui/views/settings)`, `settings (ui/views/help)`, `presentation (contract)`, `registerImport (ui/forms)`, `lesson (ui/views/help)`, `notifications (ui/components)`, `common (ui/forms)`?**
+  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `react` connect `Componenti base UI` to `Piani e attività`, `Finestre e canali shell`, `Navigazione e sidebar UI`, `Vassoio, corsi, regole calendario`, `Calcoli ore e appello`, `Docente di classe e smistamento`, `Viste e rapporto progetti`, `Assenze e smistatore`, `Progetti e cancellazioni`, `Stato UI e oggi`, `Valutazioni, consegne, todo dominio`, `Date e calendario UI`, `Avvio UI e notifiche`, `Pause e griglia orario`, `Vista calendario settimana`, `Main UI e storia navigazione`, `Palette e barra stato`, `Figure controlli e bandiere`, `Calendario dominio ed esterno`, `Calendario scolastico`, `Automazione e rigenerazione`, `Viste classi e lezione`, `Barra comandi`, `Proiezione voti e scale`, `Chat assistente e voce`, `Integrazione progetti`, `Archivio vista e documenti`, `Vista guida`, `OneDrive e panoramica`, `Luoghi e nomi file`, `Sezioni impostazioni programma`, `Controllo impostazioni`, `Validazione dominio`, `Corsi e osservazioni`, `Vista modelli linguistici`, `Aree impostazioni`, `Riquadro assistente`, `Campi e formati i18n`, `Vista impostazioni`, `Impostazioni anno e annulla`, `Vista todo`, `check (core/dominio)`, `projection (ui)`, `package (.)`, `thumbnails (ui/components)`, `plansNavigator (ui/views)`, `assistantWindow (ui)`, `pageBrowser (ui/views/sorting)`, `virtualList (ui/components)`, `common (ui/forms)`, `people (ui/views)`, `project (ui/forms)`, `projection (ui/commands)`, `class (ui/forms)`, `dialog (desktop/shell/pages/dialog)`, `mail (ui/views/settings)`, `ics (ui/views/calendar)`, `lists (ui/views/settings)`, `icsCalendar (ui/views/settings)`, `map (ui/views)`, `contacts (core/dominio)`, `calendar (ui/forms)`, `check (ui/views)`, `sheets (ui/views/documents)`, `map (core/dominio)`, `registry (ui/views/student)`, `pageDrop (ui/views/sorting)`, `birthdays (core/dominio)`, `menu (ui/components)`, `year (ui/forms)`, `preview (ui/views/documents)`, `updates (ui/views/settings)`, `modal (ui/components)`, `signature (ui/views/settings)`, `format (ui/assistant)`, `document (ui/views/settings)`, `csv (ui/views/documents)`, `registerImport (ui/forms)`, `notifications (ui/components)`, `fields (ui)`, `fields (core/controlli)`, `filters (ui/components)`, `project (ui/views/lesson)`, `frame.testi (ui/components)`, `icons (ui/components)`?**
+  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+- **Why does `catalogo` connect `Cataloghi testi viste` to `Procedure persone e comuni`, `Guida e lessico dominio`, `Schemi contratto e giornale`, `Dati dei rapporti`, `Procedure classe e anni`, `Piani e attività`, `Finestre e canali shell`, `Contesto azioni e centralino`, `Navigazione e sidebar UI`, `Contratto procedura e contesto`, `Vassoio, corsi, regole calendario`, `Viste e rapporto progetti`, `Normalizzazione dominio`, `Componenti base UI`, `Progetti e cancellazioni`, `Stato UI e oggi`, `Valutazioni, consegne, todo dominio`, `Procedure smistamento assenze`, `Avvio UI e notifiche`, `Pause e griglia orario`, `Pacchetto zip .regi`, `Procedure progetti`, `Vista calendario settimana`, `Main shell e ciclo vita`, `Identificatori e fabbriche`, `Bridge e trasporto assistente`, `Archiviazione anni e percorsi`, `Figure controlli e bandiere`, `Modelli GGUF e kit`, `Aggiornamenti app`, `Calendario dominio ed esterno`, `Calendario scolastico`, `Automazione e rigenerazione`, `Manifesto impostazioni`, `Procedure ore e appello`, `Condotto JSON-RPC`, `Integrazione progetti`, `Notifiche, vassoio, router`, `Dialoghi apparato`, `Procedure consegne`, `Procedure calendario e modelli`, `Pannello assistente e conversazione`, `Indice sezioni guida`, `OneDrive e panoramica`, `Procedure valutazioni`, `Luoghi e nomi file`, `Sezioni impostazioni programma`, `LLM, visione, OCR`, `Corsi e osservazioni`, `Vista modelli linguistici`, `Aree impostazioni`, `Riquadro assistente`, `Procedure documenti ed esportazioni`, `Campi e formati i18n`, `Procedure piani e risorse`, `Dettatura e voce`, `Impostazioni anno e annulla`, `Importazione e migrazione`, `exchange (core/dati)`, `check (core/dominio)`, `microsoft (core/dati)`, `pdf (core/dati)`, `plansNavigator (ui/views)`, `substitute (core/dominio)`, `bridge (ui)`, `file (contract/procedure/llm)`, `project (ui/forms)`, `projection (ui/commands)`, `common (contract/procedure/check)`, `dialog (desktop/shell/pages/dialog)`, `mail (ui/views/settings)`, `lists (ui/views/settings)`, `templateCheck (core/dominio)`, `contacts (core/dominio)`, `sorting (core/dominio)`, `sheets (ui/views/documents)`, `map (core/dominio)`, `pageDrop (ui/views/sorting)`, `stato (contract/procedure/aggiornamenti)`, `integrita (contract/procedure/registro)`, `birthdays (core/dominio)`, `commandLine (desktop/shell/system)`, `modal (ui/components)`, `signature (ui/views/settings)`, `calendar (core/dati)`, `fileAssociation (desktop/shell/system)`, `document (ui/views/settings)`, `llm (core/azioni)`, `csv (ui/views/documents)`, `registerImport (ui/forms)`, `filters (ui/components)`, `manifest.testi (contract)`, `cerca.testi (contract/procedure/persone)`, `frame.testi (ui/components)`, `projection.testi (core/azioni)`, `updates.testi (core/azioni)`, `calculations.testi (core/dominio)`, `templateCatalog.testi (core/dominio)`, `years.testi (core/dominio)`, `dialogs.testi (desktop/apparato)`, `check.testi (ui/commands)`, `documents.testi (ui/commands)`, `lesson.testi (ui/commands)`, `map.testi (ui/commands)`, `plans.testi (ui/commands)`, `program.testi (ui/commands)`, `projects.testi (ui/commands)`, `register.testi (ui/commands)`?**
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **What connects `coda-sciame.sh script`, `$schema`, `UserPromptSubmit` to the rest of the system?**
-  _2065 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Prove ambiente e file temporanei` be split into smaller, more focused modules?**
-  _Cohesion score 0.0176759410801964 - nodes in this community are weakly interconnected._
+  _2237 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Test helper archivio e file` be split into smaller, more focused modules?**
+  _Cohesion score 0.014522681870216157 - nodes in this community are weakly interconnected._
