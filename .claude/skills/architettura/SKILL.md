@@ -98,20 +98,20 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
 - `desktop/boot.ts`: Modulo orchestratore che avvia i servizi, apre il documento e coordina l'inizializzazione dell'applicazione desktop.
 
 ### `ui/`: Il frontend del pannello in webview (`ui/`)
-È l'interfaccia grafica utente renderizzata all'interno della webview di Chromium. È un'applicazione web autonoma priva di framework pesante:
+È l'interfaccia grafica utente renderizzata all'interno della webview di Chromium. È un'applicazione React (ADR-56) senza router, store né kit di componenti:
 
 - Organizzazione interna:
   - `ui/views/` (`views/`): le viste complete dell'applicazione (orario, appello, valutazioni, studenti, ecc.).
   - `ui/forms/` (`forms/`): i form di inserimento e modifica dati con validazione visuale.
   - `ui/components/` (`components/`): componenti grafici riutilizzabili (pulsanti, schede, modali, tabelle).
   - `ui/bridge.ts` (`bridge.ts`): il ponte di comunicazione che invia le richieste IPC al main process e gestisce lo stato di ritorno.
-  - `ui/dom.ts` (`dom.ts`): motore di rendering DOM con funzione `h()` e ripristino chirurgico di cursore, fuoco e scorrimento.
+  - `ui/main.tsx` (`main.tsx`): la radice React (ADR-56), ridisegnata tutta a ogni cambio di stato; `ui/focus.ts` rimette cursore, fuoco e scorrimento. Come si scrive un componente: skill `react`.
   - **Dove si è (ADR-47):** un `Posto` (`place.ts`); si naviga solo con `vai(posto)`, `vaiA(pagina)` o `apriLezione(id)`, mai con `aggiorna({vista…})`. Il posto si ricorda per documento (`memory.ts`).
   - **Ogni aggiornamento resta nel suo riquadro (ADR-48).** Scrivendo una vista:
     - una lettura asincrona (anteprima, PDF, CSV, miniature, avanzamento) va in un'`isola` (`islands.ts`) e si legge con `risorse.leggi(…, { isola })`: all'arrivo si rifà solo quella;
-    - un nodo pesante (`iframe`, visore, `canvas`, mappa, immagine grande) porta `data-tieni="<sorgente>"`;
+    - un nodo pesante (`iframe`, visore, `canvas`, mappa, immagine grande) è un componente con la sorgente per `key`;
     - un contenitore che scorre porta `data-scorrimento` e, se la catena dalla radice lo permette, `data-telaio`;
-    - niente `chiedi`/`invia`/`aggiorna`/`scrollIntoView` dentro `h()`: si fanno in un gesto o in un iscritto;
+    - niente `chiedi`/`invia`/`aggiorna`/`scrollIntoView` mentre si disegna: si fanno in un gesto, in un effetto o in un iscritto;
     - ciò che segna l'ora si muove con `alMinuto` (`clock.ts`), non ridisegnando.
 - **Isolamento stringente**: gira dentro una sandbox Chromium con CSP `default-src 'none'`. Non ha accesso a Node (`node:*`) né a moduli Electron. Non può importare moduli da `core/dati/`, `core/azioni/` o `core/apparato/`. Comunica con il sistema esclusivamente tramite messaggi IPC scambiati sul ponte `ui/bridge.ts`.
 
@@ -167,7 +167,7 @@ Alla webview è concesso importare solo funzioni pure di calcolo da `core/domini
 
 ### `core/controlli/`: il DOM condiviso dei controlli (ADR-52)
 
-I controlli delle impostazioni del programma (`controllo()` in `core/controlli/control.ts`, le aree in `core/controlli/areas.ts`, il foglio `core/controlli/controls.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole, come `core/i18n/flags.ts`: `documento: Document` come argomento, elementi costruiti uno a uno, testo in `textContent`, niente ponte, IPC, Node o Electron; importa solo `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
+I controlli delle impostazioni del programma (`controllo()` in `core/controlli/control.tsx`, le aree in `core/controlli/areas.ts`, il foglio `core/controlli/controls.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole, come `core/i18n/flags.ts`: `documento: Document` come argomento, elementi costruiti uno a uno, testo in `textContent`, niente ponte, IPC, Node o Electron; importa solo `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
 
 ---
 

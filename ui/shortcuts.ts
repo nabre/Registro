@@ -3,7 +3,7 @@
 // ogni comando in `COMANDI_UI`.
 
 import { COMANDI_UI, comandoPerId, eseguiComando } from './commands.js'
-import { dentroUnCampo } from './dom.js'
+import { dentroUnCampo } from './focus.js'
 import { avanti, indietro } from './history.js'
 import { gruppiDiPagine, vaiA } from './pages.js'
 

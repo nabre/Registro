@@ -1,5 +1,7 @@
 // Quel che le pagine native hanno in comune: il canale con il main process, gli
-// elementi, i testi del catalogo.
+// elementi del markup, i testi del catalogo. Niente React: lo usa anche lo
+// splash, che resta leggero; le pagine in React (ADR-56) disegnano da sé e
+// prendono di qui il canale e poco altro.
 //
 // Gira in una finestra: DOM senza Node. Dal resto del progetto le pagine
 // prendono solo tipi (`import type`) e i testi (`core/i18n/` e il loro catalogo).
@@ -24,21 +26,6 @@ export function ascolta (gestore: (messaggio: Record<string, unknown>) => void):
     if (typeof messaggio !== 'object' || messaggio === null) return
     gestore(messaggio as Record<string, unknown>)
   })
-}
-
-/**
- * Un elemento con dentro del testo, sempre via `textContent` (mai `innerHTML`:
- * sono nomi scritti dal docente). `null` e `undefined` lo lasciano vuoto; lo zero si scrive.
- */
-export function elemento<K extends keyof HTMLElementTagNameMap> (
-  nome: K,
-  classe?: string | null,
-  testo?: string | number | null,
-): HTMLElementTagNameMap[K] {
-  const nato = document.createElement(nome)
-  if (classe) nato.className = classe
-  if (testo !== undefined && testo !== null) nato.textContent = String(testo)
-  return nato
 }
 
 /** Un elemento del markup per id; se manca è un errore della pagina, e lo si dice per nome. */

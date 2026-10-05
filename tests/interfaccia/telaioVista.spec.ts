@@ -1,8 +1,7 @@
 // La radice della vista resta fra due disegni, e una pagina letta non rifà la pagina.
 //
-// La catena di `data-telaio` (`ui/dom.ts`) tiene un nodo fra due
-// disegni solo se tutti i suoi antenati sono tenuti: guscio, `main.contenuto`,
-// e la radice della vista, che `shell.ts` segna da sé per ogni vista. Senza
+// La catena di `data-telaio` tiene un nodo fra due disegni solo se tutti i
+// suoi antenati sono tenuti: guscio, `main.contenuto`, e la radice della vista, che `shell.ts` segna da sé per ogni vista. Senza
 // l'ultimo anello ogni scatola che scorre dentro una vista era nuova a ogni
 // gesto. Qui si fissa che la radice è lo stesso nodo dopo un ridisegno in ogni
 // pagina, che cambiando pagina è nuova, e che il messaggio `lavoro` (la lettura

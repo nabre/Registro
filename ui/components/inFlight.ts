@@ -1,12 +1,14 @@
 // Il valore che una casella ha mandato all'host e non ha ancora visto tornare.
 // Un secondo clic rapido deve partire da lì, non dal disegno: finché l'host non
 // rispinge il registro il disegno dice ancora lo stato di prima, e il secondo
-// clic manderebbe lo stesso valore del primo. Sta fuori dalla casella, in una
-// mappa del modulo che la usa, perché un ridisegno fra i due clic la ricrea
-// (`idiomorph` riusa il nodo ma gli passa i gestori nuovi, con chiusure nuove).
+// clic manderebbe lo stesso valore del primo.
+//
+// La mappa si legge nel gestore del clic, non nel disegno, e non fa
+// ridisegnare. Le viste la tengono a livello di modulo (`statoInVolo()`), che
+// sopravvive anche lasciando la pagina con un clic in volo.
 
 /** Le caselle in volo di una vista, per chiave stabile fra due ridisegni. */
-interface StatoInVolo<T> {
+export interface StatoInVolo<T> {
   /**
    * Il valore da cui parte un clic: quello in volo, o se non c'è `disegnato`
    * (che può essere `undefined`, per chi vuole sapere se c'è qualcosa in volo).

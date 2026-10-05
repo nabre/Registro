@@ -30,6 +30,8 @@ const it = {
   annullareConferma: 'Annulla la lezione',
   nonAnnullabile: 'La lezione è già compilata: non si può annullare.',
   nonFinita: 'La lezione non è ancora finita: si conclude quando il suo orario è passato.',
+  supplenza: 'Prepara la supplenza',
+  supplenzaAiuto: 'Se manchi: allievi, piano e risorse in uno zip per chi tiene la lezione',
 }
 
 export const testi = catalogo(it, {
@@ -56,6 +58,8 @@ export const testi = catalogo(it, {
     annullareConferma: 'Stunde ausfallen lassen',
     nonAnnullabile: 'Die Stunde ist schon ausgefüllt: Sie kann nicht ausfallen.',
     nonFinita: 'Die Stunde ist noch nicht vorbei: Man schliesst sie ab, wenn ihre Zeit vorüber ist.',
+    supplenza: 'Stellvertretung vorbereiten',
+    supplenzaAiuto: 'Wenn du fehlst: Schülerinnen und Schüler, Plan und Materialien in einem ZIP für die vertretende Person',
   },
   fr: {
     statiOra: {
@@ -80,6 +84,8 @@ export const testi = catalogo(it, {
     annullareConferma: 'Annuler la leçon',
     nonAnnullabile: 'La leçon est déjà remplie : elle ne peut pas être annulée.',
     nonFinita: 'La leçon n’est pas encore finie : on la termine quand son horaire est passé.',
+    supplenza: 'Préparer la suppléance',
+    supplenzaAiuto: 'Si tu es absent : élèves, plan et ressources dans un zip pour qui donne la leçon',
   },
   en: {
     statiOra: {
@@ -104,5 +110,7 @@ export const testi = catalogo(it, {
     annullareConferma: 'Cancel the lesson',
     nonAnnullabile: 'The lesson has already been filled in: it can’t be cancelled.',
     nonFinita: 'The lesson isn’t over yet: it can be completed once its time has passed.',
+    supplenza: 'Prepare cover',
+    supplenzaAiuto: 'If you are away: students, plan and resources in a zip for whoever teaches the lesson',
   },
 })

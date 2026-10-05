@@ -13,8 +13,8 @@
   pagina: i preferiti in cima, i recenti sotto, e si riapre un anno con un clic
   invece che con sei.
 
-  Il telaio sta qui; l'elenco lo riempie `welcome.ts`, l'aspetto è in
-  `welcome.css`.
+  Qui stanno la fascia e il contenitore; la pagina la disegna `welcome.tsx`,
+  l'aspetto è in `welcome.css`.
 -->
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none'; style-src registro:; script-src registro:; img-src registro:;">
@@ -26,64 +26,8 @@
      copertina di registro con cui il programma si è presentato la prima volta. -->
 <img class="fascia" src="registro://app/resources/registro-fascia.svg" alt="" aria-hidden="true">
 
-<main class="corpo">
-<!-- Il filetto: c'è solo quando è uscita una versione nuova — trovata, in
-     arrivo o pronta — e se ne va con la ✕ fino alla notizia successiva. Le
-     parole e il gesto li scrive `environment/updates.ts`, gli stessi del
-     filetto nella barra del titolo del registro. -->
-<div class="filetto" id="filetto" role="status" hidden>
-  <!-- `ricarica` di `src/ui/components/icons.ts`: la pagina non può importarlo,
-       e il segno degli aggiornamenti deve essere lo stesso. -->
-  <svg class="icona" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 11a8 8 0 1 0-.7 4.3"/><path d="M20 5v6h-6"/></svg>
-  <span class="filetto__testo" id="filetto-testo"></span>
-  <button type="button" class="minuto" id="filetto-gesto"></button>
-  <button type="button" class="minuto filetto__chiudi" id="filetto-chiudi"
-          data-testo-title="nascondiNotizia" data-testo-aria-label="nascondiNotizia">✕</button>
-  <span class="filetto__quota" id="filetto-quota" hidden><span></span></span>
-</div>
-
-<header class="testata">
-  <h1>Regiklass</h1> <!-- testo-fisso: il marchio non si traduce -->
-  <p class="invito" id="invito"></p>
-</header>
-
-<!-- Le parole le scrive `welcome.ts` dal catalogo: `data-testo` dice quale. -->
-<div class="scelte">
-  <button type="button" id="apri" data-ruolo="conferma">
-    <span class="titolo" data-testo="apriAnno"></span>
-    <span class="sotto" data-testo="apriAnnoSotto"></span>
-  </button>
-  <button type="button" id="crea">
-    <span class="titolo" data-testo="creaAnno"></span>
-    <span class="sotto" data-testo="creaAnnoSotto"></span>
-  </button>
-</div>
-
-<section class="recenti">
-  <h2 data-testo="recenti"></h2>
-  <ul class="voci" id="elenco"></ul>
-</section>
-
-<footer class="piede">
-  <!-- La versione e, accanto, a che punto sono gli aggiornamenti: il controllo
-       rapido, con il gesto che ha senso adesso. -->
-  <div class="aggiornamento">
-    <span class="quieto versione" id="versione"></span>
-    <span class="pastiglia" id="aggiornamento-stato" hidden></span>
-    <button type="button" class="minuto" id="aggiornamento-gesto" hidden></button>
-  </div>
-  <div class="piede__destra">
-    <!-- La lingua, nell'angolo: la bandiera di quella di adesso apre il menu
-         delle altre, ognuna col suo nome. Le voci le scrive `welcome.ts`. -->
-    <div class="lingua">
-      <button type="button" class="minuto lingua__bottone" id="lingua-bottone"
-              aria-haspopup="menu" aria-expanded="false" aria-controls="lingua-menu"></button>
-      <ul class="lingua__menu" id="lingua-menu" role="menu" data-testo-aria-label="lingua" hidden></ul>
-    </div>
-    <button type="button" id="esci" data-testo="esci"></button>
-  </div>
-</footer>
-</main>
+<!-- Il resto lo disegna `welcome.tsx`, in React (ADR-56). -->
+<main class="corpo" id="radice"></main>
 
 <script src="registro://app/dist/welcome.js"></script>
 </body>

@@ -8,7 +8,8 @@ import { lezioniSovrapposte } from '#core/dominio/calculations.js'
 import { lezioniDellAnno } from '#core/dominio/courses.js'
 import { formattaData } from '#core/dominio/dates.js'
 import type { Iso, Lezione } from '#core/dominio/models.js'
-import { gestisci, h } from '#ui/dom.js'
+import type { DragEvent as EventoTrascina } from 'react'
+
 import { ancorataAIcs } from '#ui/externalCalendar.js'
 import { notifica } from '#ui/components/notifications.js'
 import { azione } from '#ui/bridge.js'
@@ -33,7 +34,7 @@ export const AGGANCIO_MINUTI = 5
 export let trascinata: Lezione | null = null
 
 /** Copia invece di spostare: Ctrl, Alt o Cmd. */
-export function vuoleCopiare (evento: DragEvent | MouseEvent): boolean {
+export function vuoleCopiare (evento: { ctrlKey: boolean, altKey: boolean, metaKey: boolean }): boolean {
   return evento.ctrlKey || evento.altKey || evento.metaKey
 }
 
@@ -51,31 +52,47 @@ document.addEventListener('dragend', () => {
   for (const zona of document.querySelectorAll('.zona-posa')) zona.classList.remove('zona-posa')
 })
 
-/** Rende un blocco afferrabile. Il resto — dove si posa — lo sanno le colonne. */
-export function rendiTrascinabile (elemento: HTMLElement, lezione: Lezione): void {
+/** Quel che un blocco o una pastiglia mettono per farsi afferrare (`trascinabile`). */
+export interface Afferrabile {
+  draggable: boolean
+  /** La lezione è ferma: il blocco porta `blocco--ancorata`. */
+  ancorata: boolean
+  /** Il suggerimento del blocco, con in coda il perché non si trascina. */
+  title: string
+  onDragStart?: (evento: EventoTrascina<HTMLElement>) => void
+}
+
+/**
+ * Come si rende afferrabile un blocco, con il suo suggerimento. Il resto — dove
+ * si posa — lo sanno le colonne.
+ */
+export function trascinabile (lezione: Lezione, titolo: string): Afferrabile {
   // Una lezione ancorata a eventi ICS non si trascina: il collegamento si ricava
   // dall'orario e si romperebbe (`ancorataAIcs`).
   if (ancorataAIcs(lezione.id)) {
-    elemento.draggable = false
-    elemento.classList.add('blocco--ancorata')
-    // Con «Calendario ICS» spento il perché sta nel suggerimento, solo nella
-    // settimana; altrove l'ICS non si nomina, ma la lezione resta ferma.
-    if (stato.modoCalendario === 'settimana') {
-      elemento.title = [elemento.title, testi().ancorataNonSiTrascina]
-        .filter(Boolean)
-        .join('\n')
+    return {
+      draggable: false,
+      ancorata: true,
+      // Con «Calendario ICS» spento il perché sta nel suggerimento, solo nella
+      // settimana; altrove l'ICS non si nomina, ma la lezione resta ferma.
+      title: stato.modoCalendario === 'settimana'
+        ? [titolo, testi().ancorataNonSiTrascina].filter(Boolean).join('\n')
+        : titolo,
     }
-    return
   }
-  elemento.draggable = true
-  gestisci(elemento, 'dragstart', (evento) => {
-    trascinata = lezione
-    ;(evento.currentTarget as HTMLElement).classList.add('blocco--in-viaggio')
-    if (!evento.dataTransfer) return
-    evento.dataTransfer.effectAllowed = 'copyMove'
-    // Un contenuto ci vuole comunque, o Firefox non fa partire il trascinamento.
-    evento.dataTransfer.setData('text/plain', lezione.id)
-  })
+  return {
+    draggable: true,
+    ancorata: false,
+    title: titolo,
+    onDragStart: (evento) => {
+      trascinata = lezione
+      evento.currentTarget.classList.add('blocco--in-viaggio')
+      if (!evento.dataTransfer) return
+      evento.dataTransfer.effectAllowed = 'copyMove'
+      // Un contenuto ci vuole comunque, o Firefox non fa partire il trascinamento.
+      evento.dataTransfer.setData('text/plain', lezione.id)
+    },
+  }
 }
 
 /** Porta la lezione dove la si è lasciata: stesso giorno diverso, o copia. */
@@ -139,7 +156,8 @@ export function guida (
 ): void {
   let riga = colonna.querySelector<HTMLElement>('.settimana__guida')
   if (!riga) {
-    riga = h('span', { class: 'settimana__guida' })
+    riga = document.createElement('span')
+    riga.className = 'settimana__guida'
     colonna.appendChild(riga)
   }
   // Dalla frazione della colonna vera, come `oraSotto`: la colonna si allunga

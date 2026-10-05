@@ -44,7 +44,7 @@ ragionevole in Python: strumenti di sviluppo isolati, come già
 
 | Funzione | Dove | Dipende da |
 | --- | --- | --- |
-| Pannello (UI intera) | `ui/`, `ui/dom.ts` | Chromium: DOM, `moveBefore`, `Temporal` nativo, CSP |
+| Pannello (UI intera) | `ui/`, `ui/main.tsx` | Chromium: DOM, `moveBefore`, `Temporal` nativo, CSP |
 | Finestre, figlie, proiezione | `desktop/apparato/windows.ts` | `BrowserWindow` |
 | Vassoio, promemoria | `desktop/apparato/tray.ts`, `desktop/widget/tray.ts` | `Tray`, `Menu` |
 | Notifiche | `desktop/apparato/notifications.ts` | `Notification`, AppUserModelID |

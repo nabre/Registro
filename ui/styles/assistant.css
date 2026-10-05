@@ -280,7 +280,7 @@
 }
 
 /*
- * La tabella di una risposta: non quella di `components/table.ts`, perché sta
+ * La tabella di una risposta: non quella di `components/table.tsx`, perché sta
  * in una colonna stretta. Scorre di lato invece di allargare il riquadro e
  * nascondere la domanda.
  */

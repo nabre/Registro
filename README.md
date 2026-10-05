@@ -283,4 +283,4 @@ prima di aprire una pull request.
 
 Alcune icone dell'interfaccia riprendono i tracciati di
 [Lucide](https://lucide.dev) (licenza ISC, © Lucide Contributors); il
-commento accanto a ognuna in `ui/components/icons.ts` dice quale.
+commento accanto a ognuna in `ui/components/icons.tsx` dice quale.

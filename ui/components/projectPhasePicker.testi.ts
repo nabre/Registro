@@ -1,4 +1,4 @@
-// I testi di `components/projectPhasePicker.ts`: la scelta di progetto e fase.
+// I testi di `components/projectPhasePicker.tsx`: la scelta di progetto e fase.
 
 import { catalogo } from '#core/i18n/index.js'
 

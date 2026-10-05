@@ -51,7 +51,7 @@ const DEROGHE = []
 // ------------------------------------------------------------------ il grafo
 
 /** Anche gli `.mjs`: la riga di comando è codice, e ha i suoi confini da rispettare. */
-const ESTENSIONI = ['.ts', '.mjs']
+const ESTENSIONI = ['.ts', '.tsx', '.mjs']
 
 const RADICI = ['core', 'contract', 'desktop', 'ui', 'cli']
 
@@ -179,12 +179,12 @@ const conTrePunti = []
 const risalite = []
 for (const percorso of ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'tools', 'shell', 'src']
   .filter(esiste)
-  .flatMap((r) => fileSotto(join(RADICE, r), ['.ts', '.mts', '.mjs', '.cjs', '.js']))
+  .flatMap((r) => fileSotto(join(RADICE, r), ['.ts', '.tsx', '.mts', '.mjs', '.cjs', '.js']))
   .map((p) => daRadice(p, RADICE))
   .concat(esiste('esbuild.mjs') ? ['esbuild.mjs'] : [])) {
   const testo = readFileSync(join(RADICE, percorso), 'utf8')
   for (const trovato of testo.matchAll(TRE_PUNTI)) {
-    const risale = percorso.endsWith('.ts') && trovato[2].startsWith('../')
+    const risale = /\.tsx?$/.test(percorso) && trovato[2].startsWith('../')
     if (!risale && !trovato[2].split('/').includes('...')) continue
     const riga = testo.slice(0, trovato.index).split('\n').length
     ;(risale ? risalite : conTrePunti).push(`${percorso}:${riga}  '${trovato[2]}'`)
@@ -245,7 +245,7 @@ const UNA_VOLTA = [
   },
 ]
 
-const codiceTs = sorgenti.filter((p) => p.endsWith('.ts'))
+const codiceTs = sorgenti.filter((p) => /\.tsx?$/.test(p))
 const ricopiate = []
 for (const percorso of codiceTs) {
   const righe = righeDiCodice(readFileSync(join(RADICE, percorso), 'utf8'))

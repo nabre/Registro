@@ -1,5 +1,5 @@
 /*
- * I controlli delle impostazioni (`control.ts`), uguali nel pannello e nella
+ * I controlli delle impostazioni (`control.tsx`), uguali nel pannello e nella
  * finestra nativa: tutti e due i fogli importano questo. Solo token e misure
  * che le due pagine hanno già (`theme.css`, `metrics.css`); le schede con la
  * figura stanno in `ui/styles/figure-choice.css`.
@@ -184,7 +184,7 @@
 
 .controllo__pulsante { flex: none; }
 
-/* ------------------------------------------- i campi del documento (`field.ts`) */
+/* ------------------------------------------- i campi del documento (`field.tsx`) */
 
 /* Il segmentato che ne accende più d'uno: lo stesso vestito, `aria-pressed` al posto di `aria-checked`. */
 .controllo-segmenti__voce[aria-pressed='true'] {

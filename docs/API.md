@@ -439,10 +439,10 @@ interface Riscontro { tipo: 'riscontro'; id: number; ok: boolean;
 
   Un nome inesistente passa al nucleo: `procedura-sconosciuta`.
 - Le procedure della proiezione restano scritture: comandano una finestra.
-- Chi lo usa oggi: [ui/views/languageModels.ts](../ui/views/languageModels.ts)
-  (`llm.*`), [ui/views/settings/updates.ts](../ui/views/settings/updates.ts)
+- Chi lo usa oggi: [ui/views/languageModels.tsx](../ui/views/languageModels.tsx)
+  (`llm.*`), [ui/views/settings/updates.tsx](../ui/views/settings/updates.tsx)
   (`aggiornamenti.stato`), [ui/externalCalendar.ts](../ui/externalCalendar.ts)
-  e [ui/forms/calendar.ts](../ui/forms/calendar.ts) (`calendario.*`).
+  e [ui/forms/calendar.tsx](../ui/forms/calendar.tsx) (`calendario.*`).
 
 ## 7. Il condotto
 
@@ -650,7 +650,7 @@ riquadro a destra (pulsante accanto a «Proietta») o, con «Stacca», in una
 finestra sua (`dist/assistente.js`).
 
 ```
-riquadro (ui/assistant.ts)  ← o →  finestra staccata
+riquadro (ui/assistant.tsx)  ← o →  finestra staccata
    ↓  postMessage, busta `Conversazione`
 main process (desktop/pannelli/{panel,assistant}.ts → conversation.ts)
    ├→ core/dati/llm.ts → motore (core/dati/llamaCpp.ts) → il .gguf
@@ -659,7 +659,7 @@ main process (desktop/pannelli/{panel,assistant}.ts → conversation.ts)
    └→ il risultato torna al modello → risposta
 ```
 
-- Il filo dei turni sta in `ui/assistant/chat.ts`, che non conosce né
+- Il filo dei turni sta in `ui/assistant/chat.tsx`, che non conosce né
   riquadro né finestra; il lavoro del main process in
   `desktop/pannelli/conversation.ts`; il trasporto in
   `desktop/transports/assistant.ts`.
@@ -731,7 +731,7 @@ desktop/transports/assistant.ts   `descriviContesto()` → nota davanti all'ulti
   catalogo resta identico (ADR-32).
 - Nomi **e** id; tendine con le altre voci (dodici al più, tagliate attorno
   alla scelta, «… e altre N»); linguette da `porzioniDellaVista()`; ore con
-  l'etichetta di `oreDelCorso()` (`ui/views/lesson.ts`); il periodo come
+  l'etichetta di `oreDelCorso()` (`ui/views/lesson.tsx`); il periodo come
   `{ etichetta, dal, al }`.
 - **Ogni parte si spegne per conto suo** dal menu a imbuto del riquadro, che
   mostra che cosa contiene adesso; anche ogni tendina. Una tendina spenta si
@@ -753,7 +753,7 @@ usaAttrezzo()                    chiama la procedura
    ├→ al modello   JSON
    └→ alla pagina  impagina()    titolo, valori, colonne
           ↓  evento `risultato`, subito
-   ui/assistant/result.ts    lo disegna sotto la risposta
+   ui/assistant/result.tsx    lo disegna sotto la risposta
 ```
 
 - La forma la dichiara la procedura in `presentazione` (`blocchi` di tipo

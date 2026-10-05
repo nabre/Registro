@@ -12,7 +12,7 @@
 
 import './title-bar.css'
 
-/** Il file del logo, lo stesso di `ui/components/logo.ts`. */
+/** Il file del logo, lo stesso di `ui/components/logo.tsx`. */
 const LOGO = 'registro://app/resources/registro-app-piccola.svg'
 
 function disegna (): void {

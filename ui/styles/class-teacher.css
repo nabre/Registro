@@ -10,7 +10,7 @@
 /*
  * La forma di ogni pendenza (consegne, recuperi, riconsegne, richieste di
  * firma), scritta una volta: filo colorato a sinistra, testata con pastiglie,
- * gesti in fondo, riga quieta sotto. Marcatura di `components/pending.ts`; i
+ * gesti in fondo, riga quieta sotto. Marcatura di `components/pending.tsx`; i
  * fogli delle famiglie, dopo, aggiungono solo le differenze.
  */
 .consegne,

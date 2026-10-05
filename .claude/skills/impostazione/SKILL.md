@@ -65,7 +65,7 @@ la forma in cui il registro le chiede:
 | `tipo` | sempre | `'string'`, `'number'`, `'boolean'` |
 | `predefinito` | sempre | il valore quando nessuno ha scelto |
 | `etichetta`, `descrizione` | sempre, in `manifest.testi.ts` | il nome della riga, e sotto una frase discorsiva: chi apre le impostazioni non sa già che cosa cerca |
-| `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `core/controlli/figure.ts` (oggi tema e lingua). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
+| `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `core/controlli/figure.tsx` (oggi tema e lingua). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
 | `formato: 'email'` | il valore è un indirizzo | dogana vera, non un `type="email"`: vale anche da riga di comando |
 | `minimo` / `massimo` | fuori da un intervallo il numero non vuol dire niente | dogana; diventano gli attributi `min`/`max` dei campi |
 | `passo` | il numero non è intero, o salta | dogana anche lui; assente vale 1 |
@@ -143,11 +143,11 @@ gli indirizzi (`area#sezione`): quelli di prima si riportano in
 
 | | Pagina del pannello | Finestra nativa |
 | --- | --- | --- |
-| Dove | `ui/views/settings*` | `desktop/shell/pages/settings/settings.ts`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
+| Dove | `ui/views/settings*` | `desktop/shell/pages/settings/settings.tsx`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
 | Quando serve | quasi sempre | la scialuppa: nessun documento aperto, il pannello non c'è (menu Registro › «Impostazioni senza documento aperto…») |
 | Che cosa mostra | tutte e quattro le aree | Utente › Posta e Programma; Calendario e Didattica dicono che stanno nel file |
 
-I controlli sono **gli stessi** (ADR-52): `core/controlli/control.ts` sceglie il
+I controlli sono **gli stessi** (ADR-52): `core/controlli/control.tsx` sceglie il
 disegno dalla `VoceProgramma`, `field.ts` fa lo stesso per i campi dell'anno.
 `core/controlli/` importa solo `core/i18n`, le parole comuni e i tipi di
 `contract/` (`npm run layers`).

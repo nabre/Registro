@@ -2,7 +2,7 @@
 //
 // Prova le due cose che non si possono provare con `node --test`, perche' vivono
 // nel browser: che pdfjs disegni davvero le pagine dentro il pannello — sul filo
-// principale, senza worker, vedi `components/thumbnails.ts` — e che una pagina
+// principale, senza worker, vedi `components/thumbnails.tsx` — e che una pagina
 // trascinata su una casella della matrice faccia partire l'azione giusta, con le
 // pagine giuste.
 

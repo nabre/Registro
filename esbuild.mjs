@@ -98,6 +98,17 @@ const comune = {
   minify: produzione,
   sourcemap: !produzione,
   logLevel: 'silent',
+  // Le pagine in React (ADR-56): JSX col runtime automatico, come `tsconfig.json`.
+  jsx: 'automatic',
+}
+
+/**
+ * Le pagine del renderer: React legge `process.env.NODE_ENV`, che in una
+ * pagina non esiste. In produzione la sua costruzione snella, altrimenti
+ * quella con gli avvisi.
+ */
+const renderer = {
+  define: { 'process.env.NODE_ENV': produzione ? '"production"' : '"development"' },
 }
 
 /** Il worker di pdfjs, che si costruisce per l'applicazione e per le prove. */
@@ -125,6 +136,18 @@ const PAGINE_NATIVE = ['dialog', 'settings', 'welcome', 'splash', 'reader']
 const PAGINE_DI_SVILUPPO = ['dev']
 
 /**
+ * Il file di una pagina nativa: lo script può essere `.tsx` (React, ADR-56).
+ *
+ * @param {string} pagina
+ * @param {string} estensione
+ */
+function pagina_ (pagina, estensione) {
+  const base = `desktop/shell/pages/${pagina}/${pagina}`
+  if (estensione === 'ts' && existsSync(`${base}.tsx`)) return `${base}.tsx`
+  return `${base}.${estensione}`
+}
+
+/**
  * `{ dialog: 'desktop/shell/pages/dialog/dialog.ts', … }`: le chiavi sono i nomi
  * in `dist/`. In `dist-dev/` anche quelle di sviluppo.
  *
@@ -134,7 +157,7 @@ const PAGINE_DI_SVILUPPO = ['dev']
 function filePagine (estensione, cartella) {
   const pagine = cartella === 'dist-dev' ? [...PAGINE_NATIVE, ...PAGINE_DI_SVILUPPO] : PAGINE_NATIVE
   return Object.fromEntries(
-    pagine.map((pagina) => [pagina, `desktop/shell/pages/${pagina}/${pagina}.${estensione}`]),
+    pagine.map((pagina) => [pagina, pagina_(pagina, estensione)]),
   )
 }
 
@@ -188,6 +211,7 @@ export const applicazioneIn = (cartella) => [
     ...comune,
     entryPoints: filePagine('ts', cartella),
     outdir: cartella,
+    ...renderer,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -197,8 +221,9 @@ export const applicazioneIn = (cartella) => [
   // Il pannello del registro.
   {
     ...comune,
-    entryPoints: ['ui/main.ts'],
+    entryPoints: ['ui/main.tsx'],
     outfile: `${cartella}/panel.js`,
+    ...renderer,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -209,8 +234,9 @@ export const applicazioneIn = (cartella) => [
   // viste del registro che modificano i dati.
   {
     ...comune,
-    entryPoints: ['ui/projection.ts'],
+    entryPoints: ['ui/projection.tsx'],
     outfile: `${cartella}/projection.js`,
+    ...renderer,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -221,8 +247,9 @@ export const applicazioneIn = (cartella) => [
   // se l'assistente è acceso e quale modello risponde.
   {
     ...comune,
-    entryPoints: ['ui/assistantWindow.ts'],
+    entryPoints: ['ui/assistantWindow.tsx'],
     outfile: `${cartella}/assistant.js`,
+    ...renderer,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -416,6 +443,7 @@ const interfaccia = [
     sourcemap: false,
     entryPoints: ['tests/helpers/uiStartup.ts'],
     outfile: 'dist-tests/ui.js',
+    ...renderer,
     format: 'iife',
     platform: 'browser',
   },
@@ -423,8 +451,9 @@ const interfaccia = [
     ...comune,
     ...conTemporal,
     sourcemap: false,
-    entryPoints: ['desktop/shell/pages/settings/settings.ts'],
+    entryPoints: [pagina_('settings', 'ts')],
     outfile: 'dist-tests/native-settings.js',
+    ...renderer,
     format: 'iife',
     platform: 'browser',
   },

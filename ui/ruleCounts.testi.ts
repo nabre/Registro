@@ -1,4 +1,4 @@
-// I testi dei conti delle regole di un calendario ICS (`ruleCounts.ts`).
+// I testi dei conti delle regole di un calendario ICS (`ruleCounts.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 

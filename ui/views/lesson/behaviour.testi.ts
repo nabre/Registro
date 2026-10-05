@@ -1,4 +1,4 @@
-// I testi della matrice del comportamento (`lesson/behaviour.ts`).
+// I testi della matrice del comportamento (`lesson/behaviour.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { PIF } from '#core/dominio/lexicon.js'

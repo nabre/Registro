@@ -76,7 +76,7 @@ Il progetto organizza il codice su cinque strati architetturali netti
   (`desktop/apparato/`), pannelli webview e finestre (`desktop/pannelli/`),
   trasporti (`desktop/transports/`), widget di sistema (`desktop/widget/`),
   punto d'avvio (`desktop/boot.ts`).
-- **`ui/`** — l'interfaccia utente webview, senza framework: `ui/` con le
+- **`ui/`** — l'interfaccia utente webview, in React (ADR-56): `ui/` con le
   sue viste (`ui/views/`), i moduli form (`ui/forms/`) e i
   componenti (`ui/components/`).
 - **`cli/`** — gli strumenti a riga di comando autonomi: `cli/main.mjs` e
@@ -152,7 +152,7 @@ testo e non eseguono il programma. Vanno letti, non temuti.
   con un `flatMap` sulle riparazioni trovate: sono quelle vere, ma si conoscono
   solo quando il programma gira.
 - **`forms`** — `valori passato intero a un'altra funzione`. Due casi noti,
-  `ui/forms/absences.ts` e `ui/forms/classTeacher.ts`: falsi positivi verificati nel
+  `ui/forms/absences.tsx` e `ui/forms/classTeacher.tsx`: falsi positivi verificati nel
   giro 2, lo strumento non sa seguire `valori` passato tutto insieme.
 - **`buttons`** — `filtro o campo di vista senza al`. Un campo di ricerca che
   agisce alla digitazione, non al clic. Quattro casi noti.

@@ -19,14 +19,14 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 const CARTELLE = 'core|contract|desktop|ui|tests'
 
 /** Un percorso fra apici, dalla radice o con `./` davanti: `'core/dati/zip.ts'`. */
-const PERCORSO = new RegExp(`['"\`](?:\\./)?((?:${CARTELLE})/[\\w./-]+\\.(?:ts|mjs|cjs))['"\`]`, 'g')
+const PERCORSO = new RegExp(`['"\`](?:\\./)?((?:${CARTELLE})/[\\w./-]+\\.(?:tsx?|mjs|cjs))['"\`]`, 'g')
 
 /** Tutti i file di codice sotto `cartella`, con le barre in avanti. */
 function fileSotto (cartella: string, trovati: string[] = []): string[] {
   for (const voce of readdirSync(cartella, { withFileTypes: true })) {
     const percorso = `${cartella}/${voce.name}`
     if (voce.isDirectory()) fileSotto(percorso, trovati)
-    else if (/\.(?:mjs|ts)$/.test(voce.name)) trovati.push(percorso)
+    else if (/\.(?:mjs|tsx?)$/.test(voce.name)) trovati.push(percorso)
   }
   return trovati
 }
@@ -64,7 +64,8 @@ function pagineNative (): string[] {
     .map((nome) => new RegExp(`const ${nome} = \\[([^\\]]*)\\]`).exec(sorgente)?.[1] ?? '')
     .join(',')
   return [...elenco.matchAll(/'([\w-]+)'/g)]
-    .map(([, pagina]) => `desktop/shell/pages/${pagina}/${pagina}.ts`)
+    .map(([, pagina]) => `desktop/shell/pages/${pagina}/${pagina}`)
+    .map((base) => (existsSync(`${base}.tsx`) ? `${base}.tsx` : `${base}.ts`))
     .filter((file) => existsSync(file) && !giàVisti.has(file))
 }
 
@@ -94,7 +95,7 @@ export default {
     ...citatiComeStringa(),
   ],
   project: [
-    '{core,contract,desktop,ui,cli,tests,tools}/**/*.{ts,mjs,cjs}',
+    '{core,contract,desktop,ui,cli,tests,tools}/**/*.{ts,tsx,mjs,cjs}',
     '*.mjs',
     '.claude/**/*.mjs',
   ],

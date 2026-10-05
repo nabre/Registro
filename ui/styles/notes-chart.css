@@ -1,5 +1,5 @@
 /*
- * Il grafico delle note, disegnato da `components/notes.ts`.
+ * Il grafico delle note, disegnato da `components/notes.tsx`.
  *
  * Foglio a sé perché lo importano il pannello e lo schermo per la classe: le
  * misure vengono dalle variabili che ognuno definisce, così lo stesso grafico

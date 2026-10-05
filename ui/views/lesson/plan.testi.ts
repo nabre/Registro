@@ -1,4 +1,4 @@
-// I testi della scaletta dell'ora (`lesson/plan.ts`).
+// I testi della scaletta dell'ora (`lesson/plan.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

@@ -61,22 +61,24 @@ le uscite di rete: ARCHITETTURA § 8.
 ### ADR-05 — Guida in-app come dati strutturati
 
 **Decisione.** La guida d'uso è una struttura tipizzata, una sezione per
-pagina (`ui/views/help.ts`, `ui/views/help/`). È l'unico posto del
+pagina (`ui/views/help.tsx`, `ui/views/help/`). È l'unico posto del
 «come si usa»: `docs/` non lo ripete.
 
 **Vincoli.** Una pagina con comandi propri aggiunge la sua voce. Nessuna prova
 lo controlla.
 
-### ADR-06 — UI senza framework (modificata da ADR-48 e ADR-50)
+### ADR-06 — UI senza framework (modificata da ADR-48 e ADR-50, superata da ADR-56)
 
-**Decisione.** DOM vero con `h()` (`ui/dom.ts`); ogni cambio di stato
-ridisegna la pagina: telaio stabile e isole (ADR-48), confronto del DOM con
-idiomorph (ADR-50). Le modali stanno fuori dal ciclo di ridisegno.
+**Decisione.** Ogni cambio di stato ridisegna la pagina intera; le modali stanno
+fuori dal ciclo di ridisegno. Il disegno era DOM vero con una funzione `h()` e
+il confronto con idiomorph: dal 2026-10-05 è React (ADR-56), con lo stesso
+ridisegno completo a ogni cambio.
 
-**Vincoli.** Lo stato applicativo è l'unica fonte di verità: il DOM non tiene
-stato che lo stato non conosca, o il ridisegno lo azzera.
+**Vincoli.** Lo stato applicativo è l'unica fonte di verità: quel che deve
+sopravvivere a un ridisegno sta nello stato, o nello stato locale di un
+componente (ADR-56), non nel DOM.
 
-**Dove.** `ui/dom.ts`, `ui/forms.ts`, `ui/components/`.
+**Dove.** `ui/main.tsx`, `ui/forms.ts`, `ui/components/`.
 
 ### ADR-07 — Un comando, una superficie
 
@@ -86,7 +88,7 @@ la pagina disegna già il suo pulsante.
 
 **Vincoli.** Disciplina di revisione, nessuna prova.
 
-**Dove.** `ui/commands.ts` (con le sezioni in `ui/commands/`), `ui/commandBar.ts`, `ui/sidebar.ts`.
+**Dove.** `ui/commands.ts` (con le sezioni in `ui/commands/`), `ui/commandBar.tsx`, `ui/sidebar.tsx`.
 
 ### ADR-08 — Il piano lezione appartiene al corso
 
@@ -300,7 +302,7 @@ da solo.
 candidati (0,2) decidono se *proporre*, mai se eseguire. Un allievo riceve al
 massimo un blocco per passata.
 
-**Dove.** `core/dominio/sorting.ts`, `core/dati/sorter.ts`, `ui/views/sorting.ts`.
+**Dove.** `core/dominio/sorting.ts`, `core/dati/sorter.ts`, `ui/views/sorting.tsx`.
 
 ### ADR-27 — Un contratto davanti al centralino
 
@@ -433,7 +435,7 @@ Si regola in Impostazioni › Documenti e stampa › Intestazione. Letture
 riservato (`NOME_LOGO`). Il logo passa da `logoAmmesso` (solo in
 `intestazione/`, PNG o JPEG).
 
-**Dove.** `core/dominio/letterhead.ts`, `ui/views/settings/letterhead.ts`,
+**Dove.** `core/dominio/letterhead.ts`, `ui/views/settings/letterhead.tsx`,
 `core/azioni/templates.ts`, `tests/domain/letterhead.test.mjs`.
 
 ### ADR-35 — La dettatura passa da voicebox, solo in locale
@@ -469,7 +471,7 @@ finirebbero sotto UD diverse. Importando impostazioni da un altro anno, con
 appelli qui resta quella di qui.
 
 **Dove.** `core/dominio/dates.ts`, `core/dominio/breaks.ts`, `core/azioni/system.ts`,
-`ui/views/settings/schoolDay.ts`.
+`ui/views/settings/schoolDay.tsx`.
 
 ### ADR-37 — I documenti vecchi si portano avanti per passi
 
@@ -521,7 +523,7 @@ omonimi da dichiarare). Il come: skill `testi`.
   (ricopiati in `desktop/apparato/theme.ts` e nell'installatore). Carattere di
   sistema.
 - Componenti: titolo di pagina (`testataVista`), tessere KPI, tabelle con
-  intestazione tenue, avatar (`ui/components/avatar.ts`), stati vuoti,
+  intestazione tenue, avatar (`ui/components/avatar.tsx`), stati vuoti,
   segmenti a pillola.
 - Navigazione: **Dashboard** (vista `oggi`, solo collegamenti, ADR-07), barra
   laterale a pillola, ricerca in vista (Ctrl+K) con persone, corsi e classi,
@@ -594,7 +596,7 @@ SignPath rifiuta la firma.
 di stato. Ogni colonna ha il suo contenitore di scorrimento con una chiave
 `data-scorrimento` sua.
 
-**Dove.** `ui/commandBar.ts`, `ui/statusBar.ts`,
+**Dove.** `ui/commandBar.tsx`, `ui/statusBar.tsx`,
 `desktop/apparato/windows.ts`.
 
 ### ADR-43 — API: stato intero, azioni atomiche, JSON Schema, paginazione (modificata da ADR-50)
@@ -663,7 +665,7 @@ riscarica i calendari ICS che il docente ha collegato con un indirizzo
 1. **Un docente per registro:** niente paternità né permessi per scrittura.
    L'identità del docente è strutturata (`appellativo`, `nome`, `cognome`) ed
    entra nei modelli (`templates/`) e nei PDF.
-2. **Le viste non scrivono:** né la pagina dei piani (`ui/views/plans.ts`)
+2. **Le viste non scrivono:** né la pagina dei piani (`ui/views/plans.tsx`)
    né altre creano o assegnano entità disegnando o navigando. Un piano per
    un'ora senza scaletta nasce da un pulsante.
 3. **Azioni per campo:** le scritture si dividono per campo o intento
@@ -678,11 +680,11 @@ riscarica i calendari ICS che il docente ha collegato con un indirizzo
    toglie anche una spunta nata da un invio (`modo: 'email'`).
 7. **Font Liberation 2.x** per i PDF, licenza SIL OFL.
 
-**Vincoli.** Niente scritture durante il disegno (`h()`) né in `vai`
+**Vincoli.** Niente scritture durante il disegno né in `vai`
 (ADR-47). `{{docente}}` resta valido nei modelli esistenti.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/calculations.ts`, `core/dominio/timetable.ts`,
-`core/azioni/assignments.ts`, `ui/views/plans.ts`, `ui/views/classes.ts`,
+`core/azioni/assignments.ts`, `ui/views/plans.tsx`, `ui/views/classes.tsx`,
 `templates/`.
 
 ### ADR-47 — Un posto solo per sapere dove si è, ricordato per documento
@@ -714,18 +716,18 @@ ripristina in `ricevoStato`, dopo l'arrivo dei dati e prima di `proiezione.mira`
 `assistente.contesto`, in un passaggio solo. Il JSON vecchio si migra, non si rifiuta.
 
 **Dove.** `ui/place.ts`, `ui/memory.ts`, `ui/state.ts`,
-`ui/history.ts`, `ui/pages.ts`, `ui/main.ts`.
+`ui/history.ts`, `ui/pages.ts`, `ui/main.tsx`.
 
-### ADR-48 — Ogni aggiornamento resta nel suo riquadro (modificata da ADR-50)
+### ADR-48 — Ogni aggiornamento resta nel suo riquadro (modificata da ADR-50 e ADR-56)
 
 **Decisione.** Un cambio dello stato globale ridisegna la pagina (ADR-06) con un
 telaio stabile: i nodi `data-telaio` lungo la catena dalla radice (guscio, contenuto,
 radice della vista, contenitori che scorrono) restano e cambiano solo i figli. Una
 lettura asincrona (anteprima, PDF, CSV, miniature, risposta dell'host, avanzamento di
 un'operazione) rifà solo l'**isola** che la mostra (`isola`/`ridisegnaIsola` in
-`ui/islands.ts`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
-(`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) portano
-`data-tieni="<sorgente>"` e non si ricreano finché la sorgente non cambia. L'orologio
+`ui/islands.ts` e `<Isola>` in `ui/island.tsx`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
+(`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) sono componenti con
+la sorgente per `key` e non si ricreano finché la sorgente non cambia. L'orologio
 muove solo ciò che segna l'ora (`clock.ts`, `alMinuto`). Nessun ridisegno e
 nessuna richiesta all'host partono dal disegno.
 
@@ -734,16 +736,12 @@ minuto che passa la faceva lampeggiare, ricaricava i PDF, interrompeva lo
 scorrimento e i trascinamenti.
 
 **Vincoli.** Il contenuto di un'isola è funzione dello stato e delle letture, come il
-resto: il DOM non tiene stato (ADR-06). I gestori si mettono con `gestisci`
-(ADR-50): un nodo riusato da telaio, isola o morph riceve quelli del disegno
-nuovo, e un gestore prende il nodo vivo da `currentTarget`, non da una closure.
-Un `addEventListener` diretto su un nodo che resta tiene il gestore del primo
-disegno: non ne dipenda dallo stato. Un nodo tenuto si sposta solo con `moveBefore` senza uscire dal
-documento (un iframe staccato si ricarica). La chiave `data-tieni` è la sorgente:
-cambia se cambia ciò che il nodo mostra.
+resto (ADR-06). Un nodo pesante resta sotto lo stesso genitore: un iframe spostato
+altrove si ricarica. La sua `key` è la sorgente: cambia se cambia ciò che mostra.
+I `data-telaio` restano sui nodi che li avevano: le prove li leggono.
 
-**Dove.** `ui/dom.ts`, `ui/islands.ts`, `ui/asyncResources.ts`,
-`ui/clock.ts`, `ui/shell.ts`, `tests/interfaccia/morfosi.spec.ts`.
+**Dove.** `ui/islands.ts`, `ui/island.tsx`, `ui/asyncResources.ts`,
+`ui/clock.ts`, `ui/shell.tsx`, `tests/interfaccia/stabilita.spec.ts`.
 
 ### ADR-49 — OneDrive letto dalle cartelle sincronizzate, o con Microsoft Graph
 
@@ -785,9 +783,9 @@ lo si dice a chi la apre.
 
 **Dove.** `core/dati/microsoft.ts`, `core/dati/onedrive.ts`, `core/dominio/onedrive.ts`,
 `core/dati/oneDriveLocal.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
-`ui/views/settings/microsoft.ts`, `ui/forms/oneDrive.ts`.
+`ui/views/settings/microsoft.tsx`, `ui/forms/oneDrive.tsx`.
 
-### ADR-50 — Librerie: criteri di adozione, e le prime adottate
+### ADR-50 — Librerie: criteri di adozione, e le prime adottate (modificata da ADR-56)
 
 **Decisione.** D7 non vieta più le librerie: le giudica. Una libreria entra se passa
 tutti questi criteri, scritti qui perché ogni proposta futura abbia la stessa regola.
@@ -816,11 +814,12 @@ Adottate, in quest'ordine:
 | 1 | license-checker-rseidelsohn (dev) | `npm run licenze`, in CI | le licenze dell'albero come controllo, non come promemoria |
 | 1 | @stryker-mutator/core (dev) | `npm run mutanti`, mai in CI | controllo mirato delle prove di un file (skill `prove`) |
 | 2 | immer | `core/dati/archive.ts` `modifica`, `core/dati/history.ts` | le collezioni toccate si ricavano dalle patch; l'annulla con le patch inverse |
-| 3 | idiomorph | `ui/dom.ts` | selezione, fuoco e transizioni conservati da sé. Dopo ADR-48 il guadagno è piccolo e i guasti possibili silenziosi: è entrato dopo i prerequisiti (attributi riflessi, eventi per delega, closure che tengono un nodo rifatte) e dietro l'interruttore `MORFOSI` |
+| 3 | idiomorph | il disegno di prima | selezione, fuoco e transizioni conservati da sé; **tolto** con ADR-56, che fa lo stesso con la riconciliazione di React |
 | 4 | valibot | dietro `~standard` in `contract/schemas.ts` | schemi senza manutenzione fatta in casa; il nucleo non cambia (Standard Schema) |
 | 4 | Temporal | `core/dominio/dates.ts` e calendario | `PlainDate`/`PlainTime` per date scolastiche senza fuso. Nativo in Electron 44 (processo principale e pagina); `temporal-polyfill` (dev) solo per le prove in Node |
 | 5 | @playwright/test (dev) | `tests/interfaccia/` | l'app vera con `_electron.launch`, in TypeScript; supera ADR-44 |
 | 5 | @tanstack/virtual-core | tabelle lunghe | prevista, non ancora in uso: entra dove una misura dice che una tabella è lenta |
+| 6 | react, react-dom | `ui/`, `core/controlli/`, `desktop/shell/pages/` | ADR-56: il disegno delle pagine del renderer; toglie il motore in casa (`h()`, isole, idiomorph) |
 
 Dependabot raggruppa gli aggiornamenti minori e di correzione delle dipendenze npm in
 una richiesta settimanale; Electron e node-llama-cpp restano a mano (binari nativi,
@@ -844,16 +843,10 @@ Come sono entrate:
   non si rilegge nella stessa operazione (limite di immer 11 con
   `enableArrayMethods`). Nelle prove ogni scrittura di un'azione deve lasciare
   patch (`sorvegliaScritture`).
-- **idiomorph** (passo 3): `h()` riflette `value`/`checked`/`selected` come
-  attributi. I gestori stanno in un registro di `dom.ts` e li chiama per delega
-  un ascoltatore per tipo su `document` (`gestisci`), con `currentTarget` sul
-  nodo vivo. Il morph lavora dietro `aggiornaElemento`, con l'interruttore
-  `MORFOSI`. Le chiavi di telaio, `data-tieni`, scorrimento e isola diventano
-  `id` provvisori; un `data-tieni` ritrovato prende solo gli attributi; i nodi
-  nuovi entrano originali, non come copie; un nodo riusato riceve i gestori del
-  disegno nuovo. Il percorso classico di ADR-48 è stato ritirato dopo un uso senza
-  guasti (D6), e il morph e le isole si provano su Chromium
-  (`tests/interfaccia/morfosi.spec.ts`).
+- **idiomorph** (passo 3): è stato il confronto del DOM del disegno in casa, con
+  i gestori per delega su `document`. Tolto con ADR-56: le garanzie che dava
+  (iframe che non si ricarica, cursore e scorrimento che restano, isola che si
+  rifà da sola) si provano su Chromium in `tests/interfaccia/stabilita.spec.ts`.
 - **valibot** (passo 4): solo in `main.cjs`. `@valibot/to-json-schema` non è
   adottato (ADR-28).
 - **Temporal** (passo 4): in `dates.ts`, con i tipi dichiarati a mano finché
@@ -862,7 +855,7 @@ Come sono entrate:
   `tests/interfaccia/*.spec.ts`, più `electron.spec.ts` con `_electron.launch`.
   La CI non usa più Python.
 - **@tanstack/virtual-core** (passo 5): solo in
-  `ui/components/virtualList.ts`, dietro `isola`/`aggiornaElemento`.
+  `ui/components/virtualList.tsx` (`useFinestra`), con un'isola per elenco.
   Entrata dove `tests/interfaccia/misure.spec.ts` misurava secondi: colonne dei
   voti e dell'archivio (da 20), elenco delle persone (da 60). Si finestrano solo
   le colonne: le righe le limita la classe. Solo l'elemento col fuoco porta
@@ -917,8 +910,8 @@ blocca l'apertura: tiene quel che c'era.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/schoolCalendar.ts`,
 `core/dominio/normalization/`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
-`contract/procedure/anni/calendario.ts`, `ui/forms/year.ts`,
-`ui/forms/schoolCalendar.ts`, `ui/views/settings/year.ts`,
+`contract/procedure/anni/calendario.ts`, `ui/forms/year.tsx`,
+`ui/forms/schoolCalendar.tsx`, `ui/views/settings/year.tsx`,
 `desktop/boot.ts`, `tests/api/officialCalendar.test.mjs`.
 
 ### ADR-52 — Un disegno solo dei controlli delle impostazioni, per pannello e finestra nativa
@@ -932,7 +925,7 @@ controllo sta in una cartella nuova, `core/controlli/…` (nasce in fase 2): un
 e i suoi pezzi (segmentato, tendina, numero con unità, cursore, interruttore,
 percorso, figure di tema e lingua). Ci arrivano tutte e due le superfici per
 import: il pannello (`ui/`) e la finestra nativa, che è già un bundle esbuild
-(`desktop/shell/pages/settings/settings.ts` → `dist/settings.js`). Niente
+(`desktop/shell/pages/settings/settings.tsx` → `dist/settings.js`). Niente
 script generato.
 
 Regole della cartella, come `core/i18n/flags.ts`: elementi costruiti uno a
@@ -971,9 +964,9 @@ segmentato con nomi lunghi diventa tendina.
 
 **Dove.** `contract/manifest.ts` (`Controllo`, `FonteScelte`), `contract/protocol.ts`
 (`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
-`numeroStorto`), `core/controlli/control.ts`, `core/controlli/areas.ts`,
-`core/controlli/controls.css`, `ui/views/settings/program.ts`,
-`desktop/shell/pages/settings/settings.ts`, `tests/ui/controlli.test.mjs`.
+`numeroStorto`), `core/controlli/control.tsx`, `core/controlli/areas.ts`,
+`core/controlli/controls.css`, `ui/views/settings/program.tsx`,
+`desktop/shell/pages/settings/settings.tsx`, `tests/ui/controlli.test.mjs`.
 
 ### ADR-53 — I nomi dei file in inglese
 
@@ -1062,6 +1055,40 @@ guardano il testo dello specificatore (ESLint di `desktop/shell/pages/` e
 `core/controlli/`, i moduli finti delle prove) lo leggono con `#`.
 `apparato` resta un nome nudo: esbuild lo manda a file diversi per
 l'applicazione e per le prove, cosa che `"imports"` non sa fare.
+
+### ADR-56 — L'interfaccia in React
+
+**Decisione.** Le pagine del renderer si disegnano con React (`react`,
+`react-dom`), in JSX compilato da esbuild (`jsx: 'automatic'`). Il pannello
+ha una radice sola, disegnata tutta e subito (`flushSync`) a ogni cambio di
+stato, come il ridisegno di ADR-06; fuoco e scorrimenti li fotografa
+`Fotografo` (`ui/main.tsx`) fra il disegno e il documento. Lo stato resta
+`ui/state.ts`, letto durante il disegno; dove si guarda resta `Posto`/`vai`
+(ADR-47). Le modali vivono in radici loro (`ui/components/modal.tsx`), in una
+pila sola. Menu, palette e notifiche si aprono con una chiamata e hanno anche
+loro una radice propria. I campi tengono la regola di prima: il valore dello stato entra
+solo quando cambia e il campo non ha il fuoco, e `onCambio` è il `change` del
+browser (`ui/fields.tsx`). Avvio e lettore PDF restano senza React. Come si
+scrive: skill `react`; il piano e l'avanzamento: [PIANO-REACT](PIANO-REACT.md).
+
+**Perché.** Il motore in casa (`h()`, telaio, isole, `data-tieni`, idiomorph,
+gestori per delega) rifaceva a mano quel che la riconciliazione fa da sé, e
+obbligava a tenere lo stato effimero nel DOM o in variabili di modulo. React
+dà stato locale per componente, effetti dichiarati e un modello che chi arriva
+sul progetto conosce già.
+
+**Vincoli.** ADR-50 criterio 4 non vale più per React; gli altri framework
+d'interfaccia restano esclusi, e così router, store, kit di componenti,
+librerie di moduli e CSS-in-JS. Il disegno è puro: niente richieste all'host,
+iscrizioni o timer fuori da un gestore o da un effetto (ADR-48). Lo stato che
+sopravvive alla pagina resta dove viveva (D2). Testi solo dai cataloghi
+(ADR-38); `npm run i18n` legge anche il testo fra i tag. Niente
+`dangerouslySetInnerHTML` fuori da `ui/svg.tsx` (eslint). La CSP non cambia.
+Fuoco e scorrimento dopo un ridisegno: `data-fuoco` e `data-scorrimento`
+(`ui/focus.ts`).
+
+**Dove.** `ui/`, `core/controlli/`, `desktop/shell/pages/`, `esbuild.mjs`,
+`tsconfig.json`, `eslint.config.mjs`, `.claude/skills/react/SKILL.md`.
 
 ## Decisioni implicite
 
@@ -1170,3 +1197,4 @@ Quelli che non stanno già in un ADR, più i più gravi, in una riga:
 | Con `calendarioUfficiale` date e chiusure collegate si cambiano solo con `anno.calendario` | ADR-51 |
 | Ogni libreria dietro un contratto nostro, nessuna in `cli/` | ADR-50 |
 | Controlli delle impostazioni disegnati una volta, in `core/controlli/…`, per pannello e nativa | ADR-52 |
+| Campi di testo: `change` del browser, mai l'`onChange` di React; valore dallo stato solo senza fuoco | ADR-56 |

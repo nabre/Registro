@@ -22,7 +22,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Lettura e scrittura dei file | `core/dati/` |
 | Avvio, comandi e pannelli | `desktop/boot.ts`, `desktop/pannelli/` |
 | Messaggi nella finestra del registro | `desktop/apparato/dialogs.ts`, `desktop/shell/pages/dialog/` |
-| La giornata di scuola: UD, pause, griglia | `core/dominio/breaks.ts`, `ui/views/settings/schoolDay.ts` |
+| La giornata di scuola: UD, pause, griglia | `core/dominio/breaks.ts`, `ui/views/settings/schoolDay.tsx` |
 | Documenti vecchi portati avanti | `core/dominio/upgrades.ts`, `core/dati/archive.ts` |
 | Comandi e impostazioni dichiarati | `contract/manifest.ts` |
 | Termini, articoli, accordi | `core/dominio/lexicon.ts` (ADR-01) |
@@ -32,19 +32,19 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Contratto fra host e pannello | `contract/protocol.ts` |
 | Azioni | `core/azioni/` |
 | Procedure, condotto, riga di comando | `contract/`, `cli/main.mjs` |
-| Interfaccia del pannello (senza framework, ADR-06) | `ui/` |
-| Guida d'uso | `ui/views/help.ts`, `ui/views/help/` |
+| Interfaccia del pannello (React, ADR-56) | `ui/` |
+| Guida d'uso | `ui/views/help.tsx`, `ui/views/help/` |
 | Mappa: geometria, geocodifica, tasselli | `core/dominio/map.ts`, `core/dati/geocoding.ts`, `desktop/shell/protocol/tiles.ts` |
-| Modelli del linguaggio | `core/dati/gguf.ts`, `core/dati/huggingFace.ts`, `core/dati/llm.ts`, `core/dati/llamaCpp.ts`, `core/dati/mtmd.ts`, `ui/views/languageModels.ts` |
+| Modelli del linguaggio | `core/dati/gguf.ts`, `core/dati/huggingFace.ts`, `core/dati/llm.ts`, `core/dati/llamaCpp.ts`, `core/dati/mtmd.ts`, `ui/views/languageModels.tsx` |
 | Dettatura | `core/dati/dictation.ts`, `core/dati/voicebox.ts`, `core/dominio/loopback.ts`, `ui/assistant/voice.ts` |
 | Programma scaricato da sé (`llama-mtmd-cli`) | `core/dati/kit.ts`, `core/dati/visionKit.ts` |
 | Vassoio | `core/dominio/tray.ts`, `desktop/widget/tray.ts`, `desktop/apparato/tray.ts` |
 | Aggiornamenti | `desktop/apparato/updates.ts`, `desktop/apparato/updateInstaller.ts`, `os/windows/aggiornamento.ps1` |
 | Marchio e icone | `resources/`, `icons/`, `tools/icons.cjs` |
 | Pagine | `ui/pages.ts` |
-| Barra laterale, `Ctrl+1`…`Ctrl+9` | `ui/sidebar.ts`, `ui/shortcuts.ts` |
-| Dashboard | `ui/views/today.ts` |
-| Ricerca `Ctrl+K` | `ui/components/palette.ts`, `ui/titleBar.ts` |
+| Barra laterale, `Ctrl+1`…`Ctrl+9` | `ui/sidebar.tsx`, `ui/shortcuts.ts` |
+| Dashboard | `ui/views/today.tsx` |
+| Ricerca `Ctrl+K` | `ui/components/palette.tsx`, `ui/titleBar.tsx` |
 | Indietro/avanti (`Alt+←`/`Alt+→`) | `ui/history.ts` |
 | Comandi e dove compaiono | `ui/commands.ts` (tipi e ordine), `ui/commands/` (una sezione per file) |
 

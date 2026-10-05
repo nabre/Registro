@@ -178,7 +178,7 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       somigliano; un aiuto comune in `components/table.ts` se ne arriva una
       terza.
 - [ ] Tasti del gruppo radio ripetuti: `dove()` in
-      `core/controlli/control.ts`, `views/settings.ts`, `components/base.ts`.
+      `core/controlli/control.tsx`, `views/settings.ts`, `components/base.ts`.
 - [ ] `tools/mail-probe.ps1` porta di serie un indirizzo personale e un id di
       tenant reale: parametri senza valori di serie?
 
@@ -203,9 +203,10 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       senza appello nei dati di prova). Rimisurare con `npm run mutanti`.
 - [ ] In locale gira Node 26.7, il progetto e la CI chiedono Node 24: `npm ci`
       e le prove vanno ripetute con la versione giusta.
-- [ ] `tests/interfaccia/navigation.spec.ts:155` rosso dopo PR #10
-      (supplenza): un pulsante in più nella testata della vista lezione
-      (`ui/views/lesson.ts`). Spostarlo fra i comandi o adeguare la prova.
+- [ ] `tests/interfaccia/calendarEditor.spec.ts`: due prove in `test.fixme`
+      («Ctrl+D non copia un’ora ancorata», «Canc due volte»), cadono anche sul
+      codice di prima della conversione a React: la prima non ancora l'ora
+      all'ICS, la seconda non risponde alla conferma dell'eliminazione.
 - [ ] Progetti integrati nei corsi: manca la prova API di `materia.unisci`
       (due integrazioni che si fondono) e `classe.duplica` (integrazione nuova
       sullo stesso progetto).
@@ -303,6 +304,14 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 ### Da provare a mano
 
+- [ ] Interfaccia in React (ADR-56, 2026-10-05): provare a mano sull'app vera
+      quel che Chromium headless non vede bene: trascinare e allungare un'ora
+      nel calendario, trascinare pagine in Da smistare e sui fogli dell'archivio,
+      la firma (`contenteditable`), le mappe, le miniature dei PDF, la dettatura.
+      Confermare o rimettere tre cambi di comportamento (PIANO-REACT § 11):
+      spunte del calendario ufficiale che restano, conto dei giorni delle pause
+      sulle date nuove, notifiche un fotogramma dopo.
+
 - [ ] Progetti (biblioteca, `pagina.progetti`) e Integrazione progetti
       (`pagina.corso.integrazione`): integrare dal menu e dalla biblioteca,
       stato nel corso, «Togli dal corso» con la conferma, «Programma in un
@@ -312,7 +321,7 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       con `ambitoProgetti`).
 - [ ] Con un anno aperto, «Crea un nuovo anno…» (benvenuto o vassoio) apre
       il modulo «Nuovo anno scolastico» del pannello: il ramo
-      `dialogo: 'nuovoAnno'` di `ui/main.ts` non ha una prova automatica.
+      `dialogo: 'nuovoAnno'` di `ui/main.tsx` non ha una prova automatica.
 - [ ] Proiezione in pausa (ora, data, marchio, versione): nessuna prova la
       disegna.
 - [ ] Barra di stato: la scritta corta del secondo tag («2 di classe», de «der

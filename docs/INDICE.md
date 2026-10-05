@@ -15,6 +15,7 @@ guida d'uso è nell'applicazione (`F1`, o la pagina «Guida»), in
 | [CANTIERE.md](CANTIERE.md) | il lavoro aperto, per area | si riprende in mano il lavoro |
 | [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) | inventario di ogni impostazione, doppioni, gerarchia e controlli proposti, fasi | si mette mano alle pagine Impostazioni |
 | [VALUTAZIONE-PYTHON.md](VALUTAZIONE-PYTHON.md) | se convenga riscrivere il registro in Python: scenari, sforzo, rischi, raccomandazione | si ripropone un cambio di linguaggio o di guscio |
+| [PIANO-REACT.md](PIANO-REACT.md) | come portare tutte le pagine del renderer su React senza perdere funzioni: stato di partenza, fasi, rischi, bozza di ADR-56 | si tocca il disegno delle pagine, o si riprende la conversione |
 
 ## Da dove cominciare
 

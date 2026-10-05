@@ -172,10 +172,28 @@ function nomeDellaChiamata (nodo) {
   return { nome: null, oggetto: null }
 }
 
+/**
+ * Gli attributi JSX che una persona legge (ADR-56): gli altri (`className`,
+ * `key`, `data-*`, `type`, `role`…) sono codice.
+ */
+const ATTRIBUTI_JSX_DA_LEGGERE = new Set([
+  'aria-label', 'aria-description', 'aria-roledescription', 'aria-valuetext', 'aria-placeholder',
+  'title', 'placeholder', 'alt', 'label',
+])
+
+/** Il nome dell'attributo JSX che porta la stringa, direttamente o dentro `{…}`. */
+function attributoJsx (nodo) {
+  let su = nodo.parent
+  if (su && ts.isJsxExpression(su)) su = su.parent
+  return su && ts.isJsxAttribute(su) ? su.name.getText() : null
+}
+
 /** Vero se la stringa sta in un posto in cui non può essere testo per una persona. */
 function posizioneDiCodice (nodo) {
   const padre = nodo.parent
   if (!padre) return false
+  const attributo = attributoJsx(nodo)
+  if (attributo !== null) return !ATTRIBUTI_JSX_DA_LEGGERE.has(attributo)
   if (ts.isImportDeclaration(padre) || ts.isExportDeclaration(padre)) return true
   if (ts.isExternalModuleReference(padre) || ts.isImportTypeNode?.(padre)) return true
   if (ts.isLiteralTypeNode(padre)) return true
@@ -260,6 +278,12 @@ function esamina (percorso) {
       if (!esenti.has(n) && èTesto(nodo.text, false) && !posizioneDiCodice(nodo)) {
         reperti.push({ tipo: 'testo', riga: n, testo: nodo.text })
       }
+    } else if (ts.isJsxText(nodo)) {
+      // Il testo fra i tag di JSX: si legge, come quello fra i tag dell'HTML.
+      const n = riga(nodo)
+      if (!esenti.has(n) && !nodo.containsOnlyTriviaWhiteSpaces && èTesto(nodo.text.trim(), false)) {
+        reperti.push({ tipo: 'testo', riga: n, testo: nodo.text.trim().slice(0, 120) })
+      }
     } else if (ts.isTemplateExpression(nodo)) {
       const n = riga(nodo)
       const statico = [nodo.head.text, ...nodo.templateSpans.map((s) => s.literal.text)].join(' ')
@@ -303,7 +327,7 @@ function esaminaHtml (percorso) {
 
 // ------------------------------------------------------------------ contare
 
-const percorsi = CARTELLE.flatMap((c) => fileSotto(join(RADICE, c), ['.ts', '.html']))
+const percorsi = CARTELLE.flatMap((c) => fileSotto(join(RADICE, c), ['.ts', '.tsx', '.html']))
 const esiti = percorsi
   .map((p) => ({ p, relativo: daRadice(p, RADICE) }))
   .filter(({ relativo }) => !daSaltare(relativo))

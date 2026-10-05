@@ -162,7 +162,7 @@ describe('i vettori che le pagine leggono da resources/', () => {
   // Le pagine chiedono le icone a `registro://app/resources/`: un nome cambiato
   // in `tools/icons.cjs` lascerebbe un'immagine rotta.
   const letti = [
-    ['ui/components/logo.ts', 'resources/registro-app-piccola.svg'],
+    ['ui/components/logo.tsx', 'resources/registro-app-piccola.svg'],
     ['desktop/shell/pages/splash/splash.html', 'resources/registro-app.svg'],
     ['desktop/shell/pages/welcome/welcome.html', 'resources/registro-fascia.svg'],
     ['desktop/shell/pages/shared/titleBar.ts', 'resources/registro-app-piccola.svg'],

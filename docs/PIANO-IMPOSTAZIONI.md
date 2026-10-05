@@ -21,12 +21,12 @@ qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
 
 | # | Guasto | Dove | Stato |
 |---|---|---|---|
-| G0 | Ogni salvataggio da scala, giornata, liste, firma cancellava appellativo/nome/cognome | `ui/views/settings/document.ts` `intestazioneDaSalvare`; rete in `core/azioni/system.ts` `partiDelNome` | **fatto**, prova in `tests/api/writes.test.mjs` |
+| G0 | Ogni salvataggio da scala, giornata, liste, firma cancellava appellativo/nome/cognome | `ui/views/settings/document.tsx` `intestazioneDaSalvare`; rete in `core/azioni/system.ts` `partiDelNome` | **fatto**, prova in `tests/api/writes.test.mjs` |
 | G1 | Dogana `formato:'modello'` vuole un percorso assoluto, il valore giusto è un nome nudo: rifiuta il giusto, accetta e ignora il sbagliato | `desktop/apparato/settings.ts:350`, `core/dati/gguf.ts:228` | **fatto**: `nomeDiModello` in `core/dati/ggufName.ts`, prova in `tests/environment/settings.test.mjs` |
 | G2 | Il filtro mostra `ocr.modello`, `ocr.proiettore`, `assistente.modello` come testo libero | `sections.ts` `vociMostrateDaSezione`, `program.ts` `controllo` | **fatto**: sola lettura + «Scegli in Modelli linguistici» (`program.ts` `campoModello`), il filtro si svuota |
 | G3 | «Lettura spenta» in Da smistare apre la finestra nativa, dove il modello non si sceglie: vicolo cieco | `core/azioni/sorting.ts:592` | **fatto**: `vista.apri` su `modelliLinguistici`, prova in `tests/api/conduitGuards.test.mjs` |
 | G4 | Etichetta delle avanzate «Programmi già installati (n)» su ogni sezione | `program.ts:308`, `program.testi.ts:33` | **fatto**: «Avanzate (n)», guida aggiornata |
-| G5 | Nativa: `posta.utente`/`posta.mittente` modificabili e ritirabili; `avanzata` ignorata | `desktop/shell/pages/settings/settings.ts:420` e `:586` | **fatto**: `CHIAVI_DEL_COLLEGAMENTO` in `contract/manifest.ts`, `VoceProgramma.delCollegamento`; avanzate in `<details>` |
+| G5 | Nativa: `posta.utente`/`posta.mittente` modificabili e ritirabili; `avanzata` ignorata | `desktop/shell/pages/settings/settings.tsx:420` e `:586` | **fatto**: `CHIAVI_DEL_COLLEGAMENTO` in `contract/manifest.ts`, `VoceProgramma.delCollegamento`; avanzate in `<details>` |
 | G6 | `assistente.modello` non bloccato dal condotto (`ocr.modello` sì) | `desktop/transports/conduit.ts:443` | **fatto**, prova in `tests/api/conduitGuards.test.mjs` |
 | G7 | `avvio.soloVassoio` senza `dipendeDa vassoio.attivo`; `dettatura.attivo` senza `dipendeDa assistente.attivo` (il programma le rispetta, la pagina no) | `contract/manifest.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
 | G8 | Vecchie chiavi posta (`server`, `porta`, `autenticazione`, `clientId`, `tenant`) non in `CHIAVI_DISMESSE` | `contract/manifest.ts:385`, `core/dati/mail.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |

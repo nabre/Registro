@@ -21,7 +21,7 @@ Windows se nota, altrimenti it). Una lingua per processo, `core/i18n/state.ts`.
 ## Dove sta un testo
 
 **Accanto al codice che lo usa**, in `<file>.testi.ts`:
-`ui/views/absences.ts` → `ui/views/absences.testi.ts`. Un catalogo per file sorgente
+`ui/views/absences.tsx` → `ui/views/absences.testi.ts`. Un catalogo per file sorgente
 (o per piccolo gruppo di file dello stesso tema). Le quattro lingue nello stesso
 file, una sotto l'altra.
 

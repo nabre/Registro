@@ -119,7 +119,7 @@ flowchart TB
 | Proiezione | [desktop/pannelli/projection.ts](../desktop/pannelli/projection.ts) | sì | false | bundle separato, riceve solo i blocchi accesi |
 | Assistente | [desktop/pannelli/assistant.ts](../desktop/pannelli/assistant.ts) | sì | false | non riceve il `Registro` (API § 9) |
 | Benvenuto | [desktop/shell/windows/welcome.ts](../desktop/shell/windows/welcome.ts) | sì | false | elenco degli anni noti |
-| Impostazioni | [desktop/shell/windows/menu.ts](../desktop/shell/windows/menu.ts) | sì | false | la scialuppa senza anno aperto: Utente › Posta e Programma; pagina in bundle esbuild ([settings.ts](../desktop/shell/pages/settings/settings.ts)) |
+| Impostazioni | [desktop/shell/windows/menu.ts](../desktop/shell/windows/menu.ts) | sì | false | la scialuppa senza anno aperto: Utente › Posta e Programma; pagina in bundle esbuild ([settings.ts](../desktop/shell/pages/settings/settings.tsx)) |
 | Lettore PDF | [desktop/shell/windows/reader.ts](../desktop/shell/windows/reader.ts) | **no** | **true** | muto: lettore di Chromium |
 | Dialogo | [desktop/apparato/dialogs.ts](../desktop/apparato/dialogs.ts) | sì | false | parametri nella query string |
 
@@ -235,21 +235,23 @@ non importa niente da fuori di sé tranne `core/i18n/`.
 - **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML
   con la CSP, `projection.ts` spinge solo i blocchi accesi, `assistant.ts` e
   `conversation.ts` servono l'assistente.
-- **`ui/`** — il pannello, senza framework: `h()` in
-  [dom.ts](../ui/dom.ts), ridisegno completo sotto `#radice` con fuoco,
-  cursore e scorrimenti ripristinati per chiave (`data-fuoco`,
-  `data-scorrimento`); modali e palette fuori dal ciclo. `stato.registro` è
+- **`ui/`** — il pannello, in React (ADR-56): una radice in
+  [main.tsx](../ui/main.tsx), ridisegnata tutta sotto `#radice` a ogni cambio
+  di stato, con fuoco, cursore e scorrimenti ripristinati per chiave
+  (`data-fuoco`, `data-scorrimento`, [focus.ts](../ui/focus.ts)); modali,
+  menu, palette e notifiche in radici loro, fuori dal ciclo. `stato.registro` è
   sola lettura: ogni scrittura è un'`Azione`, il registro nuovo torna intero.
   Dove si guarda è un `Posto` e ci si sposta con `vai` (ADR-47); il posto si
   ricorda per documento (`memory.ts`). Ogni aggiornamento resta nel suo
   riquadro (ADR-48): i nodi `data-telaio` restano fra due disegni, le letture
-  rifanno solo la loro isola (`islands.ts`, `asyncResources.ts`), i nodi pesanti
-  `data-tieni` non si ricreano, l'orologio muove solo la riga di adesso.
+  rifanno solo la loro isola (`<Isola>`, `asyncResources.ts`), i nodi pesanti
+  hanno la sorgente per `key` e non si ricreano, l'orologio muove solo la riga
+  di adesso.
 - **`core/controlli/`** — i controlli delle impostazioni del programma, disegnati
   una volta per il pannello e per la finestra nativa (ADR-52):
-  [control.ts](../core/controlli/control.ts) sceglie dalla `VoceProgramma`
+  [control.ts](../core/controlli/control.tsx) sceglie dalla `VoceProgramma`
   figura, segmentato, tendina, interruttore, numero con unità, cursore,
-  percorso; [field.ts](../core/controlli/field.ts) gli stessi disegni per i
+  percorso; [field.ts](../core/controlli/field.tsx) gli stessi disegni per i
   campi dell'anno; [areas.ts](../core/controlli/areas.ts) le quattro aree, le
   sezioni con chiavi (`DIVISIONI`, `divisioneDi`) e i loro nomi, comuni al
   pannello e alla finestra nativa. DOM passato come argomento, niente ponte: il
@@ -399,7 +401,7 @@ sequenceDiagram
 sequenceDiagram
   autonumber
   participant U as Docente
-  participant V as ui/views/sorting.ts
+  participant V as ui/views/sorting.tsx
   participant AZ as core/azioni/sorting.ts
   participant S as core/dati/sorter.ts
   participant O as core/dati/ocr.ts
@@ -535,7 +537,7 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
 - [esbuild.mjs](../esbuild.mjs) esporta `applicazione` e `prove`; flag
   `--produzione`, `--test`, `--ui`. Bundle principali: `desktop/shell/main.ts` e
   `desktop/shell/preload.ts` (cjs; `external: electron, node-llama-cpp`),
-  `ui/main.ts`, `ui/projection.ts`, `ui/assistantWindow.ts` (iife),
+  `ui/main.tsx`, `ui/projection.tsx`, `ui/assistantWindow.tsx` (iife),
   le pagine di `desktop/shell/` copiate in `dist/`, il worker di pdfjs (ESM).
 - `verificaIdentita()` fa fallire la build se l'`appId` di
   [electron-builder.json](../electron-builder.json) e `IDENTITA` di

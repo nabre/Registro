@@ -84,6 +84,8 @@ export async function importaSorgente (
     format: 'esm',
     target: 'node18',
     logLevel: 'silent',
+    // I `.tsx` dell'interfaccia (ADR-56), compilati come l'applicazione.
+    jsx: 'automatic',
     external,
     // `Temporal`, che Node non ha: come i bundle di `esbuild.mjs --test`.
     inject: [`${RADICE}/tests/helpers/temporal.mjs`],

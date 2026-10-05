@@ -4,7 +4,7 @@
 // di lì. Dentro un'area delle impostazioni un rimando a un'altra voce prende il
 // posto di quella di adesso.
 
-import { ricordaScorrimenti } from './dom.js'
+import { ricordaScorrimenti } from './focus.js'
 import { chiaveDelPosto, completa, type Completato, type Posto } from './place.js'
 import {
   aggiorna,
@@ -123,7 +123,7 @@ export function avanti (): boolean {
 
 /**
  * Aggiunge agli scorrimenti del ridisegno quelli del posto a cui si torna. Va
- * chiamata prima di `rimpiazza`, vale una volta e solo dopo un passo nella
+ * chiamata prima del ridisegno, vale una volta e solo dopo un passo nella
  * fila: altrimenti una pagina si apre dall'alto (`tests/interfaccia/scroll.spec.ts`). Rimette
  * solo le scatole che la pagina di adesso non ha: la barra laterale non
  * appartiene al posto e non deve saltare.

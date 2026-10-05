@@ -551,7 +551,7 @@ test('navigation', async ({ browser }) => {
   await expect(page.locator('.archivio__titolo')).toHaveText('Rossi Maria')
   // La casella della matrice si accende: si vede da dove si era partiti.
   await expect(page.locator('.cella-documento--aperta')).toHaveCount(1)
-  // Il telaio del lettore è tenuto (`data-tieni`): un ridisegno non lo ricrea.
+  // Il telaio del lettore è tenuto: un ridisegno non lo ricrea.
   await valuta(page, "document.querySelector('.cornice-posto__telaio').__segnato = true")
   await valuta(page, 'prova.ridisegna()')
   await valuta(page, FOTOGRAMMA)

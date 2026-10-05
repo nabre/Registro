@@ -37,7 +37,6 @@ const it = {
 
   // La testata
   classeEliminata: 'Classe eliminata',
-  preparaSupplenza: 'Prepara la supplenza: allievi, piano e risorse in uno zip per chi tiene l’ora',
   chiusa: 'Lezione conclusa: le schede sono in sola lettura.',
   riapri: 'Riapri',
   riapriTitolo: 'Rimette la lezione a «Modificabile», per correggerne il contenuto',
@@ -77,7 +76,6 @@ export const testi = catalogo(it, {
     vaiAlCalendario: 'Zum Kalender',
 
     classeEliminata: 'Gelöschte Klasse',
-    preparaSupplenza: 'Stellvertretung vorbereiten: Schülerinnen und Schüler, Plan und Materialien in einem ZIP für die vertretende Person',
     chiusa: 'Stunde abgeschlossen: Die Register sind schreibgeschützt.',
     riapri: 'Wieder öffnen',
     riapriTitolo: 'Setzt die Stunde wieder auf «Bearbeitbar», um ihren Inhalt zu korrigieren',
@@ -115,7 +113,6 @@ export const testi = catalogo(it, {
     vaiAlCalendario: 'Aller au calendrier',
 
     classeEliminata: 'Classe supprimée',
-    preparaSupplenza: 'Préparer la suppléance : élèves, plan et ressources dans un zip pour qui donne l’heure',
     chiusa: 'Leçon terminée : les onglets sont en lecture seule.',
     riapri: 'Rouvrir',
     riapriTitolo: 'Remet la leçon à « Modifiable », pour en corriger le contenu',
@@ -152,7 +149,6 @@ export const testi = catalogo(it, {
     vaiAlCalendario: 'Go to the calendar',
 
     classeEliminata: 'Deleted class',
-    preparaSupplenza: 'Prepare cover: students, plan and resources in a zip for whoever teaches the lesson',
     chiusa: 'Lesson completed: the tabs are read-only.',
     riapri: 'Reopen',
     riapriTitolo: 'Sets the lesson back to “Editable”, to correct its content',

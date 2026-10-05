@@ -94,10 +94,10 @@ module.exports = {
       // finestra nativa (ADR-52): sopra il dispositivo multilingua e le parole
       // di tutti, e dal contratto solo i tipi (`core-valore-da-contract`).
       name: 'controlli-leggeri',
-      comment: 'core/controlli importa solo core/i18n, le parole di tutti e tipi da contract.',
+      comment: 'core/controlli importa solo core/i18n, le parole di tutti, tipi da contract e React (ADR-56).',
       severity: 'error',
       from: { path: '^core/controlli/' },
-      to: { pathNot: String.raw`^(core/(controlli|i18n)/|core/dominio/words\.testi\.ts$|contract/)` },
+      to: { pathNot: String.raw`^(core/(controlli|i18n)/|core/dominio/words\.testi\.ts$|contract/|node_modules/(react|react-dom|scheduler)/)` },
     },
 
     // ------------------------------------------------------ da guardare a mano
@@ -130,7 +130,7 @@ module.exports = {
     // `apparato` si risolve come per tsc: nel file di core/apparato/.
     tsConfig: { fileName: 'tsconfig.json' },
     // Il `'./x.js'` di Node16 che sul disco è `x.ts` lo risolve da sé.
-    enhancedResolveOptions: { extensions: ['.ts', '.mjs', '.js'] },
+    enhancedResolveOptions: { extensions: ['.ts', '.tsx', '.mjs', '.js'] },
     reporterOptions: {
       // Il grafico di `npm run layers -- --grafico`: una casella per cartella.
       archi: { collapsePattern: '^(core|contract|desktop|ui|cli)/[^/]+' },
