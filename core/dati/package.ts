@@ -90,6 +90,54 @@ export class ErrorePacchetto extends Error {
 const codifica = new TextEncoder()
 const decodifica = new TextDecoder()
 
+const MB = 1024 * 1024
+
+/**
+ * Quanto può misurare una voce decompressa. Le collezioni sono JSON da
+ * qualche megabyte: 256 MB è già un registro impossibile. Il resto sono PDF e
+ * immagini caricati, che non superano il gigabyte.
+ */
+const TETTO_COLLEZIONE = 256 * MB
+const TETTO_FILE = 1024 * MB
+
+/**
+ * Quante volte il file può gonfiarsi, tutte le voci decompresse insieme, e
+ * sotto quale misura non si guarda: il JSON si comprime una ventina di volte,
+ * i PDF quasi niente. Una bomba ZIP dichiara migliaia di volte la sua misura.
+ */
+const GONFIORE_MASSIMO = 50
+const GONFIORE_LIBERO = 1024 * MB
+
+/**
+ * La prima voce che dichiara una misura fuori misura, o null. Si guarda quel
+ * che l'indice dichiara: `decomprimi` non va oltre, quindi basta fermarsi qui.
+ */
+function voceGonfiata (
+  voci: ReadonlyArray<{ nome: string, originale: number }>,
+  misuraFile: number,
+): string | null {
+  let totale = 0
+  for (const voce of voci) {
+    const tetto = voce.nome.startsWith(`${DATI}/`) ? TETTO_COLLEZIONE : TETTO_FILE
+    if (voce.originale > tetto) return voce.nome
+    totale += voce.originale
+    if (totale > Math.max(misuraFile * GONFIORE_MASSIMO, GONFIORE_LIBERO)) return voce.nome
+  }
+  return null
+}
+
+/**
+ * Vero se il nome di una voce resta dentro il documento: barre in avanti,
+ * niente risalite, segmenti vuoti, lettere d'unità o caratteri di controllo.
+ * I nomi scritti dal registro passano tutti da `dentroIlDocumento`.
+ */
+function nomeDiVoceSicuro (nome: string): boolean {
+  if (nome.includes('\\') || nome.startsWith('/') || /[\u0000-\u001f]/.test(nome)) return false
+  return nome
+    .split('/')
+    .every((pezzo) => pezzo !== '' && pezzo !== '.' && pezzo !== '..' && !/^[A-Za-z]:/.test(pezzo))
+}
+
 /** Il nome del file di serratura di un pacchetto: nascosto, e accanto a lui. */
 function fileSerratura (pacchetto: apparato.Uri): apparato.Uri {
   const nome = pacchetto.path.split('/').pop() ?? ''
@@ -241,8 +289,24 @@ export class Pacchetto {
       throw new ErrorePacchetto(testi().nonSiApre(`${nomeDelPacchetto(file)}${ESTENSIONE}`, detto))
     }
 
+    // Prima di decomprimere qualsiasi cosa: un documento ricevuto può dichiarare
+    // voci gonfiate apposta, e le collezioni si aprono tutte all'avvio.
+    const troppo = voceGonfiata(aperto.voci, contenuto.length)
+    if (troppo) {
+      throw new ErrorePacchetto(
+        testi().voceTroppoGrande(`${nomeDelPacchetto(file)}${ESTENSIONE}`, troppo),
+      )
+    }
+
     const pacchetto = new Pacchetto(file, { formato: FORMATO, versione: VERSIONE_PACCHETTO })
     for (const voce of aperto.voci) {
+      // Un nome che risale o salta su un'altra unità non l'abbiamo scritto noi:
+      // materializzato, uscirebbe dalla cartella delle copie. Si lascia fuori
+      // senza rifiutare il documento, come una voce illeggibile.
+      if (!nomeDiVoceSicuro(voce.nome)) {
+        console.warn(`registro: voce «${voce.nome}» ignorata in ${nomeDelPacchetto(file)}${ESTENSIONE}`)
+        continue
+      }
       pacchetto.voci.set(voce.nome, {
         bytes: null,
         testo: null,

@@ -66,6 +66,13 @@ type Muro = number
  */
 const MASSIMO_OCCORRENZE = 3000
 
+/**
+ * Freno ai giri di una regola, tenute o no: con `COUNT` non si può saltare
+ * avanti, e un `DTSTART` dell'anno 1 farebbe centinaia di migliaia di giorni.
+ * Cent'anni di giorni ci stanno.
+ */
+const MASSIMO_GIRI = 40_000
+
 /** Spazio o tabulazione: in testa a una riga, la continuazione della precedente. */
 function piega (b: number | undefined): boolean {
   return b === 0x20 || b === 0x09
@@ -339,8 +346,19 @@ function occorrenze (
     return true
   }
 
+  // Senza COUNT quel che viene prima del periodo non conta: si salta fin quasi a
+  // `dal` di passi interi, così giorno della settimana e INTERVAL restano quelli
+  // della regola. Un passo in meno, per non perdere la settimana a cavallo.
+  const salta = (partenza: Muro, ampiezza: number): Muro => {
+    if (conta !== Infinity) return partenza
+    const passi = Math.floor((dal - ora - partenza) / ampiezza) - 1
+    return passi > 0 ? partenza + passi * ampiezza : partenza
+  }
+  let giri = 0
+
   if (frequenza === 'DAILY') {
-    for (let g = primoGiorno; ; g += passo * GIORNO_MS) {
+    const ampiezza = passo * GIORNO_MS
+    for (let g = salta(primoGiorno, ampiezza); giri < MASSIMO_GIRI; g += ampiezza, giri += 1) {
       if (giorni.length > 0 && !giorni.includes(giornoSettimana(aIso(new Date(g))))) {
         if (g + ora > limite) break
         continue
@@ -356,7 +374,12 @@ function occorrenze (
     ? [...new Set(giorni)].sort((a, b) => a - b)
     : [giornoSettimana(aIso(new Date(primoGiorno)))]
   const lunedi = primoGiorno - (giornoSettimana(aIso(new Date(primoGiorno))) - 1) * GIORNO_MS
-  for (let settimana = lunedi; settimana + ora <= limite; settimana += passo * 7 * GIORNO_MS) {
+  const ampiezza = passo * 7 * GIORNO_MS
+  for (
+    let settimana = salta(lunedi, ampiezza);
+    settimana + ora <= limite && giri < MASSIMO_GIRI;
+    settimana += ampiezza, giri += 1
+  ) {
     for (const g of scelti) {
       if (!aggiungi(settimana + (g - 1) * GIORNO_MS)) return esito
     }

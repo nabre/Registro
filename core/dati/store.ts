@@ -339,8 +339,17 @@ export class Deposito {
   private percorsoCopia (dentro: string): apparato.Uri {
     const documento = this.documento()
     const anno = nomeSicuro(documento?.nome ?? 'anno') || 'anno'
-    const pezzi = dentro === '' ? [] : dentro.split('/')
-    return apparato.Uri.joinPath(this.radiceCopie, anno, ...pezzi)
+    const cartella = apparato.Uri.joinPath(this.radiceCopie, anno)
+    // Ripulito di nuovo anche se chi chiama l'ha già fatto: `joinPath` risolve
+    // `..` e su Windows `\` diventa separatore, e una copia fuori da qui
+    // finirebbe ovunque nel profilo (e `smaterializza` ci cancellerebbe).
+    const pezzi = dentroIlDocumento(dentro).split('/').filter(Boolean)
+    const copia = apparato.Uri.joinPath(cartella, ...pezzi)
+    if (copia.path !== cartella.path && !copia.path.startsWith(`${cartella.path}/`)) {
+      // testo-fisso: guardia interna, irraggiungibile dopo `dentroIlDocumento`
+      throw new Error(`copia fuori dalla cartella delle copie: ${dentro}`)
+    }
+    return copia
   }
 
   /** Il file che ricorda le copie fatte, letto una volta per sessione. */

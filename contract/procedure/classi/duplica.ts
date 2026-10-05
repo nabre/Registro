@@ -19,7 +19,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     classeId: identificatore({ aiuto: () => t().classeId }),
     annoId: identificatore({ aiuto: () => t().annoId }),
-    nome: testo({ aiuto: () => t().nome }),
+    nome: testo({ massimo: 120, aiuto: () => t().nome }),
   }),
   esegui: (ambito, ingresso) => {
     esigiClasse(ambito, ingresso.classeId)

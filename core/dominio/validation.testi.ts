@@ -38,6 +38,7 @@ const it = {
     `Il ${etichetta || 'semestre'} deve cominciare il giorno dopo la fine ` +
     `del ${precedente || 'precedente'}.`,
   dateAnno: 'Le date dell’anno non sono quelle dei suoi semestri.',
+  annoTroppoLungo: (giorni: number) => `Un anno scolastico dura al massimo ${giorni} giorni.`,
   sospensioneFuori: (etichetta: string) => `«${etichetta}» cade fuori dall’anno.`,
   sospensioneSenzaNome: 'La sospensione deve avere un nome.',
   inizioNonValido: 'Data d’inizio non valida.',
@@ -54,6 +55,7 @@ const it = {
   alNonValido: '«Al» non è una data valida.',
   periodoFascia: 'Il periodo della fascia finisce prima di cominciare.',
   fasciaGemella: 'C’è già una fascia in questo giorno alla stessa ora.',
+  fasciaOltreMezzanotte: 'La fascia finirebbe dopo mezzanotte.',
 
   // L'unità didattica e le pause della giornata
   minutiUd: (minimo: number, massimo: number) =>
@@ -116,6 +118,8 @@ const it = {
   scalaAlRovescio: 'Il minimo della scala deve essere inferiore al massimo.',
   sufficienza: 'La sufficienza deve cadere dentro la scala.',
   passoVoti: 'Il passo dei voti deve essere positivo.',
+  estremiScala: (estremo: number) => `Minimo e massimo della scala stanno fra −${estremo} e ${estremo}.`,
+  troppiVoti: (voti: number) => `La scala ammette al massimo ${voti} passi: allargare il passo.`,
   valutazioneSenzaTitolo: 'Il momento di valutazione deve avere un titolo.',
   dataNonValida: 'Data non valida.',
   corsoValutazione: 'Assegnare un corso.',
@@ -159,6 +163,7 @@ export const testi = catalogo(it, {
       `${etichetta ? `«${etichetta}»` : 'Das Semester'} muss am Tag nach dem Ende ` +
       `${precedente ? `von «${precedente}»` : 'des vorherigen'} beginnen.`,
     dateAnno: 'Die Daten des Jahres stimmen nicht mit denen seiner Semester überein.',
+    annoTroppoLungo: (giorni) => `Ein Schuljahr dauert höchstens ${giorni} Tage.`,
     sospensioneFuori: (etichetta) => `«${etichetta}» liegt ausserhalb des Jahres.`,
     sospensioneSenzaNome: 'Die unterrichtsfreie Zeit braucht einen Namen.',
     inizioNonValido: 'Ungültiges Anfangsdatum.',
@@ -174,6 +179,7 @@ export const testi = catalogo(it, {
     alNonValido: '«Bis» ist kein gültiges Datum.',
     periodoFascia: 'Der Zeitraum des Zeitfensters endet, bevor er beginnt.',
     fasciaGemella: 'An diesem Tag gibt es zur selben Zeit schon ein Zeitfenster.',
+    fasciaOltreMezzanotte: 'Das Zeitfenster würde nach Mitternacht enden.',
 
     minutiUd: (minimo, massimo) => `Eine Lektion dauert ${minimo} bis ${massimo} ganze Minuten.`,
     primaPausa: 'Die erste Pause hat keine gültige Uhrzeit: HH:MM verwenden.',
@@ -226,6 +232,8 @@ export const testi = catalogo(it, {
     scalaAlRovescio: 'Das Minimum der Notenskala muss kleiner als das Maximum sein.',
     sufficienza: 'Die genügende Note muss innerhalb der Notenskala liegen.',
     passoVoti: 'Die Notenschritte müssen positiv sein.',
+    estremiScala: (estremo) => `Minimum und Maximum der Notenskala liegen zwischen −${estremo} und ${estremo}.`,
+    troppiVoti: (voti) => `Die Notenskala erlaubt höchstens ${voti} Schritte: den Notenschritt vergrössern.`,
     valutazioneSenzaTitolo: 'Die Leistungsbeurteilung braucht einen Titel.',
     dataNonValida: 'Ungültiges Datum.',
     corsoValutazione: 'Einen Kurs zuweisen.',
@@ -267,6 +275,7 @@ export const testi = catalogo(it, {
       `${etichetta ? `« ${etichetta} »` : 'Le semestre'} doit commencer le lendemain de la fin ` +
       `${precedente ? `de « ${precedente} »` : 'du précédent'}.`,
     dateAnno: 'Les dates de l’année ne sont pas celles de ses semestres.',
+    annoTroppoLungo: (giorni) => `Une année scolaire dure au plus ${giorni} jours.`,
     sospensioneFuori: (etichetta) => `« ${etichetta} » tombe en dehors de l’année.`,
     sospensioneSenzaNome: 'L’interruption des cours doit avoir un nom.',
     inizioNonValido: 'Date de début non valide.',
@@ -282,6 +291,7 @@ export const testi = catalogo(it, {
     alNonValido: '« Au » n’est pas une date valide.',
     periodoFascia: 'L’intervalle de dates de la plage horaire finit avant de commencer.',
     fasciaGemella: 'Il y a déjà une plage horaire ce jour-là à la même heure.',
+    fasciaOltreMezzanotte: 'La plage horaire finirait après minuit.',
 
     minutiUd: (minimo, massimo) =>
       `Une période dure entre ${minimo} et ${massimo} minutes entières.`,
@@ -336,6 +346,8 @@ export const testi = catalogo(it, {
     scalaAlRovescio: 'Le minimum du barème doit être inférieur au maximum.',
     sufficienza: 'La note suffisante doit se trouver dans le barème.',
     passoVoti: 'Le pas des notes doit être positif.',
+    estremiScala: (estremo) => `Le minimum et le maximum de l’échelle sont compris entre −${estremo} et ${estremo}.`,
+    troppiVoti: (voti) => `L’échelle admet au plus ${voti} pas : agrandir le pas des notes.`,
     valutazioneSenzaTitolo: 'L’évaluation doit avoir un titre.',
     dataNonValida: 'Date non valide.',
     corsoValutazione: 'Attribuer un cours.',
@@ -376,6 +388,7 @@ export const testi = catalogo(it, {
       `${etichetta ? `“${etichetta}”` : 'The semester'} must start the day after ` +
       `${precedente ? `“${precedente}”` : 'the previous one'} ends.`,
     dateAnno: 'The year’s dates don’t match those of its semesters.',
+    annoTroppoLungo: (giorni) => `A school year lasts at most ${giorni} days.`,
     sospensioneFuori: (etichetta) => `“${etichetta}” falls outside the year.`,
     sospensioneSenzaNome: 'The closure needs a name.',
     inizioNonValido: 'Invalid start date.',
@@ -390,6 +403,7 @@ export const testi = catalogo(it, {
     alNonValido: '“To” isn’t a valid date.',
     periodoFascia: 'The time slot’s date range ends before it starts.',
     fasciaGemella: 'There’s already a time slot on this day at the same time.',
+    fasciaOltreMezzanotte: 'The time slot would end after midnight.',
 
     minutiUd: (minimo, massimo) =>
       `A period lasts between ${minimo} and ${massimo} whole minutes.`,
@@ -442,6 +456,8 @@ export const testi = catalogo(it, {
     scalaAlRovescio: 'The minimum of the grading scale must be lower than the maximum.',
     sufficienza: 'The pass mark must fall within the grading scale.',
     passoVoti: 'The grade step must be positive.',
+    estremiScala: (estremo) => `The scale’s minimum and maximum lie between −${estremo} and ${estremo}.`,
+    troppiVoti: (voti) => `The scale allows at most ${voti} steps: make the grade step larger.`,
     valutazioneSenzaTitolo: 'The assessment needs a title.',
     dataNonValida: 'Invalid date.',
     corsoValutazione: 'Assign a course.',

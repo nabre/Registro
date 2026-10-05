@@ -19,7 +19,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     classeId: identificatore(),
     materiaId: identificatore(),
-    titolo: opzionale(testo({ aiuto: () => t().titoloCorso })),
+    titolo: opzionale(testo({ massimo: 120, aiuto: () => t().titoloCorso })),
   }),
   esegui: (ambito, ingresso) => {
     // Due guardie distinte: il gestore direbbe una frase sola per classe e materia.

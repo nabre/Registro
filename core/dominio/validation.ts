@@ -5,9 +5,9 @@
 // uguali): `normalization/` le prende da qui, mai il contrario.
 
 import { intervalloAnno } from './years.js'
-import { durataMinuti, formattaData, isoValida, LIMITI_UD, nomeSemestre, oraValida, sommaGiorni } from './dates.js'
+import { daIso, durataMinuti, GIORNO_MS, formattaData, isoValida, LIMITI_UD, minutiDaOra, nomeSemestre, oraValida, sommaGiorni } from './dates.js'
 import { emailValida, normalizzaTesto } from './text.js'
-import { slotInConflitto } from './calculations.js'
+import { LIMITI_SCALA, slotInConflitto } from './calculations.js'
 import { SCALA_PREDEFINITA } from './factories.js'
 import { LIMITI_PAUSE, pauseDentroIlGiorno } from './breaks.js'
 import type {
@@ -82,6 +82,11 @@ export function validaAnno (anno: Partial<AnnoScolastico>): Esito {
   if (intervallo && (anno.inizio !== intervallo.inizio || anno.fine !== intervallo.fine)) {
     errori.push(t.dateAnno)
   }
+  // Un anno di vent'anni (una cifra sbagliata) farebbe generare lezioni e
+  // calendario per ogni suo giorno.
+  if (intervallo && giorniFra(intervallo.inizio, intervallo.fine) > GIORNI_ANNO_MASSIMI) {
+    errori.push(t.annoTroppoLungo(GIORNI_ANNO_MASSIMI))
+  }
 
   // Una pausa fuori dall'anno non spegnerebbe nessun giorno: è un errore.
   for (const pausa of anno.sospensioni ?? []) {
@@ -96,6 +101,17 @@ export function validaAnno (anno: Partial<AnnoScolastico>): Esito {
   }
   return esito(errori)
 }
+
+/** Quanto può durare un anno scolastico: due anni, con un 29 febbraio. */
+const GIORNI_ANNO_MASSIMI = 731
+
+/** I giorni da una data all'altra: `daIso` è in UTC, l'ora legale non c'entra. */
+function giorniFra (dal: Iso, al: Iso): number {
+  return Math.round((daIso(al).getTime() - daIso(dal).getTime()) / GIORNO_MS)
+}
+
+/** I minuti di un giorno: una fascia finisce entro mezzanotte. */
+const MINUTI_GIORNO = 24 * 60
 
 /** Un periodo di chiusura sta in piedi se le due date ci sono e sono in ordine. */
 function validaSospensione (sospensione: Partial<Sospensione>): Esito {
@@ -129,6 +145,14 @@ export function validaRicorrenza (
     errori.push(t.durataZero)
   } else if (durata % minutiUd !== 0) {
     errori.push(t.fasciaInUd(minutiUd))
+  }
+  // Una lezione sta in un giorno solo: oltre mezzanotte finirebbe in una data
+  // che la fascia non nomina.
+  if (
+    oraValida(ricorrenza.inizio) && durata > 0 &&
+    minutiDaOra(ricorrenza.inizio) + durata > MINUTI_GIORNO
+  ) {
+    errori.push(t.fasciaOltreMezzanotte)
   }
   if (ricorrenza.dal && !isoValida(ricorrenza.dal)) errori.push(t.dalNonValido)
   if (ricorrenza.al && !isoValida(ricorrenza.al)) errori.push(t.alNonValido)
@@ -394,9 +418,17 @@ export function validaScala (scala: Partial<Scala>): Esito {
   const t = testi()
   const errori: string[] = []
   const { min, max, sufficienza, passo } = { ...SCALA_PREDEFINITA, ...scala }
+  const { estremo, voti } = LIMITI_SCALA
   if (!(min < max)) errori.push(t.scalaAlRovescio)
+  // `Math.abs` di NaN è NaN, e il confronto rovesciato lo prende.
+  if (!(Math.abs(min) <= estremo && Math.abs(max) <= estremo)) errori.push(t.estremiScala(estremo))
   if (sufficienza < min || sufficienza > max) errori.push(t.sufficienza)
-  if (!(passo > 0)) errori.push(t.passoVoti)
+  if (!(passo > 0)) {
+    errori.push(t.passoVoti)
+  } else if (min < max && (max - min) / passo > voti) {
+    // Ogni voto ammesso è una voce della tendina.
+    errori.push(t.troppiVoti(voti))
+  }
   return esito(errori)
 }
 

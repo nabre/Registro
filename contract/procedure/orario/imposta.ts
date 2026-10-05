@@ -17,7 +17,7 @@ const ricorrenza = oggetto({
   id: identificatore(),
   giorno: numero({ intero: true, minimo: 1, massimo: 7, aiuto: () => t().giorno }),
   inizio: ora(),
-  durataMin: numero({ intero: true, minimo: 1, aiuto: () => t().durataMin }),
+  durataMin: numero({ intero: true, minimo: 1, massimo: 1440, aiuto: () => t().durataMin }),
   aula: opzionale(testo()),
   dal: opzionale(iso({ aiuto: () => t().dal })),
   al: opzionale(iso({ aiuto: () => t().al })),

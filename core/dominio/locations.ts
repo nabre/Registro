@@ -85,11 +85,29 @@ function sotto (
 ): string {
   return [
     radice,
-    nomeSicuro(ambito ?? DOCENTE_DI_CLASSE),
-    nomeSicuro(classe),
-    ...(chi ? [DEGLI_ALLIEVI, nomeSicuro(chi)] : [DI_CLASSE]),
+    nomeDiCartella(ambito ?? DOCENTE_DI_CLASSE),
+    nomeDiCartella(classe),
+    ...(chi ? [DEGLI_ALLIEVI, nomeDiCartella(chi)] : [DI_CLASSE]),
     nomeSicuro(file),
   ].join('/')
+}
+
+/**
+ * Lunghezza massima di una cartella fatta da un nome (materia, classe,
+ * persona). Quattro cartelle e il file devono stare sotto i limiti di Windows
+ * e dell'indice ZIP; nessun nome vero ci arriva, quindi nessun percorso già
+ * scritto cambia.
+ */
+const CARTELLA_MASSIMA = 80
+
+/** Un nome sicuro e, se troppo lungo, accorciato come `accorciaNome`. */
+function nomeDiCartella (nome: string): string {
+  const sicuro = nomeSicuro(nome)
+  // Per caratteri e non per unità UTF-16: un'emoji tagliata a metà non è un
+  // nome scrivibile.
+  const caratteri = Array.from(sicuro)
+  if (caratteri.length <= CARTELLA_MASSIMA) return sicuro
+  return nomeSicuro(caratteri.slice(0, CARTELLA_MASSIMA).join(''))
 }
 
 /**

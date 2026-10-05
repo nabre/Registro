@@ -2665,7 +2665,8 @@
           },
           "nome": {
             "type": "string",
-            "description": "Come si chiamerà: di norma la stessa sigla"
+            "description": "Come si chiamerà: di norma la stessa sigla",
+            "maxLength": 120
           }
         },
         "required": [
@@ -2822,7 +2823,8 @@
           "nome": {
             "type": "string",
             "description": "Come si chiamerà qui: di norma la stessa sigla",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 120
           },
           "anagrafica": {
             "type": "boolean",
@@ -2864,7 +2866,8 @@
           },
           "nome": {
             "type": "string",
-            "description": "Nuovo nome o sigla della classe"
+            "description": "Nuovo nome o sigla della classe",
+            "maxLength": 120
           },
           "colore": {
             "type": "string",
@@ -3589,7 +3592,8 @@
           },
           "titolo": {
             "type": "string",
-            "description": "Senza, lo compone il dominio da classe e materia"
+            "description": "Senza, lo compone il dominio da classe e materia",
+            "maxLength": 120
           }
         },
         "required": [
@@ -5758,7 +5762,8 @@
                 "durataMin": {
                   "type": "integer",
                   "description": "Quanto dura la fascia, in minuti",
-                  "minimum": 1
+                  "minimum": 1,
+                  "maximum": 1440
                 },
                 "aula": {
                   "type": "string"
@@ -8080,7 +8085,8 @@
       "titolo": "Aggancia un piano a un’ora, o lo stacca",
       "idempotente": true,
       "collezioni": [
-        "lezioni"
+        "lezioni",
+        "progetti"
       ],
       "riga": "regi chiama piani.assegna --lezioneId <testo> --pianoId <testo>",
       "parametri": {
