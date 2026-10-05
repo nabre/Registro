@@ -15,6 +15,7 @@ const it = {
   // «Ctrl» come nella barra dei comandi («Ctrl+E» in ogni lingua): un nome solo
   // per lo stesso tasto.
   scorciatoia: (numero: number) => `Ctrl+${numero}`,
+  ctrlClic: 'Ctrl+clic',
 }
 
 export const testi = catalogo(it, {
@@ -28,6 +29,7 @@ export const testi = catalogo(it, {
     cambiaCorso: 'Kurs wechseln',
     cambiaClasse: 'Klasse wechseln',
     scorciatoia: (numero) => `Ctrl+${numero}`,
+    ctrlClic: 'Ctrl+Klick',
   },
   fr: {
     navigazione: 'Navigation',
@@ -39,6 +41,7 @@ export const testi = catalogo(it, {
     cambiaCorso: 'Changer de cours',
     cambiaClasse: 'Changer de classe',
     scorciatoia: (numero) => `Ctrl+${numero}`,
+    ctrlClic: 'Ctrl+clic',
   },
   en: {
     navigazione: 'Navigation',
@@ -50,5 +53,6 @@ export const testi = catalogo(it, {
     cambiaCorso: 'Change course',
     cambiaClasse: 'Change class',
     scorciatoia: (numero) => `Ctrl+${numero}`,
+    ctrlClic: 'Ctrl+click',
   },
 })

@@ -49,6 +49,12 @@ export interface Azioni {
    * con. Senza la funzione il menu è quello «senza documento» (le prove).
    */
   documentoAperto?: () => boolean
+  /**
+   * Le finestre del registro aperte, la principale per prima, con la pagina
+   * che mostrano, e come portarne davanti una. Senza, niente elenco (le prove).
+   */
+  finestre?: () => Array<{ n: number, titolo: string }>
+  portaFinestra?: (numero: number) => void
 }
 
 /**
@@ -149,6 +155,27 @@ function vociRecenti (azioni: Azioni): MenuItemConstructorOptions {
   }
 }
 
+/**
+ * Le finestre del registro aperte, come i recenti: un sottomenu, spento quando
+ * c'è solo la principale, per non far saltare le voci vicine.
+ */
+function vociDelleFinestre (azioni: Azioni): MenuItemConstructorOptions[] {
+  const aperte = azioni.finestre?.()
+  if (!aperte) return []
+  const t = testi()
+  return [
+    { type: 'separator' },
+    {
+      label: t.finestre,
+      enabled: aperte.length > 1,
+      submenu: aperte.map((finestra) => ({
+        label: t.finestra(finestra.n, finestra.titolo),
+        click: () => azioni.portaFinestra?.(finestra.n),
+      })),
+    },
+  ]
+}
+
 /** Le voci che non vengono da un comando del registro. */
 function vociNostre (azioni: Azioni, documentoAperto: boolean): MenuItemConstructorOptions[] {
   const t = testi()
@@ -230,6 +257,9 @@ export function modelloDelMenu (azioni: Azioni): MenuItemConstructorOptions[] {
   // Le voci nostre vanno nel gruppo del documento, cercato per nome e non per posizione.
   const registro = dalManifesto.find((menu) => menu.gruppo === 'registro')
   if (registro) registro.voci.push(...vociNostre(azioni, aperto))
+  // L'elenco delle finestre accanto ai comandi che le aprono.
+  const schermo = dalManifesto.find((menu) => menu.gruppo === 'schermo')
+  if (schermo && aperto) schermo.voci.push(...vociDelleFinestre(azioni))
 
   // I comandi del manifesto senza gruppo: meglio in «Altro» che irraggiungibili.
   const orfani = [...rimasti.values()].map(voceDi)

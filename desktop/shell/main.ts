@@ -15,7 +15,7 @@
 import './system/portable.js'
 import './system/userData.js'
 
-import { app, dialog } from 'electron'
+import { app, dialog, screen } from 'electron'
 import { existsSync, statSync } from 'node:fs'
 import * as percorso from 'node:path'
 
@@ -55,7 +55,8 @@ import {
   spegni,
 } from '#desktop/boot.js'
 import { PannelloProiezione } from '#desktop/pannelli/projection.js'
-import { ascolta as ascoltaInterfaccia } from '#desktop/apparato/windows.js'
+import { PannelloRegistro } from '#desktop/pannelli/panel.js'
+import { ascolta as ascoltaInterfaccia, dopoUnoSchermoStaccato } from '#desktop/apparato/windows.js'
 import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windows/welcome.js'
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
 import { annunciaAvvio, chiudiAvvio, chiudiAvvioQuandoAppare, mostraAvvio } from './windows/splash.js'
@@ -344,9 +345,26 @@ async function avvia (): Promise<void> {
       disinstalla,
       // Lo stesso criterio di `registroDocenti.benvenuto`, qui sopra.
       documentoAperto: () => percorsoPacchetto() !== null,
+      finestre: () => PannelloRegistro.finestre(),
+      portaFinestra: (numero) => { PannelloRegistro.portaDavanti(numero) },
     })
     // Le voci «senza documento» vanno e vengono con l'anno aperto.
     alDocumentoApertoOChiuso(ridisegnaMenu)
+    // Uno schermo staccato: Windows sposta le finestre su quello che resta, poi
+    // quelle del registro si scostano l'una dall'altra.
+    const staccato = () => { setTimeout(dopoUnoSchermoStaccato, 500) }
+    screen.on('display-removed', staccato)
+    smaltibiliGuscio.push({ dispose: () => screen.removeListener('display-removed', staccato) })
+    // L'elenco delle finestre segue aperture, chiusure e pagine: una raffica
+    // di cambi (una figlia che nasce e trova la sua pagina) rifà il menu una volta.
+    let menuDaRifare: ReturnType<typeof setTimeout> | null = null
+    smaltibiliGuscio.push(PannelloRegistro.alCambioFinestre(() => {
+      if (menuDaRifare) clearTimeout(menuDaRifare)
+      menuDaRifare = setTimeout(() => {
+        menuDaRifare = null
+        ridisegnaMenu()
+      }, 200)
+    }))
     // Crearlo richiede l'archivio, che esiste solo dopo `avviaRegistro`. Nasce in
     // una cartella provvisoria; posto e nome si scelgono al «salva con nome»
     // (vedi `data/paths.ts`).

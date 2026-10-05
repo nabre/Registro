@@ -28,6 +28,7 @@ const it = {
   nonScritto: 'Non ho potuto scrivere il file esportato.',
   nienteDaRiparare: 'Non c’è niente da riparare.',
   nessunDocumento: 'Nessun documento aperto.',
+  finestraNonAperta: (n: number) => `La finestra ${n} non è aperta.`,
   nonComponibile: (numero: string) => `«${numero}» non è un numero da comporre.`,
   chiamateSpente: (voce: string) => `Le chiamate dal registro sono spente: si accendono ${voce}.`,
   nessunoRisponde: (modo: string, voce: string) =>
@@ -67,6 +68,7 @@ export const testi = catalogo(it, {
     nonScritto: 'Die exportierte Datei konnte nicht geschrieben werden.',
     nienteDaRiparare: 'Es gibt nichts zu reparieren.',
     nessunDocumento: 'Kein Dokument geöffnet.',
+    finestraNonAperta: (n) => `Fenster ${n} ist nicht offen.`,
     nonComponibile: (numero) => `«${numero}» ist keine wählbare Nummer.`,
     chiamateSpente: (voce) =>
       `Anrufe aus dem Klassenbuch sind ausgeschaltet: Schalte sie ${voce} ein.`,
@@ -107,6 +109,7 @@ export const testi = catalogo(it, {
     nonScritto: 'Je n’ai pas pu écrire le fichier exporté.',
     nienteDaRiparare: 'Il n’y a rien à réparer.',
     nessunDocumento: 'Aucun document ouvert.',
+    finestraNonAperta: (n) => `La fenêtre ${n} n’est pas ouverte.`,
     nonComponibile: (numero) => `« ${numero} » n’est pas un numéro à composer.`,
     chiamateSpente: (voce) =>
       `Les appels depuis le registre sont désactivés : active-les ${voce}.`,
@@ -145,6 +148,7 @@ export const testi = catalogo(it, {
     nonScritto: 'I couldn’t write the exported file.',
     nienteDaRiparare: 'There’s nothing to repair.',
     nessunDocumento: 'No document open.',
+    finestraNonAperta: (n) => `Window ${n} is not open.`,
     nonComponibile: (numero) => `“${numero}” isn’t a number that can be dialled.`,
     chiamateSpente: (voce) => `Calls from the register are switched off: switch them on ${voce}.`,
     nessunoRisponde: (modo, voce) =>

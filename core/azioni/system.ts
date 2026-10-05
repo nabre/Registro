@@ -320,6 +320,33 @@ export const sistema = {
     return fuori
   },
 
+  /**
+   * Un'altra finestra del registro. Le finestre le apre l'host
+   * (`desktop/pannelli/panel.ts`), che `core` non vede: passa da un comando,
+   * che torna il motivo se non si può (nessun anno, troppe finestre).
+   */
+  'finestra.nuova': async (_contesto, azione) => {
+    const motivo = await apparato.comandi.esegui<string | null | undefined>(
+      'registroDocenti.apriFinestra', azione.posto, azione.contesto,
+    )
+    return typeof motivo === 'string' ? rifiuta(motivo) : fuori
+  },
+
+  'finestra.principale': async (_contesto, _azione) => {
+    await apparato.comandi.esegui('registroDocenti.finestraPrincipale')
+    return fuori
+  },
+
+  'finestra.porta': async (_contesto, azione) => {
+    const trovata = await apparato.comandi.esegui<boolean | undefined>('registroDocenti.portaFinestra', azione.n)
+    return trovata === false ? rifiutaCon('non-trovato', testi().finestraNonAperta(azione.n)) : fuori
+  },
+
+  'finestra.chiudi': async (_contesto, azione) => {
+    const trovata = await apparato.comandi.esegui<boolean | undefined>('registroDocenti.chiudiFinestra', azione.n)
+    return trovata === false ? rifiutaCon('non-trovato', testi().finestraNonAperta(azione.n)) : fuori
+  },
+
   /** Chiude il registro, senza conferma: il documento si salva a ogni modifica. */
   'programma.esci': (_contesto, _azione) => {
     // Non aspettato: lo spegnimento aspetta questa richiesta (`lanciaComando`).

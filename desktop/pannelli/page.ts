@@ -48,6 +48,11 @@ export interface Pagina {
   readonly titolo: string
   /** La classe dell'elemento radice, su cui poggia il foglio di stile. */
   readonly classe: string
+  /**
+   * Il numero della finestra del registro: da 2 è una figlia, e la pagina lo
+   * sa prima di disegnare (`data-finestra`), per nascere snella.
+   */
+  readonly finestra?: number
 }
 
 /**
@@ -82,8 +87,9 @@ export function paginaHtml (pagina: Pagina): string {
   // `process.defaultApp`). Accanto al logo compare il tag relativo.
   const modo = process.env.REGISTRO_SVILUPPO === '1' ? 'dev' : process.defaultApp ? 'start' : null
   const sviluppo = modo ? ` data-sviluppo="${modo}"` : ''
+  const finestra = pagina.finestra && pagina.finestra > 1 ? ` data-finestra="${pagina.finestra}"` : ''
   return `<!DOCTYPE html>
-<html lang="it" data-sistema="${process.platform}"${sviluppo}>
+<html lang="it" data-sistema="${process.platform}"${sviluppo}${finestra}>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="${csp}">

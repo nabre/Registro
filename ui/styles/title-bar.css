@@ -276,6 +276,37 @@
   outline: 2px solid var(--fuoco);
   outline-offset: -2px;
 }
+/*
+ * Le finestre del registro: nella principale una pastiglia che apre il menu
+ * delle finestre, solo con figlie aperte; in una figlia la sua etichetta,
+ * ferma. Una pastiglia e non un'icona: dice in
+ * quale finestra si sta lavorando, e va letta di sfuggita.
+ */
+.barra-titolo__finestra {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  margin-left: var(--spazio-2);
+  padding: 0 10px;
+  border: 1px solid var(--bordo);
+  border-radius: 999px;
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+  font-size: var(--corpo-piccolo);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 22rem;
+}
+.barra-titolo__finestra--menu { cursor: pointer; }
+.barra-titolo__finestra--menu:hover,
+.barra-titolo__finestra--menu[aria-expanded="true"] { border-color: var(--accento); }
+.barra-titolo__finestra:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+
 /* Uno stacco fra «File» e le frecce: sono cose diverse. */
 .barra-titolo .barra-comandi__tendina + .barra-titolo__storia { margin-left: var(--spazio-1); }
 .barra-titolo .barra-comandi__tendina { min-height: 28px; }

@@ -47,6 +47,7 @@ import type {
   MiraProiezione,
 } from '#core/dominio/projection.js'
 import type { ContestoAssistente, GiroAssistente, TurnoAssistente } from './protocol/assistant.js'
+import type { ContestoDellaFinestra, PostoDellaFinestra } from './protocol/webview.js'
 
 export type {
   BloccoProiezione,
@@ -80,17 +81,22 @@ export type {
 } from './protocol/assistant.js'
 export type {
   ChiestaStatoIntero,
+  ContestoDellaFinestra,
   DocumentoRecente,
   FaseAggiornamenti,
   MessaggioAggiornamenti,
   MessaggioDifferenze,
+  MessaggioFinestre,
   MessaggioNavigazione,
   MessaggioProiezione,
   MessaggioScarico,
   MessaggioStato,
   MessaggioStatoProiezione,
+  MessaggioVai,
   MessaggioVersoWebview,
+  PaginaDellaFinestra,
   PatchRegistro,
+  PostoDellaFinestra,
   RaccontoAggiornamenti,
   StatoAggiornamenti,
   VoceProgramma,
@@ -841,6 +847,18 @@ export type Azione =
   | { tipo: 'finestra.zoom'; verso: 'avanti' | 'indietro' | 'azzera' }
   /** Schermo intero della finestra di lavoro (non la proiezione per la classe). */
   | { tipo: 'finestra.schermoIntero' }
+  /**
+   * Apre un'altra finestra del registro, sul posto dato o su quello della
+   * finestra col fuoco. Le finestre in più sono figlie della principale: con
+   * lei si chiudono, e il loro numero ha un tetto (`finestre.massimo`).
+   */
+  | { tipo: 'finestra.nuova'; posto?: PostoDellaFinestra; contesto?: ContestoDellaFinestra }
+  /** Porta davanti la finestra principale del registro. */
+  | { tipo: 'finestra.principale' }
+  /** Porta davanti la finestra del registro con quel numero (la principale è la 1). */
+  | { tipo: 'finestra.porta'; n: number }
+  /** Chiude una finestra figlia; la principale si chiude dalla sua ✕. */
+  | { tipo: 'finestra.chiudi'; n: number }
   /** Chiude il registro. Il documento si salva da sé: non c'è niente da perdere. */
   | { tipo: 'programma.esci' }
   /**

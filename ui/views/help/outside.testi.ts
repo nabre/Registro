@@ -318,6 +318,48 @@ const it = {
         'Programma › **Aspetto**.',
     ],
   },
+  finestre: {
+    titolo: 'Più finestre',
+    sommario:
+      'Due parti del registro insieme, anche su due schermi: le finestre in più sono figlie della principale.',
+    voci: [
+      {
+        termine: 'Aprirne una',
+        testo:
+          '**Nuova finestra**, accanto a **Proietta**, apre la pagina che si guarda in una finestra ' +
+          'nuova; lo stesso fanno `Ctrl+Maiusc+N`, il tasto destro su una voce della barra laterale ' +
+          '(**Apri in una nuova finestra**), `Ctrl+clic` e il clic centrale sulla voce.',
+      },
+      {
+        termine: 'Lavorarci',
+        testo:
+          'Ogni finestra ha la sua pagina e il suo **Indietro**; i dati sono gli stessi. Quel che si ' +
+          'scrive in una compare subito nelle altre, e `Ctrl+Z` annulla l’ultimo gesto da qualunque ' +
+          'finestra lo si prema. Un campo in cui si sta scrivendo non viene coperto da un’altra finestra.',
+      },
+      {
+        termine: 'Riconoscerle',
+        testo:
+          'Una figlia dice in alto **Finestra 2 · Calendario** e ha **↖ Principale** al posto di ' +
+          '**Nuova finestra**; è snella, senza barra di stato e con la navigazione ripiegata. La ' +
+          'principale, con figlie aperte, mostra **Principale · 3**: un clic apre l’elenco, da cui ' +
+          'portarne davanti una o chiuderla. L’elenco c’è anche nel menu del sistema (`Alt`).',
+      },
+      {
+        termine: 'Chiuderle',
+        testo:
+          'Chiusa la principale si chiudono tutte; chiudendo l’anno o aprendone un altro anche. ' +
+          'Riaprendo lo stesso anno le figlie tornano dov’erano, sulla loro pagina: lo decide ' +
+          'Impostazioni › Programma › **Avvio e promemoria** (riaprire, e quante al più).',
+      },
+    ],
+    note: [
+      'Lo schermo per la classe e l’assistente seguono la finestra in cui si lavora, l’ultima che ' +
+        'ha preso il fuoco.',
+      'Su due schermi: la principale per l’appello e una figlia sul calendario, o una sulle ' +
+        'valutazioni del corso.',
+    ],
+  },
   rigaDiComando: {
     titolo: 'Riga di comando',
     sommario:
@@ -767,6 +809,52 @@ export const testi = catalogo(it, {
           'Programm › **Aussehen**.',
       ],
     },
+    finestre: {
+      titolo: 'Mehrere Fenster',
+      sommario:
+        'Zwei Teile des Klassenbuchs gleichzeitig, auch auf zwei Bildschirmen: weitere Fenster ' +
+        'hängen am Hauptfenster.',
+      voci: [
+        {
+          termine: 'Eines öffnen',
+          testo:
+            '**Neues Fenster**, neben **Projizieren**, öffnet die angezeigte Seite in einem neuen ' +
+            'Fenster; ebenso `Ctrl+Umschalt+N`, ein Rechtsklick auf einen Eintrag der Seitenleiste ' +
+            '(**In neuem Fenster öffnen**), `Ctrl+Klick` und der Mittelklick auf den Eintrag.',
+        },
+        {
+          termine: 'Darin arbeiten',
+          testo:
+            'Jedes Fenster hat seine Seite und sein **Zurück**; die Daten sind dieselben. Was du ' +
+            'in einem schreibst, erscheint sofort in den anderen, und `Ctrl+Z` macht den letzten ' +
+            'Schritt rückgängig, egal in welchem Fenster. Ein Feld, in dem du schreibst, wird von ' +
+            'einem anderen Fenster nicht überschrieben.',
+        },
+        {
+          termine: 'Sie erkennen',
+          testo:
+            'Ein weiteres Fenster zeigt oben **Fenster 2 · Kalender** und hat **↖ Hauptfenster** ' +
+            'statt **Neues Fenster**; es ist schlank, ohne Statusleiste und mit eingeklappter ' +
+            'Navigation. Das Hauptfenster zeigt mit offenen weiteren Fenstern **Hauptfenster · 3**: ' +
+            'Ein Klick öffnet die Liste, um eines nach vorne zu holen oder zu schliessen. Die Liste ' +
+            'steht auch im Systemmenü (`Alt`).',
+        },
+        {
+          termine: 'Sie schliessen',
+          testo:
+            'Mit dem Hauptfenster schliessen alle; ebenso beim Schliessen des Schuljahrs oder ' +
+            'beim Öffnen eines anderen. Öffnest du dasselbe Schuljahr wieder, kommen die weiteren ' +
+            'Fenster auf ihrer Seite zurück: Das regelt Einstellungen › Programm › **Start und ' +
+            'Erinnerungen** (wieder öffnen, und wie viele höchstens).',
+        },
+      ],
+      note: [
+        'Der Bildschirm für die Klasse und der Assistent folgen dem Fenster, in dem du arbeitest, ' +
+          'dem letzten, das den Fokus bekommen hat.',
+        'Auf zwei Bildschirmen: das Hauptfenster für die Präsenz und ein weiteres auf dem ' +
+          'Kalender, oder eines auf den Beurteilungen des Kurses.',
+      ],
+    },
     rigaDiComando: {
       titolo: 'Befehlszeile',
       sommario:
@@ -1212,6 +1300,52 @@ export const testi = catalogo(it, {
           'Programme › **Apparence**.',
       ],
     },
+    finestre: {
+      titolo: 'Plusieurs fenêtres',
+      sommario:
+        'Deux parties du registre à la fois, aussi sur deux écrans : les fenêtres ' +
+        'supplémentaires dépendent de la principale.',
+      voci: [
+        {
+          termine: 'En ouvrir une',
+          testo:
+            '**Nouvelle fenêtre**, à côté de **Projeter**, ouvre la page affichée dans une ' +
+            'nouvelle fenêtre ; de même `Ctrl+Maj+N`, le clic droit sur une entrée de la barre ' +
+            'latérale (**Ouvrir dans une nouvelle fenêtre**), `Ctrl+clic` et le clic du milieu.',
+        },
+        {
+          termine: 'Y travailler',
+          testo:
+            'Chaque fenêtre a sa page et son **Retour** ; les données sont les mêmes. Ce que tu ' +
+            'écris dans l’une apparaît aussitôt dans les autres, et `Ctrl+Z` annule le dernier ' +
+            'geste depuis n’importe quelle fenêtre. Un champ en cours de saisie n’est pas ' +
+            'écrasé par une autre fenêtre.',
+        },
+        {
+          termine: 'Les reconnaître',
+          testo:
+            'Une fenêtre supplémentaire affiche en haut **Fenêtre 2 · Calendrier** et a ' +
+            '**↖ Principale** à la place de **Nouvelle fenêtre** ; elle est allégée, sans barre ' +
+            'd’état et avec la navigation repliée. La principale, avec d’autres fenêtres ouvertes, ' +
+            'affiche **Principale · 3** : un clic ouvre la liste, pour en mettre une au premier ' +
+            'plan ou la fermer. La liste est aussi dans le menu du système (`Alt`).',
+        },
+        {
+          termine: 'Les fermer',
+          testo:
+            'La principale fermée, toutes se ferment ; de même en fermant l’année ou en en ' +
+            'ouvrant une autre. En rouvrant la même année, les fenêtres reviennent sur leur page : ' +
+            'c’est réglé dans Réglages › Programme › **Démarrage et rappels** (rouvrir, et ' +
+            'combien au plus).',
+        },
+      ],
+      note: [
+        'L’écran pour la classe et l’assistant suivent la fenêtre où l’on travaille, la dernière ' +
+          'qui a pris le focus.',
+        'Sur deux écrans : la principale pour l’appel et une autre sur le calendrier, ou sur les ' +
+          'évaluations du cours.',
+      ],
+    },
     rigaDiComando: {
       titolo: 'Ligne de commande',
       sommario:
@@ -1646,6 +1780,51 @@ export const testi = catalogo(it, {
           'That is why the private cards start off.',
         'The light theme is the easiest to read when projected: “Theme”, in Settings › ' +
           'Program › **Appearance**.',
+      ],
+    },
+    finestre: {
+      titolo: 'Several windows',
+      sommario:
+        'Two parts of the register at once, even on two screens: extra windows depend on the ' +
+        'main one.',
+      voci: [
+        {
+          termine: 'Opening one',
+          testo:
+            '**New window**, next to **Project**, opens the page you are looking at in a new ' +
+            'window; so do `Ctrl+Shift+N`, a right click on an item in the sidebar (**Open in a ' +
+            'new window**), `Ctrl+click` and a middle click on the item.',
+        },
+        {
+          termine: 'Working in it',
+          testo:
+            'Each window has its own page and its own **Back**; the data are the same. What you ' +
+            'write in one shows up at once in the others, and `Ctrl+Z` undoes the last step from ' +
+            'whichever window you press it in. A field you are typing in is not overwritten by ' +
+            'another window.',
+        },
+        {
+          termine: 'Telling them apart',
+          testo:
+            'An extra window shows **Window 2 · Calendar** at the top and has **↖ Main** instead ' +
+            'of **New window**; it is slim, without a status bar and with the navigation folded. ' +
+            'The main window, with extra windows open, shows **Main · 3**: a click opens the ' +
+            'list, to bring one to the front or close it. The list is also in the system menu ' +
+            '(`Alt`).',
+        },
+        {
+          termine: 'Closing them',
+          testo:
+            'Closing the main window closes them all; so does closing the year or opening ' +
+            'another. Reopening the same year brings the extra windows back on their page: see ' +
+            'Settings › Program › **Startup and reminders** (reopen, and how many at most).',
+        },
+      ],
+      note: [
+        'The class screen and the assistant follow the window you are working in, the last one ' +
+          'that took the focus.',
+        'On two screens: the main window for the register of attendance and an extra one on ' +
+          'the calendar, or on the course assessments.',
       ],
     },
     rigaDiComando: {

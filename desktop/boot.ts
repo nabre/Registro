@@ -67,7 +67,8 @@ import {
   puntaProiezione,
 } from './pannelli/projection.js'
 import { avviaVassoio } from './widget/tray.js'
-import type { MessaggioNavigazione } from '#contract/protocol.js'
+import type { ContestoDellaFinestra, MessaggioNavigazione, PostoDellaFinestra } from '#contract/protocol.js'
+import { NUMERO_PRINCIPALE } from './apparato/panelTypes.js'
 import { firmaPosta } from '#core/dati/templates.js'
 import { istante } from '#core/i18n/index.js'
 import { parole } from '#core/dominio/words.testi.js'
@@ -417,6 +418,21 @@ export async function avvia (
   comando('registroDocenti.nuovaValutazione', () =>
     apri({ tipo: 'naviga', vista: 'valutazioni', nuovo: true }),
   )
+  // Le finestre del registro. Dal menu nativo (Ctrl+Maiusc+N) la figlia nasce
+  // dove guarda la finestra col fuoco, e un rifiuto lo si dice lì; dall'azione
+  // `finestra.nuova` sul posto che la pagina manda, e il rifiuto torna a lei.
+  comando('registroDocenti.nuovaFinestra', () => {
+    const motivo = PannelloRegistro.apriFiglia()
+    if (motivo) PannelloRegistro.avvisa(motivo)
+  })
+  comando('registroDocenti.apriFinestra', (posto?: PostoDellaFinestra, dove?: ContestoDellaFinestra) =>
+    PannelloRegistro.apriFiglia(posto, dove))
+  comando('registroDocenti.finestraPrincipale', () => {
+    PannelloRegistro.portaDavanti(NUMERO_PRINCIPALE)
+  })
+  comando('registroDocenti.portaFinestra', (numero: number) => PannelloRegistro.portaDavanti(numero))
+  comando('registroDocenti.chiudiFinestra', (numero: number) => PannelloRegistro.chiudiFiglia(numero))
+
   // Prima il pannello: la proiezione segue quel che mostra.
   comando('registroDocenti.proietta', async () => {
     apri()
@@ -592,6 +608,8 @@ export async function avvia (
       assorbiCassetta(archivio).catch((errore: unknown) => {
         console.error('ripresa della cassetta del documento precedente', errore)
       })
+      // Le figlie guardavano l'anno di prima: si chiudono, la principale resta.
+      PannelloRegistro.cambioDiDocumento()
       // I file mostrati stanno nell'anno: sandbox e radice del webview vanno
       // rifatte, o le immagini del nuovo anno non si vedrebbero.
       PannelloRegistro.aggiornaRisorse()

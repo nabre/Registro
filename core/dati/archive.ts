@@ -1304,27 +1304,32 @@ export class Archivio implements apparato.Smaltitore {
     )
 
     const ricarica = (uri: apparato.Uri) => {
-      void (async () => {
-        const quando = this.ultimeScritture.get(this.chiaveScrittura(uri)) ?? 0
-        if (Date.now() - quando < FINESTRA_ECO_MS) {
-          try {
-            if (this.pacchetto && (await this.pacchetto.sulDiscoÈQuello())) return
-          } catch {
-            // Un file bloccato o non leggibile non è il nostro eco: si ricarica.
+      if (this.inChiusura || this.spento) return
+      // Una raffica di eventi vale una ricarica sola.
+      if (this.timerRicarica) clearTimeout(this.timerRicarica)
+      this.timerRicarica = setTimeout(() => {
+        this.timerRicarica = null
+        void (async () => {
+          // L'eco si riconosce a raffica finita: il primo evento arriva a metà
+          // della nostra scrittura (i corpi accodati prima dell'indice), quando
+          // il file non è ancora quello lasciato. Riconosciuto lì, ricaricava
+          // dopo ogni salvataggio e svuotava la storia: Ctrl+Z non trovava niente.
+          const quando = this.ultimeScritture.get(this.chiaveScrittura(uri)) ?? 0
+          if (Date.now() - quando < FINESTRA_ECO_MS + RITARDO_RICARICA_MS) {
+            try {
+              if (this.pacchetto && (await this.pacchetto.sulDiscoÈQuello())) return
+            } catch {
+              // Un file bloccato o non leggibile non è il nostro eco: si ricarica.
+            }
           }
-        }
-        if (this.inChiusura || this.spento) return
-        // Una raffica di eventi vale una ricarica sola.
-        if (this.timerRicarica) clearTimeout(this.timerRicarica)
-        this.timerRicarica = setTimeout(() => {
-          this.timerRicarica = null
+          if (this.inChiusura || this.spento) return
           // Un `.regi` sincronizzato a metà solleva: la ricarica va
           // riprovata al prossimo evento, non fatta cadere sul processo.
-          this.carica().catch((errore: unknown) => {
+          await this.carica().catch((errore: unknown) => {
             console.error('ricarica del registro dopo un cambiamento sul disco', errore)
           })
-        }, RITARDO_RICARICA_MS)
-      })()
+        })()
+      }, RITARDO_RICARICA_MS)
     }
 
     this.osservatore.onDidChange(ricarica)

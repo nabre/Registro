@@ -251,7 +251,7 @@ L'area è il primo segmento del nome.
 | `rapporti` · `esportazioni` · `esporta` | i fogli che escono |
 | `supplenza` | quando manco io: lo zip per chi tiene le mie ore, accanto al documento, e la mail che lo porta (spedita la mail, lo zip si cancella) |
 | `proiezione` | la finestra davanti alla classe |
-| `finestra` · `vista` | zoom, schermo intero, e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
+| `finestra` · `vista` | zoom, schermo intero, le finestre in più del registro (aprire, portare davanti, chiudere), e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
 | `posta` · `mappa` | quel che parla con altre macchine |
 | `microsoft` · `onedrive` | gli account Microsoft collegati, e i documenti `.regi` del loro OneDrive: sfogliarli, cercarli, aprirne uno |
 | `sistema` · `impostazioni` · `programma` · `manutenzione` | configurazione, scorciatoie di sistema, riparazioni |

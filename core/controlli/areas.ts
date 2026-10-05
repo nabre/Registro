@@ -47,12 +47,13 @@ export const DIVISIONI: readonly Divisione[] = [
   {
     id: 'avvio',
     area: 'programma',
-    // Avvio, icona, promemoria e proiezione insieme: si regolano una volta.
+    // Avvio, icona, promemoria, proiezione e finestre insieme: si regolano una volta.
     prefissi: [
       'registroDocenti.avvio',
       'registroDocenti.vassoio',
       'registroDocenti.promemoria',
       'registroDocenti.proiezione',
+      'registroDocenti.finestre',
     ],
   },
   {

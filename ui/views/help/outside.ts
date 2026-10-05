@@ -372,6 +372,13 @@ export const SEZIONI_FUORI: SezioneGuida[] = [
     vedi: ['lezione', 'piani', 'valutazioni', 'calendario'],
   }, T.proiezione),
   sezione({
+    id: 'finestre',
+    parte: 'fuori',
+    simbolo: 'duplica',
+    note: ['meccanismo', 'consiglio'],
+    vedi: ['proiezione', 'assistente', 'impostazioni-programma'],
+  }, T.finestre),
+  sezione({
     id: 'riga-di-comando',
     parte: 'fuori',
     // Il collegamento: un altro programma che si attacca al registro. La presa (≡) sembrava una maniglia.

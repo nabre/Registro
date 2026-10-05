@@ -7,6 +7,7 @@ import { testi } from './bridge.testi.js'
 import type {
   Azione,
   ChiestaStatoIntero,
+  PaginaDellaFinestra,
   Conversazione,
   Dettatura,
   GiroAssistente,
@@ -498,6 +499,14 @@ export function manda (busta: BustaAssistente): void {
  */
 export function chiediStatoIntero (): void {
   const busta: ChiestaStatoIntero = { tipo: 'stato.intero' }
+  api.postMessage(busta)
+}
+
+/**
+ * Dice all'host dove guarda questa finestra: titolo della finestra, menu delle
+ * finestre, e il posto da cui nasce una figlia aperta dal menu nativo.
+ */
+export function annunciaPagina (busta: PaginaDellaFinestra): void {
   api.postMessage(busta)
 }
 

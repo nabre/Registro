@@ -354,7 +354,7 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 - Il procedimento per aggiungerne una: skill `impostazione`.
 - Le impostazioni del documento, campo per campo: MODELLO-DATI § 3.44.
 
-### 5.1 Le 29 chiavi del programma
+### 5.1 Le 31 chiavi del programma
 
 Sezioni con chiavi (`DIVISIONI` in
 [`core/controlli/areas.ts`](../core/controlli/areas.ts), le stesse per pannello e
@@ -410,7 +410,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 ## 6. Azioni del protocollo
 
-Le 189 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
+Le 193 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
 una per gestore in [`core/azioni/`](../core/azioni/); `GESTORI` in
 [`contract/switchboard.ts`](../contract/switchboard.ts) (il compilatore vieta azioni senza
 gestore e viceversa). Ognuna ha una procedura davanti (ADR-27): `azione →

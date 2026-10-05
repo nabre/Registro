@@ -16,6 +16,7 @@ import { chiaveDelPosto, type PaginaId } from './place.js'
 import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
 import { barraTitolo } from './titleBar.js'
+import { èFiglia } from './windows.js'
 import { testi } from './shell.testi.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { vistaAllievo } from './views/student.js'
@@ -233,7 +234,9 @@ export function Guscio (): ReactElement {
       {/* L'assistente è una colonna della griglia, non un velo: chiuso non disegna
           niente (`ui/assistant.tsx`). */}
       {pannelloAssistente()}
-      {barraStato()}
+      {/* Una figlia non ha la barra di stato: dice cose del programma, che la
+          principale mostra già. */}
+      {èFiglia() ? null : barraStato()}
     </div>
   )
 }

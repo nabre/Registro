@@ -23,6 +23,10 @@ const it = {
   apriRecente: 'Apri un anno recente',
   /** In coda a un anno recente il cui file adesso non c'è. */
   nonDisponibile: 'non disponibile',
+  /** Le finestre del registro aperte, da portare davanti. */
+  finestre: 'Finestre del registro',
+  finestra: (numero: number, pagina: string) =>
+    `${numero === 1 ? 'Principale' : `Finestra ${numero}`}${pagina ? ` · ${pagina}` : ''}`,
   /**
    * La finestra nativa: serve quando il pannello non c'è o non ha un documento.
    * Con un documento aperto le impostazioni sono in «Vai a › Impostazioni».
@@ -62,6 +66,9 @@ export const testi = catalogo(it, {
     apri: 'Öffnen…',
     apriRecente: 'Zuletzt geöffnetes Schuljahr',
     nonDisponibile: 'nicht verfügbar',
+    finestre: 'Fenster des Klassenbuchs',
+    finestra: (numero, pagina) =>
+      `${numero === 1 ? 'Hauptfenster' : `Fenster ${numero}`}${pagina ? ` · ${pagina}` : ''}`,
     impostazioniDelProgramma: 'Einstellungen ohne offenes Dokument…',
     disinstalla: 'Deinstallieren…',
     modifica: 'Bearbeiten',
@@ -91,6 +98,9 @@ export const testi = catalogo(it, {
     apri: 'Ouvrir…',
     apriRecente: 'Ouvrir une année récente',
     nonDisponibile: 'indisponible',
+    finestre: 'Fenêtres du registre',
+    finestra: (numero, pagina) =>
+      `${numero === 1 ? 'Principale' : `Fenêtre ${numero}`}${pagina ? ` · ${pagina}` : ''}`,
     impostazioniDelProgramma: 'Paramètres sans document ouvert…',
     disinstalla: 'Désinstaller…',
     modifica: 'Édition',
@@ -120,6 +130,9 @@ export const testi = catalogo(it, {
     apri: 'Open…',
     apriRecente: 'Open a recent year',
     nonDisponibile: 'not available',
+    finestre: 'Register windows',
+    finestra: (numero, pagina) =>
+      `${numero === 1 ? 'Main' : `Window ${numero}`}${pagina ? ` · ${pagina}` : ''}`,
     impostazioniDelProgramma: 'Settings without an open document…',
     disinstalla: 'Uninstall…',
     modifica: 'Edit',

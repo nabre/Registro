@@ -12,6 +12,7 @@ import { apriOneDrive } from '#ui/forms/oneDrive.js'
 import { apriInformazioniDocumento } from '#ui/forms/documentInfo.js'
 import { senzaAnno } from '#ui/context.js'
 import { annoCorrente, stato } from '#ui/state.js'
+import { perchéNonUnAltra, èFiglia } from '#ui/windows.js'
 import { testi } from './program.testi.js'
 
 // Testi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).
@@ -240,6 +241,35 @@ export const COMANDI_PROGRAMMA: readonly ComandoUI[] = [
     scorciatoia: 'F11',
     dalMenu: true,
     al: () => azione({ tipo: 'finestra.schermoIntero' }),
+  },
+  {
+    // Un'altra finestra sul posto di adesso, con gli stessi id scelti: lo
+    // stesso comando del menu nativo, che però non sa dove si guarda.
+    id: 'finestra.nuova',
+    titolo: () => titoloComando('registroDocenti.nuovaFinestra'),
+    simbolo: 'duplica',
+    dove: ['app'],
+    fuoriMenu: true,
+    gruppo: G.finestra,
+    aiuto: t.nuovaFinestraAiuto,
+    scorciatoia: 'Ctrl+Shift+N',
+    dalMenu: true,
+    impedimento: () => perchéNonUnAltra(stato.programma),
+    al: () => azione({ tipo: 'finestra.nuova', posto: stato.posto, contesto: stato.contesto }),
+  },
+  {
+    id: 'finestra.principale',
+    titolo: () => titoloComando('registroDocenti.finestraPrincipale'),
+    simbolo: 'sinistra',
+    dove: ['app'],
+    fuoriMenu: true,
+    gruppo: G.finestra,
+    aiuto: t.finestraPrincipaleAiuto,
+    scorciatoia: 'Ctrl+Shift+1',
+    dalMenu: true,
+    // Solo da una figlia: nella principale ci si è già.
+    soloSe: () => èFiglia(),
+    al: () => azione({ tipo: 'finestra.principale' }),
   },
   {
     id: 'finestra.esci',

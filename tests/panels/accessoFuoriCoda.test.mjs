@@ -71,12 +71,10 @@ async function conPannello (prova) {
   const finto = pannelloFinto()
   const contesto = { extensionUri: Uri.file(radice), subscriptions: [] }
   const pannello = new PannelloRegistro(finto.pannello, contesto, archivio)
-  PannelloRegistro.istanza = pannello
   try {
     await prova({ archivio, finto, pannello })
   } finally {
     finto.chiudi()
-    PannelloRegistro.istanza = null
     archivio.dispose()
   }
 }
