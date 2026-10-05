@@ -76,6 +76,7 @@ import {
 } from '#core/dominio/projection.js'
 import type { Vista } from '#contract/protocol.js'
 import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
+import { èFiglia } from './windows.js'
 import { battiMinuto } from './clock.js'
 import {
   CAMPI_CONTESTO,
@@ -474,7 +475,8 @@ export const stato: StatoUI = {
   registro: registroVuoto(),
   avvisi: [],
   caricato: false,
-  sidebarDesktop: globali.sidebarDesktop ?? true,
+  // Una finestra figlia nasce snella: la navigazione ripiegata, apribile.
+  sidebarDesktop: èFiglia() ? false : globali.sidebarDesktop ?? true,
   sidebarMobile: globali.sidebarMobile ?? false,
   assistenteAperto: globali.assistenteAperto ?? false,
   contestoAssistente: partiValide(globali.contestoAssistente),

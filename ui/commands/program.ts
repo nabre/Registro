@@ -12,7 +12,7 @@ import { apriOneDrive } from '#ui/forms/oneDrive.js'
 import { apriInformazioniDocumento } from '#ui/forms/documentInfo.js'
 import { senzaAnno } from '#ui/context.js'
 import { annoCorrente, stato } from '#ui/state.js'
-import { èFiglia } from '#ui/windows.js'
+import { perchéNonUnAltra, èFiglia } from '#ui/windows.js'
 import { testi } from './program.testi.js'
 
 // Testi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).
@@ -254,6 +254,7 @@ export const COMANDI_PROGRAMMA: readonly ComandoUI[] = [
     aiuto: t.nuovaFinestraAiuto,
     scorciatoia: 'Ctrl+Shift+N',
     dalMenu: true,
+    impedimento: () => perchéNonUnAltra(stato.programma),
     al: () => azione({ tipo: 'finestra.nuova', posto: stato.posto, contesto: stato.contesto }),
   },
   {

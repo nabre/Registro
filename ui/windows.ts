@@ -28,6 +28,22 @@ export function èFiglia (): boolean {
   return numeroDellaFinestra() !== PRINCIPALE
 }
 
+/** Quante figlie al più, finché l'impostazione `finestre.massimo` non dice altro. */
+const MASSIMO_PREDEFINITO = 4
+
+/**
+ * Perché adesso non si apre un'altra finestra, o `null`: al tetto delle
+ * figlie. Il tetto è l'impostazione del programma, letta dalle voci che
+ * l'host manda (`programma`); l'host lo ricontrolla comunque.
+ */
+export function perchéNonUnAltra (
+  programma: ReadonlyArray<{ chiave: string, valore: unknown }>,
+): string | null {
+  const scritto = programma.find((voce) => voce.chiave === 'registroDocenti.finestre.massimo')?.valore
+  const massimo = typeof scritto === 'number' && scritto >= 1 ? scritto : MASSIMO_PREDEFINITO
+  return elenco.length - 1 >= massimo ? testi().troppe(massimo) : null
+}
+
 /** Le finestre aperte, principale compresa, come le ha dette l'host. */
 export function finestreAperte (): Elenco {
   return elenco

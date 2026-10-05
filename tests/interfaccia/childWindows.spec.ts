@@ -99,7 +99,8 @@ async function finestreDelRegistro (app: ElectronApplication): Promise<Map<numbe
   const trovate = new Map<number, Page>()
   for (const pagina of app.windows()) {
     if (!pagina.url().startsWith('registro://pagina/')) continue
-    const numero = await pagina.evaluate(() => Number(document.documentElement.dataset.finestra ?? 1))
+    const numero = await pagina
+      .evaluate(() => Number(document.documentElement.dataset.finestra ?? 1))
       .catch(() => null)
     if (numero !== null) trovate.set(numero, pagina)
   }
@@ -116,13 +117,6 @@ async function finestra (app: ElectronApplication, numero: number): Promise<Page
   const pagina = trovata as Page
   await expect(pagina.getByRole('navigation', { name: 'Navigazione principale' })).toBeVisible({ timeout: 30_000 })
   return pagina
-}
-
-/** Preme una voce del menu nativo, come farebbe il suo acceleratore. */
-async function voceDelMenu (app: ElectronApplication, id: string): Promise<void> {
-  await app.evaluate(({ Menu }, voce) => {
-    Menu.getApplicationMenu()?.getMenuItemById(voce)?.click()
-  }, id)
 }
 
 /** I titoli delle finestre native, per vedere chi c'è. */
@@ -142,7 +136,9 @@ function casella (pagina: Page, persona: string) {
 /** Chiude una finestra nativa dal suo titolo, come la sua ✕. */
 async function chiudiDalTitolo (app: ElectronApplication, pezzo: string): Promise<void> {
   await app.evaluate(({ BrowserWindow }, cerca) => {
-    BrowserWindow.getAllWindows().find((f) => !f.isDestroyed() && f.getTitle().includes(cerca))?.close()
+    BrowserWindow.getAllWindows()
+      .find((f) => !f.isDestroyed() && f.getTitle().includes(cerca))
+      ?.close()
   }, pezzo)
 }
 
@@ -161,8 +157,11 @@ test('una figlia lavora sui dati della principale, e si chiude con lei', async (
     }, ORA)
     await expect(casella(principale, 'Bianchi Luca')).toHaveText('-')
 
-    // Ctrl+Maiusc+N dal menu nativo: la figlia nasce sull'ora della principale.
-    await voceDelMenu(app, 'registroDocenti.nuovaFinestra')
+    // «Nuova finestra» accanto a «Proietta» (lo stesso comando di Ctrl+Maiusc+N):
+    // la figlia nasce sull'ora della principale.
+    const nuova = principale.getByRole('button', { name: 'Nuova finestra' })
+    await expect(nuova).toHaveAttribute('title', /Ctrl\+Maiusc\+N/)
+    await nuova.click()
     const figlia = await finestra(app, 2)
     figlia.on('pageerror', (e) => errori.push(String(e)))
     await expect(casella(figlia, 'Bianchi Luca')).toHaveText('-')
@@ -170,6 +169,28 @@ test('una figlia lavora sui dati della principale, e si chiude con lei', async (
       'anno_esempio — Regiklass (principale)',
       'Lezione · anno_esempio — Regiklass [2]',
     ]))
+    // Le etichette: la principale si nomina solo ora che c'è una figlia; la
+    // figlia è snella, senza barra di stato, con il ritorno alla principale.
+    await expect(principale.locator('.barra-titolo__finestra')).toHaveText('Principale · 2')
+    await expect(figlia.locator('.barra-titolo__finestra')).toHaveText('Finestra 2 · Lezione')
+    await expect(figlia.getByRole('button', { name: '↖ Principale' })).toBeVisible()
+    await expect(figlia.locator('.barra-stato')).toHaveCount(0)
+    await expect(principale.locator('.barra-stato')).toHaveCount(1)
+    // Il menu delle finestre della principale, e l'elenco nel menu nativo.
+    await principale.locator('.barra-titolo__finestra').click()
+    await expect(principale.getByRole('menuitem', { name: 'Porta davanti' })).toHaveCount(1)
+    await principale.keyboard.press('Escape')
+    await expect.poll(() => app.evaluate(({ Menu }) => {
+      const cerca = (voci: Electron.MenuItem[]): string[] | null => {
+        for (const voce of voci) {
+          if (voce.label === 'Finestre del registro') return voce.submenu?.items.map((v) => v.label) ?? []
+          const dentro = voce.submenu ? cerca(voce.submenu.items) : null
+          if (dentro) return dentro
+        }
+        return null
+      }
+      return cerca(Menu.getApplicationMenu()?.items ?? [])
+    })).toEqual(['Principale · Lezione', 'Finestra 2 · Lezione'])
 
     // Segnata nella figlia, la presenza arriva alla principale.
     await casella(figlia, 'Bianchi Luca').click()

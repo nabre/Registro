@@ -55,6 +55,7 @@ import {
   spegni,
 } from '#desktop/boot.js'
 import { PannelloProiezione } from '#desktop/pannelli/projection.js'
+import { PannelloRegistro } from '#desktop/pannelli/panel.js'
 import { ascolta as ascoltaInterfaccia } from '#desktop/apparato/windows.js'
 import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windows/welcome.js'
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
@@ -344,9 +345,21 @@ async function avvia (): Promise<void> {
       disinstalla,
       // Lo stesso criterio di `registroDocenti.benvenuto`, qui sopra.
       documentoAperto: () => percorsoPacchetto() !== null,
+      finestre: () => PannelloRegistro.finestre(),
+      portaFinestra: (numero) => { PannelloRegistro.portaDavanti(numero) },
     })
     // Le voci «senza documento» vanno e vengono con l'anno aperto.
     alDocumentoApertoOChiuso(ridisegnaMenu)
+    // L'elenco delle finestre segue aperture, chiusure e pagine: una raffica
+    // di cambi (una figlia che nasce e trova la sua pagina) rifà il menu una volta.
+    let menuDaRifare: ReturnType<typeof setTimeout> | null = null
+    smaltibiliGuscio.push(PannelloRegistro.alCambioFinestre(() => {
+      if (menuDaRifare) clearTimeout(menuDaRifare)
+      menuDaRifare = setTimeout(() => {
+        menuDaRifare = null
+        ridisegnaMenu()
+      }, 200)
+    }))
     // Crearlo richiede l'archivio, che esiste solo dopo `avviaRegistro`. Nasce in
     // una cartella provvisoria; posto e nome si scelgono al «salva con nome»
     // (vedi `data/paths.ts`).

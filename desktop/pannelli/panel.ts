@@ -501,9 +501,15 @@ export class PannelloRegistro {
     })
   }
 
-  /** Si è aperta o chiusa una finestra, o una ha cambiato pagina: titoli e menu si rifanno. */
+  /**
+   * Si è aperta o chiusa una finestra, o una ha cambiato pagina: titoli, menu
+   * nativo e l'elenco che ogni pagina mostra nella barra del titolo si rifanno.
+   */
   private static finestreCambiate (): void {
-    for (const finestra of PannelloRegistro.istanze.values()) finestra.aggiornaTitolo()
+    for (const finestra of PannelloRegistro.istanze.values()) {
+      finestra.aggiornaTitolo()
+      finestra.annunciaFinestre()
+    }
     PannelloRegistro.cambioFinestre.fire()
   }
 
@@ -517,6 +523,17 @@ export class PannelloRegistro {
       ...this.pannello.webview.options,
       localResourceRoots: radiciDellaPagina(this.contesto.extensionUri),
     }
+  }
+
+  /** Le finestre aperte, dette alla pagina: chi è lei, e chi c'è con lei. */
+  private annunciaFinestre (): void {
+    if (this.smaltito) return
+    this.invia({
+      tipo: 'finestre',
+      ruolo: this.numero === NUMERO_PRINCIPALE ? 'principale' : 'figlia',
+      numero: this.numero,
+      elenco: PannelloRegistro.finestre(),
+    })
   }
 
   /** Titolo della finestra, per la barra delle applicazioni e Alt+Tab. */
@@ -629,6 +646,7 @@ export class PannelloRegistro {
       // Anche proiezione e assistente, sennò un webview ricostruito li vede spenti.
       this.invia(statoProiezione())
       this.invia(statoAssistente())
+      this.annunciaFinestre()
       if (this.navigazioneInAttesa) {
         const inAttesa = this.navigazioneInAttesa
         this.navigazioneInAttesa = null

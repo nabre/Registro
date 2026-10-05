@@ -17,6 +17,12 @@ const it = {
       ? `Principale${pagina ? ` · ${pagina}` : ''}`
       : `Finestra ${numero}${pagina ? ` · ${pagina}` : ''}`,
   portaDavanti: 'Porta davanti',
+  nuovaBreve: 'Nuova finestra',
+  nuovaTitolo: (comando: string) => `${comando}: la stessa pagina, da spostare su un altro schermo (Ctrl+Maiusc+N)`,
+  troppe: (massimo: number) =>
+    massimo === 1
+      ? 'C’è già una finestra in più: chiudila per aprirne un’altra'
+      : `Ci sono già ${massimo} finestre in più: chiudine una per aprirne un’altra`,
   chiudi: 'Chiudi la finestra',
 }
 
@@ -35,6 +41,12 @@ export const testi = catalogo(it, {
         ? `Hauptfenster${pagina ? ` · ${pagina}` : ''}`
         : `Fenster ${numero}${pagina ? ` · ${pagina}` : ''}`,
     portaDavanti: 'Nach vorne holen',
+    nuovaBreve: 'Neues Fenster',
+    nuovaTitolo: (comando) => `${comando}: dieselbe Seite, für einen anderen Bildschirm (Ctrl+Umschalt+N)`,
+    troppe: (massimo) =>
+      massimo === 1
+        ? 'Es ist schon ein weiteres Fenster offen: Schliess es, um ein anderes zu öffnen'
+        : `Es sind schon ${massimo} weitere Fenster offen: Schliess eines, um ein anderes zu öffnen`,
     chiudi: 'Fenster schliessen',
   },
   fr: {
@@ -51,6 +63,12 @@ export const testi = catalogo(it, {
         ? `Principale${pagina ? ` · ${pagina}` : ''}`
         : `Fenêtre ${numero}${pagina ? ` · ${pagina}` : ''}`,
     portaDavanti: 'Mettre au premier plan',
+    nuovaBreve: 'Nouvelle fenêtre',
+    nuovaTitolo: (comando) => `${comando} : la même page, à placer sur un autre écran (Ctrl+Maj+N)`,
+    troppe: (massimo) =>
+      massimo === 1
+        ? 'Une fenêtre supplémentaire est déjà ouverte : ferme-la pour en ouvrir une autre'
+        : `Il y a déjà ${massimo} fenêtres supplémentaires : ferme-en une pour en ouvrir une autre`,
     chiudi: 'Fermer la fenêtre',
   },
   en: {
@@ -67,6 +85,12 @@ export const testi = catalogo(it, {
         ? `Main${pagina ? ` · ${pagina}` : ''}`
         : `Window ${numero}${pagina ? ` · ${pagina}` : ''}`,
     portaDavanti: 'Bring to front',
+    nuovaBreve: 'New window',
+    nuovaTitolo: (comando) => `${comando}: the same page, to move to another screen (Ctrl+Shift+N)`,
+    troppe: (massimo) =>
+      massimo === 1
+        ? 'There is already one extra window: close it to open another'
+        : `There are already ${massimo} extra windows: close one to open another`,
     chiudi: 'Close the window',
   },
 })

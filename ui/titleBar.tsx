@@ -21,9 +21,19 @@ import { testi as testiPalette } from './components/palette.testi.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { classi } from './classNames.js'
 import { azione } from './bridge.js'
+import { alternaMenuSotto, tendinaAperta, type ElementoMenu } from './components/menu.js'
+import { nomeDelPosto } from './pages.js'
 import { ridisegna, stato, vai } from './state.js'
 import { pulsanteDelGesto, statoDegliAggiornamenti } from './views/settings/updates.js'
+import {
+  PRINCIPALE,
+  etichettaDellaFinestra,
+  finestreAperte,
+  numeroDellaFinestra,
+  èFiglia,
+} from './windows.js'
 import { testi } from './titleBar.testi.js'
+import { testi as testiFinestre } from './windows.testi.js'
 
 /**
  * Il percorso intero del file aperto, per il suggerimento. Lo dà l'elenco dei
@@ -205,27 +215,91 @@ function filettoAggiornamenti (): ReactNode {
 }
 
 /**
+ * Le voci del menu delle finestre: la principale, poi ogni figlia col suo
+ * numero e la sua pagina, da portare davanti o da chiudere. La principale si
+ * chiude dalla sua ✕, e con lei le altre.
+ */
+function vociDelleFinestre (): ElementoMenu[] {
+  const t = testiFinestre()
+  const numero = numeroDellaFinestra()
+  const voci: ElementoMenu[] = []
+  for (const finestra of finestreAperte()) {
+    const nome = t.vociDellaFinestra(finestra.n, finestra.titolo)
+    if (finestra.n === PRINCIPALE) {
+      voci.push({
+        testo: nome,
+        simbolo: 'schermo',
+        accesa: numero === PRINCIPALE,
+        al: () => { void azione({ tipo: 'finestra.principale' }) },
+      })
+      continue
+    }
+    voci.push(
+      'separatore',
+      { titolo: nome, simbolo: 'duplica' },
+      { testo: t.portaDavanti, rientro: true, al: () => { void azione({ tipo: 'finestra.porta', n: finestra.n }) } },
+      { testo: t.chiudi, rientro: true, al: () => { void azione({ tipo: 'finestra.chiudi', n: finestra.n }) } },
+    )
+  }
+  return voci
+}
+
+/**
+ * Le finestre del registro, nella barra. La principale lo dice solo quando
+ * ce ne sono altre («Principale · 3»), e premendo apre il loro menu; una
+ * figlia sempre, col suo numero e la pagina («Finestra 2 · Calendario»).
+ */
+function finestreDelRegistro (): ReactNode {
+  const t = testiFinestre()
+  const numero = numeroDellaFinestra()
+  const aperte = finestreAperte()
+  const etichetta = etichettaDellaFinestra(numero, aperte, nomeDelPosto())
+  if (!etichetta) return null
+  // Il ritorno alla principale sta nella riga dei comandi, dove la principale
+  // ha «Nuova finestra» (`windowButton.tsx`).
+  if (èFiglia()) return <span className="barra-titolo__finestra" title={t.figliaTitolo}>{etichetta}</span>
+  return (
+    <button
+      className="barra-titolo__finestra barra-titolo__finestra--menu"
+      type="button"
+      // testo-fisso: chiave di fuoco
+      data-fuoco="barra-finestre"
+      title={t.principaleTitolo(aperte.length)}
+      aria-haspopup="menu"
+      aria-expanded={tendinaAperta('barra-finestre')}
+      onClick={(evento) => alternaMenuSotto(evento.currentTarget, vociDelleFinestre())}
+    >
+      <Icona nome="schermo" classe="icona--minuta" />
+      <span>{etichetta}</span>
+    </button>
+  )
+}
+
+/**
  * La barra del titolo del registro. `role="banner"`: per chi naviga a voce è
- * la testata dell'applicazione.
+ * la testata dell'applicazione. In una finestra figlia è snella: niente menu
+ * «File» né aggiornamenti, che sono del programma e stanno nella principale.
  */
 export function barraTitolo (): ReactElement {
+  const figlia = èFiglia()
   return (
     <header className="barra-titolo" role="banner" data-telaio="barra-titolo">
       {/* A sinistra il segno (largo quanto la colonna delle icone, non si sposta),
           il menu «File» e subito dopo le frecce della storia, dove ogni programma
-          tiene «Modifica». */}
+          tiene «Modifica»; poi le finestre del registro, se ce n'è più di una. */}
       <div className="barra-titolo__lato">
         {marchio()}
-        {tendinaDelProgramma()}
+        {figlia ? null : tendinaDelProgramma()}
         {pulsanteStoria('annulla')}
         {pulsanteStoria('ripristina')}
+        {finestreDelRegistro()}
       </div>
       {nomeAlCentro()}
       {/* A destra il filetto degli aggiornamenti, se c'è, e per ultima la ricerca,
           sempre nello stesso punto contro i pulsanti della finestra. L'uscita sta nel
           menu «File». */}
       <div className="barra-titolo__lato barra-titolo__lato--destra">
-        {filettoAggiornamenti()}
+        {figlia ? null : filettoAggiornamenti()}
         {pastigliaCerca()}
       </div>
     </header>
