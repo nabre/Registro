@@ -1275,7 +1275,7 @@ quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 6`
+### 8.2 `VERSIONE_DATI = 7`
 
 La versione dello schema JSON (`registro.json.versione`).
 
@@ -1294,10 +1294,9 @@ l'etichetta «Note:» nella lingua del registro. v5 porta i minuti di ritardo
 da uno per presenza (`minuti`) a uno per UD (`Presenza.ritardi`), perché in
 un'ora si può arrivare tardi più volte: il `porta` mette il numero vecchio
 sulla prima UD in ritardo, e lo lascia cadere dove non c'era ritardo.
-v6 (release 1.7.0, due passi fusi prima di pubblicarla) aggiunge
-`Progetto.attivita` e `Attivita.attivitaProgettoId` (la scaletta precedente è
-vuota e le attività già assegnate restano autonome) e toglie il progetto dal
-corso: il `porta` sposta `corsoId`, `stato`,
+v6 aggiunge `Progetto.attivita` e `Attivita.attivitaProgettoId`: nessun `porta`,
+la scaletta precedente è vuota e le attività già assegnate restano autonome.
+v7 toglie il progetto dal corso: il `porta` sposta `corsoId`, `stato`,
 `compiti`, `giudizi` e `matrice` di ogni progetto nella sua prima
 integrazione (`Progetto.integrazioni`); un progetto senza corso resta con la
 sola testata.

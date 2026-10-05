@@ -93,6 +93,12 @@ accumulano. Solo i numeri **già pubblicati** contano, però: sono quelli scritt
 sui dischi di chi insegna. Quando si chiede una release nuova, prima di alzare
 `package.json`:
 
+0. **Prima chiedere.** Chi lavora con `npm run dev` sui suoi documenti veri ha
+   già N sul disco: compattare sotto N gli fa rifiutare i propri file («Il
+   file, versione dei dati 7 · questo registro arriva a 6»), ed è successo
+   con la 1.7.0. Si compatta solo se chi rilascia conferma che nessun
+   documento vero è stato scritto con un numero fra R + 2 e N; nel dubbio si
+   rilascia con N così com'è.
 1. **Il numero rilasciato.** `git show v<ultima>:core/dominio/models.ts` e si
    legge `VERSIONE_DATI` (R). Quello di oggi è N. Se N ≤ R + 1 non c'è niente
    da compattare.

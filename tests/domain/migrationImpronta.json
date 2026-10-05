@@ -1,5 +1,5 @@
 {
-  "versione": 6,
+  "versione": 7,
   "campi": [
     "anni",
     "anni[].calendarioUfficiale",
