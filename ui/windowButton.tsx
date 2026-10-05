@@ -1,8 +1,9 @@
-// Il pulsante delle finestre nella riga dei comandi, accanto a «Proietta»:
-// nella principale apre la pagina di adesso in una finestra nuova (lo stesso
-// comando di Ctrl+Maiusc+N), in una figlia riporta alla principale. Visibile
-// perché una scorciatoia o un menu del tasto destro li trova solo chi li sa.
-// Sta fuori da `commandBar.tsx` perché là si tocca solo il punto in cui compare.
+// Il pulsante delle finestre nella barra del titolo, subito a sinistra di
+// «Cerca»: nella principale apre la pagina di adesso in una finestra nuova (lo
+// stesso comando di Ctrl+Maiusc+N), in una figlia riporta alla principale.
+// Visibile perché una scorciatoia o un menu del tasto destro li trova solo chi
+// li sa; un'icona sola, come ↶ ↷, perché la barra del titolo ha poco posto e
+// il nome sta nel suggerimento e per i lettori di schermo.
 
 import type { ReactNode } from 'react'
 
@@ -17,14 +18,15 @@ export function pulsanteFinestra (): ReactNode {
     const t = testi()
     return (
       <button
-        className="barra-comandi__schermo"
+        className="barra-titolo__storia barra-titolo__finestra-nuova"
         type="button"
         // testo-fisso: chiave di fuoco, non si legge
         data-fuoco="comando-finestra.principale"
         title={t.allaPrincipaleTitolo}
+        aria-label={t.allaPrincipale}
         onClick={() => { void azione({ tipo: 'finestra.principale' }) }}
       >
-        <span>{t.allaPrincipale}</span>
+        <Icona nome="finestraPrincipale" classe="icona--minuta" />
       </button>
     )
   }
@@ -34,16 +36,16 @@ export function pulsanteFinestra (): ReactNode {
   const nome = titoloDi(comando)
   return (
     <button
-      className="barra-comandi__schermo"
+      className="barra-titolo__storia barra-titolo__finestra-nuova"
       type="button"
       disabled={impedito !== null}
       // testo-fisso: chiave di fuoco, non si legge
       data-fuoco="comando-finestra.nuova"
       title={impedito ?? testi().nuovaTitolo(nome)}
+      aria-label={testi().nuovaBreve}
       onClick={() => { void eseguiComando(comando) }}
     >
-      <Icona nome="duplica" classe="icona--minuta" />
-      <span>{testi().nuovaBreve}</span>
+      <Icona nome="finestraNuova" classe="icona--minuta" />
     </button>
   )
 }

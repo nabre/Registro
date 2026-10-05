@@ -326,7 +326,7 @@ const it = {
       {
         termine: 'Aprirne una',
         testo:
-          '**Nuova finestra**, accanto a **Proietta**, apre la pagina che si guarda in una finestra ' +
+          '**Nuova finestra**, l’icona della finestra col più a sinistra di **Cerca**, apre la pagina che si guarda in una finestra ' +
           'nuova; lo stesso fanno `Ctrl+Maiusc+N`, il tasto destro su una voce della barra laterale ' +
           '(**Apri in una nuova finestra**), `Ctrl+clic` e il clic centrale sulla voce.',
       },
@@ -820,7 +820,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Eines öffnen',
           testo:
-            '**Neues Fenster**, neben **Projizieren**, öffnet die angezeigte Seite in einem neuen ' +
+            '**Neues Fenster**, das Fenstersymbol mit Plus links von **Suchen**, öffnet die angezeigte Seite in einem neuen ' +
             'Fenster; ebenso `Ctrl+Umschalt+N`, ein Rechtsklick auf einen Eintrag der Seitenleiste ' +
             '(**In neuem Fenster öffnen**), `Ctrl+Klick` und der Mittelklick auf den Eintrag.',
         },
@@ -1313,7 +1313,7 @@ export const testi = catalogo(it, {
         {
           termine: 'En ouvrir une',
           testo:
-            '**Nouvelle fenêtre**, à côté de **Projeter**, ouvre la page affichée dans une ' +
+            '**Nouvelle fenêtre**, l’icône de fenêtre avec un plus à gauche de **Rechercher**, ouvre la page affichée dans une ' +
             'nouvelle fenêtre ; de même `Ctrl+Maj+N`, le clic droit sur une entrée de la barre ' +
             'latérale (**Ouvrir dans une nouvelle fenêtre**), `Ctrl+clic` et le clic du milieu.',
         },
@@ -1796,7 +1796,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Opening one',
           testo:
-            '**New window**, next to **Project**, opens the page you are looking at in a new ' +
+            '**New window**, the window icon with a plus left of **Search**, opens the page you are looking at in a new ' +
             'window; so do `Ctrl+Shift+N`, a right click on an item in the sidebar (**Open in a ' +
             'new window**), `Ctrl+click` and a middle click on the item.',
         },

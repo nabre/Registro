@@ -146,6 +146,13 @@ const TRACCIATI = {
   // Lo schermo per la classe: un monitor; un proiettore non si riconosce a 16 px.
   schermo:
     '<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M9 20h6M12 16.5V20"/>',
+  // Una finestra con il più: aprire la pagina in una finestra nuova, da
+  // portare su un altro schermo. Distinta da «duplica», che copia un dato.
+  finestraNuova:
+    '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18M12 11.5v6M9 14.5h6"/>',
+  // Una finestra con la freccia verso l'alto a sinistra: tornare alla principale.
+  finestraPrincipale:
+    '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18M15.5 17.5 9.5 11.5M9.5 16v-4.5H14"/>',
   duplica:
     '<rect x="4" y="4" width="10" height="10" rx="2"/><path d="M8 18a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2"/>',
   // La firma: uno svolazzo sulla riga, da distinguere a colpo d'occhio dal documento.

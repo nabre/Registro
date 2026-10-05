@@ -34,6 +34,7 @@ import {
 } from './windows.js'
 import { testi } from './titleBar.testi.js'
 import { testi as testiFinestre } from './windows.testi.js'
+import { pulsanteFinestra } from './windowButton.js'
 
 /**
  * Il percorso intero del file aperto, per il suggerimento. Lo dà l'elenco dei
@@ -255,8 +256,8 @@ function finestreDelRegistro (): ReactNode {
   const aperte = finestreAperte()
   const etichetta = etichettaDellaFinestra(numero, aperte, nomeDelPosto())
   if (!etichetta) return null
-  // Il ritorno alla principale sta nella riga dei comandi, dove la principale
-  // ha «Nuova finestra» (`windowButton.tsx`).
+  // Il ritorno alla principale sta accanto a «Cerca», dove la principale ha
+  // «Nuova finestra» (`windowButton.tsx`).
   if (èFiglia()) return <span className="barra-titolo__finestra" title={t.figliaTitolo}>{etichetta}</span>
   return (
     <button
@@ -295,11 +296,12 @@ export function barraTitolo (): ReactElement {
         {finestreDelRegistro()}
       </div>
       {nomeAlCentro()}
-      {/* A destra il filetto degli aggiornamenti, se c'è, e per ultima la ricerca,
-          sempre nello stesso punto contro i pulsanti della finestra. L'uscita sta nel
-          menu «File». */}
+      {/* A destra il filetto degli aggiornamenti, se c'è, il pulsante delle
+          finestre e per ultima la ricerca, sempre nello stesso punto contro i
+          pulsanti della finestra. L'uscita sta nel menu «File». */}
       <div className="barra-titolo__lato barra-titolo__lato--destra">
         {figlia ? null : filettoAggiornamenti()}
+        {pulsanteFinestra()}
         {pastigliaCerca()}
       </div>
     </header>

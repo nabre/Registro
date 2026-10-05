@@ -48,7 +48,6 @@ import {
 } from './context.js'
 import { classi } from './classNames.js'
 import { nomeDelPosto } from './pages.js'
-import { pulsanteFinestra } from './windowButton.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './commandBar.testi.js'
 import { azione } from './bridge.js'
@@ -901,7 +900,6 @@ function rigaNavigazione (nascoste: boolean, conAzioni: boolean): ReactElement {
       <span className="barra-comandi__spazio" />
       {interruttoreModifica()}
       {interruttoreProiezione()}
-      {pulsanteFinestra()}
       {/* Accanto allo schermo per la classe: si accendono entrambi mentre si lavora
           su qualunque cosa. */}
       {interruttoreAssistente()}

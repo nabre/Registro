@@ -1,5 +1,5 @@
 // Aprire una pagina in una finestra nuova, dalla pagina (con il ponte finto):
-// il pulsante «Nuova finestra» accanto a «Proietta», il tasto destro su una
+// il pulsante «Nuova finestra» a sinistra di «Cerca», il tasto destro su una
 // voce della barra laterale, Ctrl+clic e clic centrale. Tutti mandano
 // `finestra.nuova` con il posto e il contesto di adesso; al tetto delle figlie
 // il pulsante è spento e dice perché. Che la finestra nasca davvero lo prova
