@@ -63,8 +63,7 @@ describe('una richiesta del pannello che solleva', () => {
     const finto = pannelloFinto()
     const contesto = { extensionUri: Uri.file(radice), subscriptions: [] }
     const pannello = new PannelloRegistro(finto.pannello, contesto, archivio)
-    // Il pannello aperto è questo: `avvisa` scriverebbe qui, nel webview.
-    PannelloRegistro.istanza = pannello
+    // Il pannello aperto è questo (si registra nascendo): `avvisa` scriverebbe qui, nel webview.
     try {
       finto.scrivi({ id: 7, azione: { tipo: 'materia.elimina', id: 'mat-nessuna' } })
       await pannello.coda
@@ -77,7 +76,6 @@ describe('una richiesta del pannello che solleva', () => {
       assert.equal(notifiche.length, 0, 'l’errore l’ha già la risposta: una notifica lo ridiceva')
     } finally {
       finto.chiudi()
-      PannelloRegistro.istanza = null
       archivio.dispose()
     }
   })

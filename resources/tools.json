@@ -4271,6 +4271,208 @@
       }
     },
     {
+      "nome": "finestra.chiudi",
+      "funzione": "finestra_chiudi",
+      "genere": "scrittura",
+      "titolo": "Chiude una finestra in più del registro, per numero",
+      "idempotente": false,
+      "riga": "regi chiama finestra.chiudi --n <numero>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "integer",
+            "description": "Il numero della finestra, da 2: la principale si chiude dalla sua ✕",
+            "minimum": 2,
+            "maximum": 7
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "finestra.nuova",
+      "funzione": "finestra_nuova",
+      "genere": "scrittura",
+      "titolo": "Apre un’altra finestra del registro, figlia della principale, su una pagina",
+      "idempotente": false,
+      "riga": "regi chiama finestra.nuova",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "posto": {
+            "type": "object",
+            "properties": {
+              "pagina": {
+                "type": "string",
+                "description": "La pagina da mostrare, col suo nome stabile; senza posto, quella della finestra su cui si lavora",
+                "minLength": 1,
+                "maxLength": 64,
+                "examples": [
+                  "pagina.calendario"
+                ]
+              },
+              "soggetto": {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "description": "Che cosa è aperto nella pagina: corso, classe, lezione, allievo, piano, valutazione, progetto",
+                    "minLength": 1,
+                    "maxLength": 32,
+                    "examples": [
+                      "corso"
+                    ]
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "L’id di quel che è aperto nella pagina",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "id"
+                ],
+                "additionalProperties": true
+              },
+              "scheda": {
+                "type": "string",
+                "description": "La sezione delle impostazioni, per la pagina Impostazioni",
+                "maxLength": 100
+              }
+            },
+            "required": [
+              "pagina"
+            ],
+            "additionalProperties": true
+          },
+          "contesto": {
+            "type": "object",
+            "properties": {
+              "corsoId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "classeId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "filtroClasseId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "lezioneId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "pianoId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "valutazioneId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "allievoId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "progettoId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’id scelto per quel genere, o null se nessuno",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [],
+            "additionalProperties": true
+          }
+        },
+        "required": [],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "finestra.porta",
+      "funzione": "finestra_porta",
+      "genere": "scrittura",
+      "titolo": "Porta davanti una finestra del registro, per numero",
+      "idempotente": true,
+      "riga": "regi chiama finestra.porta --n <numero>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "integer",
+            "description": "Il numero della finestra: 1 la principale, da 2 le altre",
+            "minimum": 1,
+            "maximum": 7
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "finestra.principale",
+      "funzione": "finestra_principale",
+      "genere": "scrittura",
+      "titolo": "Porta davanti la finestra principale del registro",
+      "idempotente": true,
+      "riga": "regi chiama finestra.principale",
+      "parametri": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": true
+      }
+    },
+    {
       "nome": "finestra.schermoIntero",
       "funzione": "finestra_schermoIntero",
       "genere": "scrittura",

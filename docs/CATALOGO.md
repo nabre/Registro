@@ -410,7 +410,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 ## 6. Azioni del protocollo
 
-Le 189 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
+Le 193 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
 una per gestore in [`core/azioni/`](../core/azioni/); `GESTORI` in
 [`contract/switchboard.ts`](../contract/switchboard.ts) (il compilatore vieta azioni senza
 gestore e viceversa). Ognuna ha una procedura davanti (ADR-27): `azione →

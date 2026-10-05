@@ -25,6 +25,8 @@ export type IdComando =
   | 'registroDocenti.guida'
   | 'registroDocenti.impostazioni'
   | 'registroDocenti.proietta'
+  | 'registroDocenti.nuovaFinestra'
+  | 'registroDocenti.finestraPrincipale'
   | 'registroDocenti.oggi'
   | 'registroDocenti.nuovaLezione'
   | 'registroDocenti.nuovaClasse'
@@ -69,6 +71,10 @@ export const COMANDI: readonly Comando[] = [
   comando('registroDocenti.nuovaValutazione', 'nuovo'),
   comando('registroDocenti.nuovoAnno', 'nuovo'),
   comando('registroDocenti.proietta', 'schermo'),
+  // Le finestre del registro: una figlia sul posto di quella col fuoco, e il
+  // ritorno alla principale. Ctrl+Maiusc+1 e non Ctrl+1, che è la prima pagina.
+  comando('registroDocenti.nuovaFinestra', 'schermo', 'CommandOrControl+Shift+N'),
+  comando('registroDocenti.finestraPrincipale', 'schermo', 'CommandOrControl+Shift+1'),
   // Con un documento aperto il menu mostra solo questa: gli altri gesti della
   // posta stanno nella sezione del pannello (`menu.ts`, `SOLO_CON_DOCUMENTO`).
   comando('registroDocenti.account', 'posta'),

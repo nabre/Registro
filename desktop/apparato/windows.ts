@@ -11,7 +11,7 @@ import { gestisciStatoInterfaccia } from './uiState.js'
 // L'HTML si serve dal protocollo e non da un `data:` URL, la cui origine opaca
 // non combacerebbe con la Content-Security-Policy (`cspSource`).
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, screen } from 'electron'
 
 import { cartellaBundle, dentro, icona, radiceApp } from './context.js'
 import { postoDi, ricordaPosto } from './placement.js'
@@ -20,6 +20,7 @@ import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, togliM
 import { chiudiLeVieDiFuga } from './navigation.js'
 import { Uri } from '#core/apparato/uri.js'
 import { CANALE, CANALE_INTERFACCIA } from './channels.js'
+import { TIPO_REGISTRO, èDelRegistro } from './panelTypes.js'
 
 interface OpzioniWebview {
   enableScripts?: boolean
@@ -43,6 +44,8 @@ export interface WebviewPanel {
   title: string
   iconPath?: Uri
   onDidDispose: Event<void>
+  /** La finestra prende il fuoco: la mira dello schermo segue chi lo ha (`panel.ts`). */
+  alFuoco?: Event<void>
   /** L'id dei `webContents`, per ritrovare la finestra senza il fuoco; assente nelle prove. */
   readonly idContenuti?: number
   reveal (colonna?: number, senzaFuoco?: boolean): void
@@ -69,8 +72,12 @@ export function ascolta (): void {
   inAscolto = true
   ipcMain.on(CANALE_INTERFACCIA, (evento, operazione: unknown, valore: unknown) => {
     const tipo = tipiFinestre.get(evento.sender.id)
+    // Una figlia del registro legge le preferenze di forma della principale.
+    const figlia = tipo !== undefined && tipo !== TIPO_REGISTRO && èDelRegistro(tipo)
     const esito = tipo
-      ? gestisciStatoInterfaccia(app.getPath('userData'), tipo, operazione, valore)
+      ? gestisciStatoInterfaccia(
+          app.getPath('userData'), tipo, operazione, valore, figlia ? TIPO_REGISTRO : undefined,
+        )
       : null
     // Solo la lettura arriva con `sendSync`; la scrittura arriva con `send`.
     if (operazione === 'leggi') evento.returnValue = esito
@@ -175,6 +182,7 @@ class FinestraPannello implements WebviewPanel {
   readonly webview: VistaWeb
   readonly viewColumn: number | undefined
   readonly onDidDispose: Event<void>
+  readonly alFuoco: Event<void>
   readonly idContenuti: number
 
   /** Accettata e ignorata: è un SVG, che `nativeImage` non legge; l'icona la mette `icona()`. */
@@ -182,6 +190,7 @@ class FinestraPannello implements WebviewPanel {
 
   readonly #finestra: BrowserWindow
   readonly #emettitore = new EventEmitter<void>()
+  readonly #fuoco = new EventEmitter<void>()
   #chiuso = false
 
   constructor (
@@ -193,7 +202,9 @@ class FinestraPannello implements WebviewPanel {
     this.#finestra = finestra
     this.viewColumn = colonna
     this.onDidDispose = this.#emettitore.event
+    this.alFuoco = this.#fuoco.event
     this.webview = new VistaWeb(id, finestra, opzioni)
+    finestra.on('focus', () => this.#fuoco.fire())
 
     // Preso ora: dentro `closed` la finestra è distrutta e `webContents` solleva.
     const idContenuti = finestra.webContents.id
@@ -223,6 +234,7 @@ class FinestraPannello implements WebviewPanel {
       perFinestra.delete(idContenuti)
       this.webview.smaltisci()
       this.annuncia()
+      this.#fuoco.dispose()
     })
   }
 
@@ -262,21 +274,84 @@ class FinestraPannello implements WebviewPanel {
 }
 
 /**
- * Il pannello del registro disegna la propria barra del titolo, come le
- * finestre del guscio (benvenuto, impostazioni, dialoghi, lettore: le opzioni
- * sono le stesse, `cornicePropria` in `theme.ts`). Gli altri pannelli no: lo
- * schermo della classe mostra solo la lezione, e l'assistente tiene la cornice
- * di sistema.
- */
-const CON_BARRA_PROPRIA = 'registroDocenti.pannello'
-
-/**
- * Le opzioni della cornice. Senza barra propria, il menu nascosto come nel
- * pannello: Alt lo mostra, gli acceleratori valgono.
+ * Le opzioni della cornice. Le finestre del registro, principale e figlie,
+ * disegnano la propria barra del titolo, come le finestre del guscio
+ * (benvenuto, impostazioni, dialoghi, lettore: le opzioni sono le stesse,
+ * `cornicePropria` in `theme.ts`). Gli altri pannelli no: lo schermo della
+ * classe mostra solo la lezione, e l'assistente tiene la cornice di sistema;
+ * il loro menu resta nascosto come nel pannello: Alt lo mostra, gli
+ * acceleratori valgono.
  */
 function cornice (tipo: string): Record<string, unknown> {
-  if (tipo !== CON_BARRA_PROPRIA) return { autoHideMenuBar: true }
+  if (!èDelRegistro(tipo)) return { autoHideMenuBar: true }
   return { ...cornicePropria() }
+}
+
+/** Di quanto scende e va a destra una finestra del registro che ne coprirebbe un'altra. */
+const SCALINO = 32
+
+/** Le finestre del registro aperte, tranne `tranne`. */
+function altreDelRegistro (tranne: BrowserWindow): BrowserWindow[] {
+  return BrowserWindow.getAllWindows().filter((altra) => {
+    if (altra === tranne || altra.isDestroyed()) return false
+    const tipo = tipiFinestre.get(altra.webContents.id)
+    return tipo !== undefined && èDelRegistro(tipo)
+  })
+}
+
+/**
+ * Due finestre del registro nello stesso punto sembrano una: chi nasce dove
+ * ce n'è già un'altra (due figlie mai spostate, o tornate dallo schermo
+ * staccato) scende di uno scalino, finché trova un punto libero dentro lo
+ * schermo che la ospita.
+ */
+export function scostaDalleAltre (finestra: BrowserWindow): void {
+  if (finestra.isDestroyed() || finestra.isMaximized() || finestra.isFullScreen()) return
+  const altre = altreDelRegistro(finestra).map((altra) => altra.getBounds())
+  const posto = finestra.getBounds()
+  const area = screen.getDisplayMatching(posto).workArea
+  const occupato = (x: number, y: number) =>
+    altre.some((altra) =>
+      Math.abs(altra.x - x) < SCALINO / 2 && Math.abs(altra.y - y) < SCALINO / 2)
+  let { x, y } = posto
+  for (let passo = 0; passo < 12 && occupato(x, y); passo += 1) {
+    x += SCALINO
+    y += SCALINO
+    // Fuori dallo schermo si riparte dall'angolo, sfalsati del giro fatto.
+    if (x + posto.width > area.x + area.width || y + posto.height > area.y + area.height) {
+      x = area.x + passo * 8
+      y = area.y + passo * 8
+    }
+  }
+  if (x !== posto.x || y !== posto.y) finestra.setBounds({ ...posto, x, y })
+}
+
+/**
+ * Uno schermo staccato: Windows porta le sue finestre su quello che resta,
+ * spesso tutte nello stesso punto. Le finestre del registro si scostano
+ * l'una dall'altra; quelle ancora fuori da ogni schermo tornano sul principale.
+ */
+export function dopoUnoSchermoStaccato (): void {
+  const principale = screen.getPrimaryDisplay().workArea
+  for (const finestra of BrowserWindow.getAllWindows()) {
+    const tipo = finestra.isDestroyed() ? undefined : tipiFinestre.get(finestra.webContents.id)
+    if (tipo === undefined || !èDelRegistro(tipo)) continue
+    const posto = finestra.getBounds()
+    const visibile = screen.getAllDisplays().some((schermo) => {
+      const area = schermo.workArea
+      return posto.x < area.x + area.width && posto.x + posto.width > area.x &&
+        posto.y < area.y + area.height && posto.y + posto.height > area.y
+    })
+    if (!visibile) {
+      finestra.setBounds({
+        x: principale.x,
+        y: principale.y,
+        width: Math.min(posto.width, principale.width),
+        height: Math.min(posto.height, principale.height),
+      })
+    }
+    scostaDalleAltre(finestra)
+  }
 }
 
 export function createWebviewPanel (
@@ -311,7 +386,7 @@ export function createWebviewPanel (
   if (tipo.endsWith('proiezione')) togliMenu(finestra)
 
   // Perché `theme.ts` ne aggiorni la fascia al cambio di tema.
-  if (tipo === CON_BARRA_PROPRIA) ricordaFascia(finestra)
+  if (èDelRegistro(tipo)) ricordaFascia(finestra)
 
   const idStato = finestra.webContents.id
   tipiFinestre.set(idStato, tipo)
@@ -319,6 +394,8 @@ export function createWebviewPanel (
   // Ingrandita o a schermo intero come la si era lasciata, prima di mostrarla.
   // La proiezione va a schermo intero solo col suo comando, che sa il monitor.
   ricordaPosto(tipo, finestra, { schermoIntero: !tipo.endsWith('proiezione') })
+  // Una figlia non nasce sopra un'altra finestra del registro.
+  if (tipo !== TIPO_REGISTRO && èDelRegistro(tipo)) scostaDalleAltre(finestra)
   finestra.once('ready-to-show', () => finestra.show())
   // La console, in sviluppo, la apre `avviaConsoleAllAvvio` di `dev.ts`.
 

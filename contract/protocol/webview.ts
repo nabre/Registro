@@ -372,6 +372,69 @@ export interface MessaggioNavigazione {
   impostazioni?: string
 }
 
+/**
+ * Dove guarda una finestra del registro: la forma del `Posto` di `ui/place.ts`
+ * senza i suoi tipi, che sono della pagina. La convalida la fa chi riceve
+ * (`completa`), come per `MessaggioNavigazione.impostazioni`.
+ */
+export interface PostoDellaFinestra {
+  pagina: string
+  soggetto?: { tipo: string, id: string }
+  scheda?: string
+}
+
+/**
+ * Gli id scelti con cui si guarda il posto (corso, classe, ora…): una finestra
+ * nuova ci arriva come ci stava quella da cui nasce. Gli stessi campi del
+ * `Contesto` di `ui/place.ts`.
+ */
+export interface ContestoDellaFinestra {
+  corsoId?: string | null
+  classeId?: string | null
+  filtroClasseId?: string | null
+  lezioneId?: string | null
+  pianoId?: string | null
+  valutazioneId?: string | null
+  allievoId?: string | null
+  progettoId?: string | null
+}
+
+/**
+ * Porta una finestra del registro su un posto: quella nuova, che nasce dove
+ * guardava l'altra. Come `naviga`, aspetta i dati se non sono ancora arrivati.
+ */
+export interface MessaggioVai {
+  tipo: 'vai'
+  posto: PostoDellaFinestra
+  contesto?: ContestoDellaFinestra
+}
+
+/**
+ * Le finestre del registro aperte, spinte a tutte a ogni apertura o chiusura
+ * e quando una cambia pagina: la principale ne fa il suo menu, una figlia sa
+ * di esserlo. La principale è la 1.
+ */
+export interface MessaggioFinestre {
+  tipo: 'finestre'
+  ruolo: 'principale' | 'figlia'
+  /** Il numero di chi riceve. */
+  numero: number
+  /** Tutte, principale compresa, in ordine di numero, con la pagina che mostrano. */
+  elenco: Array<{ n: number, titolo: string }>
+}
+
+/**
+ * Dalla pagina all'host, a ogni cambio di posto: che pagina mostra (il titolo,
+ * per la barra delle applicazioni e il menu delle finestre) e dove, per aprire
+ * una finestra nuova sullo stesso posto da un comando che non lo sa.
+ */
+export interface PaginaDellaFinestra {
+  tipo: 'finestra.pagina'
+  titolo: string
+  posto: PostoDellaFinestra
+  contesto: ContestoDellaFinestra
+}
+
 interface MessaggioNotifica {
   tipo: 'notifica'
   livello: 'info' | 'avviso' | 'errore'
@@ -418,6 +481,8 @@ export type MessaggioVersoWebview =
   | MessaggioStato
   | MessaggioDifferenze
   | MessaggioNavigazione
+  | MessaggioVai
+  | MessaggioFinestre
   | MessaggioNotifica
   | MessaggioLavoro
   | MessaggioProiezione

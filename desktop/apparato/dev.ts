@@ -16,6 +16,7 @@ import { join } from 'node:path'
 import { cartellaBundle } from './context.js'
 import { depositoJson } from './jsonStore.js'
 import { tipoDelPannello } from './windows.js'
+import { TIPO_REGISTRO, èDelRegistro } from './panelTypes.js'
 import { Smaltitore } from '#core/apparato/events.js'
 
 /** Quanto si aspetta prima di ricaricare, dall'ultimo file scritto. */
@@ -146,7 +147,8 @@ const DELLE_PAGINE: Readonly<Record<string, TipoFinestra>> = {
 export function tipoDellaFinestra (finestra: BrowserWindow): TipoFinestra | null {
   if (finestra.isDestroyed()) return null
   const pannello = tipoDelPannello(finestra.webContents.id)
-  if (pannello) return DEI_PANNELLI[pannello] ?? null
+  // Le figlie del registro sono pannelli come la principale (`panelTypes.ts`).
+  if (pannello) return DEI_PANNELLI[èDelRegistro(pannello) ? TIPO_REGISTRO : pannello] ?? null
   const pagina = /^registro:\/\/app\/dist\/(\w+)\.html/.exec(finestra.webContents.getURL())?.[1]
   return pagina ? DELLE_PAGINE[pagina] ?? null : null
 }

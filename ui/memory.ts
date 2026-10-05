@@ -283,7 +283,7 @@ function sezioneImpostazioniDa (grezzo: Record<string, unknown>): SezioneImposta
   return sezioneDiPrima(ambito, ambito === 'programma' ? grezzo.schedaProgramma : grezzo.schedaDocumento)
 }
 
-function contestoDa (grezzo: Record<string, unknown> | null): Contesto {
+export function contestoDa (grezzo: Record<string, unknown> | null): Contesto {
   const contesto = {} as Contesto
   for (const campo of CAMPI_CONTESTO) contesto[campo] = id(grezzo?.[campo])
   return contesto
@@ -294,7 +294,7 @@ function contestoDa (grezzo: Record<string, unknown> | null): Contesto {
  * convalidano qui con le regole di `place.ts`; che il soggetto ci sia ancora
  * nel documento lo decide `completa`, che ha il registro.
  */
-function postoDa (grezzo: unknown): Posto | null {
+export function postoDa (grezzo: unknown): Posto | null {
   const posto = oggetto(grezzo)
   const pagina = paginaDiAdesso(posto?.pagina)
   if (!posto || !paginaValida(pagina)) return null

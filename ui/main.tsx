@@ -26,17 +26,21 @@ import {
 import { Guscio, mostraFiloDiLavoro } from './shell.js'
 import { testi } from './main.testi.js'
 import { vedutaCambiata } from './viewpoint.js'
-import { ascolta, chiediStatoIntero, invia, iscrivitiAttesa } from './bridge.js'
+import { annunciaPagina, ascolta, chiediStatoIntero, invia, iscrivitiAttesa } from './bridge.js'
 import { oggi } from '#core/dominio/dates.js'
 import type {
   MessaggioDifferenze,
   MessaggioNavigazione,
   MessaggioStato,
+  MessaggioVai,
   MessaggioVersoWebview,
 } from '#contract/protocol.js'
 import { SeguitoDelRegistro } from './statePatches.js'
 import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { chiaveDelPosto, postoDaVista, schedaValida } from './place.js'
+import { contestoDa, postoDa } from './memory.js'
+import { nomeDelPosto } from './pages.js'
+import { ricevoFinestre } from './windows.js'
 import {
   aggiorna,
   allineaSemestre,
@@ -181,7 +185,20 @@ function disegna (): void {
 }
 
 /** La navigazione arrivata prima dei dati: si esegue appena arrivano. */
-let navigazioneInAttesa: MessaggioNavigazione | null = null
+let navigazioneInAttesa: MessaggioNavigazione | MessaggioVai | null = null
+
+/**
+ * Una finestra nuova va dove guardava quella da cui nasce, con gli stessi id
+ * scelti. Il posto arriva da fuori: si convalida come quello ricordato, e un
+ * posto che non c'è più lascia la pagina dov'è.
+ */
+function vaiDove (messaggio: MessaggioVai): void {
+  const posto = postoDa(messaggio.posto)
+  if (!posto) return
+  vai(posto, messaggio.contesto
+    ? { contesto: contestoDa(messaggio.contesto as Record<string, unknown>) }
+    : {})
+}
 
 /**
  * Porta la pagina dove la navigazione chiede e può aprire subito una
@@ -189,11 +206,15 @@ let navigazioneInAttesa: MessaggioNavigazione | null = null
  * l'elemento compaia (corso, classe, semestre, giorno) li mette `completa`,
  * dalla catena dell'elemento: vale per l'albero, la palette e ogni `naviga`.
  */
-function eseguiNavigazione (messaggio: MessaggioNavigazione): void {
+function eseguiNavigazione (messaggio: MessaggioNavigazione | MessaggioVai): void {
   // Gli acceleratori del menu nativo arrivano anche con una modale aperta: come
   // per `installaScorciatoie`, lì il gesto è del modulo.
   if (document.querySelector('.modale')) {
     notifica(testi().finestraAperta, 'avviso')
+    return
+  }
+  if (messaggio.tipo === 'vai') {
+    vaiDove(messaggio)
     return
   }
 
@@ -413,7 +434,8 @@ ascolta((messaggio) => {
       )
       break
 
-    case 'naviga': {
+    case 'naviga':
+    case 'vai': {
       // A pannello chiuso la navigazione arriva prima del registro e gli id non si
       // risolvono: si tiene da parte finché arrivano i dati.
       if (!stato.caricato) {
@@ -423,6 +445,11 @@ ascolta((messaggio) => {
       eseguiNavigazione(messaggio)
       break
     }
+
+    // Le finestre del registro aperte: l'etichetta nella barra del titolo.
+    case 'finestre':
+      if (ricevoFinestre(messaggio)) ridisegna()
+      break
 
     default:
       break
@@ -458,6 +485,21 @@ iscriviti(() => {
     void invia({ tipo: 'assistente.contesto', contesto: cambiata.contesto })
       .catch((errore: unknown) => console.warn('[assistente.contesto]', errore))
   }
+})
+
+/**
+ * L'host sa dove guarda ogni finestra: titolo nella barra delle applicazioni,
+ * menu delle finestre, e il posto da cui nasce una figlia aperta dal menu
+ * nativo. Si dice solo quando cambia.
+ */
+let ultimaPagina: string | null = null
+iscriviti(() => {
+  if (!stato.caricato) return
+  const titolo = nomeDelPosto()
+  const chiave = JSON.stringify([titolo, stato.posto, stato.contesto])
+  if (chiave === ultimaPagina) return
+  ultimaPagina = chiave
+  annunciaPagina({ tipo: 'finestra.pagina', titolo, posto: stato.posto, contesto: stato.contesto })
 })
 
 // I tasti della finestra: le scorciatoie dei comandi, Ctrl+B per le azioni

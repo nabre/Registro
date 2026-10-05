@@ -45,6 +45,9 @@ const it = {
   schermoIntero: 'Schermo intero',
   schermoInteroAiuto:
     'La finestra di chi insegna occupa tutto lo schermo — non è lo schermo per la classe',
+  nuovaFinestraAiuto:
+    'Un’altra finestra sulla stessa pagina, da spostare su un altro schermo; le scritture valgono per tutte',
+  finestraPrincipaleAiuto: 'Porta davanti la finestra principale del registro',
   esci: 'Esci dal registro',
   esciAiuto:
     'Spegne il registro del tutto, icona accanto all’orologio compresa. ' +
@@ -100,6 +103,9 @@ export const testi = catalogo(it, {
     schermoInteroAiuto:
       'Das Fenster der Lehrperson füllt den ganzen Bildschirm — nicht der Bildschirm für die ' +
       'Klasse',
+    nuovaFinestraAiuto:
+      'Ein weiteres Fenster auf derselben Seite, für einen anderen Bildschirm; Änderungen gelten für alle',
+    finestraPrincipaleAiuto: 'Holt das Hauptfenster des Klassenbuchs nach vorne',
     esci: 'Klassenbuch beenden',
     esciAiuto:
       'Beendet das Klassenbuch ganz, samt Symbol neben der Uhr. ' +
@@ -151,6 +157,9 @@ export const testi = catalogo(it, {
     schermoIntero: 'Plein écran',
     schermoInteroAiuto:
       'La fenêtre de l’enseignant occupe tout l’écran — ce n’est pas l’écran pour la classe',
+    nuovaFinestraAiuto:
+      'Une autre fenêtre sur la même page, à placer sur un autre écran ; les modifications valent pour toutes',
+    finestraPrincipaleAiuto: 'Met au premier plan la fenêtre principale du registre',
     esci: 'Quitter le registre',
     esciAiuto:
       'Éteint complètement le registre, icône près de l’horloge comprise. ' +
@@ -201,6 +210,9 @@ export const testi = catalogo(it, {
     schermoIntero: 'Full screen',
     schermoInteroAiuto:
       'The teacher’s window fills the whole screen — this is not the class screen',
+    nuovaFinestraAiuto:
+      'Another window on the same page, to move to another screen; changes apply to all',
+    finestraPrincipaleAiuto: 'Brings the main register window to the front',
     esci: 'Quit the register',
     esciAiuto:
       'Shuts the register down completely, including the icon next to the clock. ' +

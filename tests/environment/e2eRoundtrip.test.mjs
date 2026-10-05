@@ -53,8 +53,7 @@ describe('ciclo end-to-end pagina -> preload -> main -> disco', () => {
       extensionUri: Uri.file(radice),
       subscriptions: [],
     }
-    const pannello = PannelloRegistro.mostra(contesto, archivio)
-    PannelloRegistro.istanza = pannello
+    PannelloRegistro.mostra(contesto, archivio)
 
     const finestra = finestreCostruite.at(-1)
     assert.ok(finestra, 'La finestra del pannello deve essere stata creata')
@@ -113,7 +112,6 @@ describe('ciclo end-to-end pagina -> preload -> main -> disco', () => {
       assert.equal(materiaPersistita.abbreviazione, 'IAE')
     } finally {
       PannelloRegistro.chiudi()
-      PannelloRegistro.istanza = null
       await archivio.chiudi()
       archivio.dispose()
     }

@@ -170,6 +170,8 @@ export interface WebviewPanel {
   title: string
   iconPath?: Uri | { light: Uri; dark: Uri }
   onDidDispose: Event<void>
+  /** La finestra prende il fuoco; assente nelle prove senza finestre. */
+  alFuoco?: Event<void>
   readonly idContenuti?: number
   reveal (colonna?: ViewColumn | number, senzaFuoco?: boolean): void
   dispose (): void
