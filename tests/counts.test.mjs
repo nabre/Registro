@@ -20,8 +20,9 @@ import { IMPOSTAZIONI } from '../dist-tests/manifest.mjs'
 
 registraTutte()
 
+// Con `core.autocrlf` git scrive le docs in CRLF: i titoli si confrontano senza `\r`.
 const sorgente = (relativo) =>
-  readFileSync(fileURLToPath(new URL(`../${relativo}`, import.meta.url)), 'utf8')
+  readFileSync(fileURLToPath(new URL(`../${relativo}`, import.meta.url)), 'utf8').replace(/\r\n/g, '\n')
 
 /** Quante varianti ha un'unione di stringhe dichiarata come `export type X =`. */
 function varianti (testo, nome) {

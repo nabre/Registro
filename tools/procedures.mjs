@@ -1,8 +1,8 @@
 /**
  * Verifica che l'albero delle procedure stia in piedi: il percorso di ogni file
  * è il nome della procedura che contiene (`ore.appello.casella` sta in
- * `src/api/procedures/ore/appello/casella.ts`), ogni file è nominato
- * nell'indice della sua cartella, e ogni cartella arriva a `src/api/index.ts`.
+ * `contract/procedure/ore/appello/casella.ts`), ogni file è nominato
+ * nell'indice della sua cartella, e ogni cartella arriva a `contract/registry.ts`.
  * Una procedura che non arriva all'indice non si registra, e senza nessun errore.
  *
  * Legge il testo e non compila, così funziona anche quando `tsc` non passa.
@@ -30,7 +30,7 @@ const male = (dove, che) => problemi.push(`${dove}: ${che}`)
 
 // ------------------------------------------------------------------ l'albero
 
-/** Ogni file `.ts` sotto `src/api/procedures`, con il suo percorso a segmenti. */
+/** Ogni file `.ts` sotto `contract/procedure`, con il suo percorso a segmenti. */
 function alberoDi (cartella, radice = cartella) {
   return fileSotto(cartella).map((percorso) => ({
     percorso,
@@ -46,7 +46,7 @@ const file = alberoDi(PROCEDURE)
 /**
  * Le due forme con cui un file dichiara la sua procedura: `definisci({…})`, e
  * `scrittura({…})` — `definisci` con genere, uscita e versione già messi
- * (`src/api/core.ts`).
+ * (`contract/core.ts`).
  */
 const DICHIARA = String.raw`export const procedura = (?:definisci|scrittura)\(`
 
