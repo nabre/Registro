@@ -4,7 +4,11 @@ import { Fragment, type ReactElement, type ReactNode } from 'react'
 import { assistenteAperto } from './assistant.js'
 import { classi } from './classNames.js'
 import { Icona } from './components/icons.js'
-import { alternaMenuSotto, type ElementoMenu } from './components/menu.js'
+import { alternaMenuSotto, menuContestuale, type ElementoMenu } from './components/menu.js'
+import { notifica } from './components/notifications.js'
+import { azione } from './bridge.js'
+import { titoloComando } from '#contract/manifest.js'
+import { perchéNonUnAltra } from './windows.js'
 import {
   classeDelFascicolo, corsoDelContesto, nomeDelCorso, scegliClasseDelFascicolo, scegliCorso,
 } from './context.js'
@@ -235,6 +239,32 @@ function titoloDelGruppo (gruppo: GruppoDiPagine): ReactNode {
   return gruppo.righe.map((riga, i) => <span key={i} className="sidebar__titolo-riga">{riga}</span>)
 }
 
+/**
+ * Apre la pagina in una finestra nuova, col contesto di adesso (il corso, la
+ * classe che si guardano): Ctrl+clic, clic centrale, o il menu del tasto destro.
+ */
+function apriInUnaNuovaFinestra (pagina: Pagina): void {
+  const perche = pagina.impedimento?.() ?? perchéNonUnAltra(stato.programma)
+  if (perche) {
+    notifica(perche, 'avviso')
+    return
+  }
+  void azione({ tipo: 'finestra.nuova', posto: { pagina: pagina.id }, contesto: stato.contesto })
+}
+
+/** Il menu del tasto destro su una voce: per ora una sola cosa da fare. */
+function menuDellaVoce (pagina: Pagina): ElementoMenu[] {
+  const perche = pagina.impedimento?.() ?? perchéNonUnAltra(stato.programma)
+  return [{
+    testo: titoloComando('registroDocenti.nuovaFinestra'),
+    simbolo: 'duplica',
+    scorciatoia: testi().ctrlClic,
+    disabilitato: perche !== null,
+    ...(perche ? { titolo: perche } : {}),
+    al: () => apriInUnaNuovaFinestra(pagina),
+  }]
+}
+
 function vocePagina (pagina: Pagina): ReactElement {
   const conto = pagina.conto?.() ?? 0
   return (
@@ -247,10 +277,24 @@ function vocePagina (pagina: Pagina): ReactElement {
       aria-current={pagina.attiva() ? 'page' : undefined}
       aria-disabled={Boolean(pagina.impedimento?.())}
       title={suggerimentoDi(pagina)}
-      onClick={() => {
+      onClick={(evento) => {
+        // Ctrl+clic (⌘ su Mac), come in un browser: la pagina in una finestra nuova.
+        if (evento.ctrlKey || evento.metaKey) {
+          apriInUnaNuovaFinestra(pagina)
+          return
+        }
         vaiA(pagina)
         if (!pagina.impedimento?.()) chiudiSidebarMobile()
       }}
+      // Il clic centrale: niente scorrimento automatico, e la pagina in una finestra nuova.
+      onMouseDown={(evento) => { if (evento.button === 1) evento.preventDefault() }}
+      onAuxClick={(evento) => {
+        if (evento.button !== 1) return
+        evento.preventDefault()
+        apriInUnaNuovaFinestra(pagina)
+      }}
+      onContextMenu={(evento) =>
+        menuContestuale(evento.nativeEvent, menuDellaVoce(pagina), evento.currentTarget)}
     >
       <Icona nome={pagina.simbolo} classe="icona--minuta" />
       <span>{pagina.titolo}</span>
