@@ -16,7 +16,7 @@ const t = () => testi().stacca
 /**
  * Quel che una procedura ha letto, già impaginato. I blocchi passano come sono:
  * li compone `api/presentation.ts` da un'uscita già convalidata e li disegna
- * `ui/assistant/result.ts`; riscriverne qui l'unione sarebbe una seconda copia
+ * `ui/assistant/result.tsx`; riscriverne qui l'unione sarebbe una seconda copia
  * di `BloccoRisultato`.
  */
 const RISULTATO = oggetto({

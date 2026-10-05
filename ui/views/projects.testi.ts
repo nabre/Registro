@@ -1,5 +1,5 @@
-// I testi di `views/projects.ts`, la pagina Progetti (la biblioteca dell'anno),
-// e quelli delle parti del progetto che `views/projectIntegration.ts` condivide.
+// I testi di `views/projects.tsx`, la pagina Progetti (la biblioteca dell'anno),
+// e quelli delle parti del progetto che `views/projectIntegration.tsx` condivide.
 
 import { catalogo } from '#core/i18n/index.js'
 

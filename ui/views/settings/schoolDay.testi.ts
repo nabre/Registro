@@ -1,4 +1,4 @@
-// I testi della giornata di scuola (`settings/schoolDay.ts`). Le pause hanno il
+// I testi della giornata di scuola (`settings/schoolDay.tsx`). Le pause hanno il
 // loro catalogo, `dayBreaks.testi.ts`.
 
 import { catalogo } from '#core/i18n/index.js'

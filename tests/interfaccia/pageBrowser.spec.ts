@@ -47,7 +47,7 @@ test('sfoglio', async ({ browser }) => {
 
   async function prepara (page: Page): Promise<void> {
     // Anche la console: una chiusura di PDF che fallisce non fa cadere la pagina ma
-    // lascia un errore qui, così si vede se `thumbnails.ts` smette di chiudere.
+    // lascia un errore qui, così si vede se `thumbnails.tsx` smette di chiudere.
     page.on('console', (m) => {
       if (m.type() === 'error' && !m.text().includes('ERR_UNKNOWN_URL_SCHEME')) {
         consolle.push(m.text())

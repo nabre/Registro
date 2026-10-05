@@ -1,4 +1,4 @@
-// I testi di `forms/resources.ts`: l'elenco dei materiali di un piano o di una
+// I testi di `forms/resources.tsx`: l'elenco dei materiali di un piano o di una
 // sua tappa, e le due finestre che aggiungono un collegamento e modificano una
 // risorsa.
 

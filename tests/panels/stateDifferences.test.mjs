@@ -36,7 +36,7 @@ before(async () => {
 
 /**
  * Un pannello finto e la sua pagina: i messaggi passano copiati, come fra due
- * processi, e la pagina tiene il registro come `ui/main.ts`.
+ * processi, e la pagina tiene il registro come `ui/main.tsx`.
  */
 function banco (archivio) {
   const mandati = []

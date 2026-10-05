@@ -213,7 +213,7 @@ function interruttoreSidebar (): ReactNode {
 
 /**
  * Il suggerimento di una voce: il nome, perché non si può o a che cosa serve,
- * e in coda la scorciatoia come in `commandBar.ts`. Il numero è la posizione
+ * e in coda la scorciatoia come in `commandBar.tsx`. Il numero è la posizione
  * fra le voci visibili, la regola di Ctrl+1…9 in `shortcuts.ts`.
  */
 function suggerimentoDi (pagina: Pagina): string {

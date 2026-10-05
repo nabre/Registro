@@ -1,4 +1,4 @@
-// I testi di `forms/planActivity.ts`: la scaletta di un piano, tappa per tappa,
+// I testi di `forms/planActivity.tsx`: la scaletta di un piano, tappa per tappa,
 // con il dettaglio di ogni tappa e i gruppi di unità didattiche della lezione.
 
 import { catalogo } from '#core/i18n/index.js'

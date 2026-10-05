@@ -62,7 +62,7 @@ type OpzioniTabella = Telaio & (Parti | { virtuale: { chiave: string, parti: () 
 
 /**
  * Il nome dell'isola di un elenco a finestra: lo stesso di `nomeIsola` in
- * `virtualList.ts`, che la cerca e la rifà con quel nome.
+ * `virtualList.tsx`, che la cerca e la rifà con quel nome.
  */
 function isolaVirtuale (chiave: string): string {
   // testo-fisso: chiave dell'isola, non si legge

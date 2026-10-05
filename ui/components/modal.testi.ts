@@ -1,4 +1,4 @@
-// I testi delle finestre (`modal.ts`): la domanda prima di buttare via quel
+// I testi delle finestre (`modal.tsx`): la domanda prima di buttare via quel
 // che si è scritto. I pulsanti generici — Salva, Annulla, Chiudi, Conferma —
 // sono quelli di `parole()`.
 

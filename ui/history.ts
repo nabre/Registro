@@ -20,7 +20,7 @@ import type { Iso } from '#core/dominio/models.js'
 type Scorrimenti = ReturnType<typeof ricordaScorrimenti>
 
 interface Voce {
-  /** `chiaveDelPosto`: la stessa di `data-scorrimento` (`shell.ts`), così tornando si ritrova lo scorrimento. */
+  /** `chiaveDelPosto`: la stessa di `data-scorrimento` (`shell.tsx`), così tornando si ritrova lo scorrimento. */
   chiave: string
   posto: Posto
   /** Il giorno guardato: tornando, il calendario si rimette lì. */

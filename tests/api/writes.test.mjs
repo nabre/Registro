@@ -484,7 +484,7 @@ describe('le carte intestate stanno nel documento, e ogni corso ne ha una', () =
 })
 
 describe('le regole del calendario ICS si gestiscono dalle impostazioni del documento', () => {
-  // Le regole della scheda «Calendari ICS» (`ui/views/settings/icsCalendar.ts`)
+  // Le regole della scheda «Calendari ICS» (`ui/views/settings/icsCalendar.tsx`)
   // passano da `impostazioni.salva` col campo `calendario` intero, o senza per
   // toglierlo. I calendari hanno procedure loro (`calendar.test.mjs`).
   const CALENDARI = [{ id: 'ics-prova-0002', nome: 'Sede', origine: 'https://esempio.invalid/orario.ics' }]

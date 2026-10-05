@@ -1,4 +1,4 @@
-// I testi di `views/projects/judgements.ts`: i giudizi di un progetto.
+// I testi di `views/projects/judgements.tsx`: i giudizi di un progetto.
 
 import { catalogo } from '#core/i18n/index.js'
 

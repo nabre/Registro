@@ -1,5 +1,5 @@
 // La barra del titolo delle finestre del guscio (benvenuto, impostazioni,
-// dialoghi, lettore): la stessa testata del pannello (`ui/titleBar.ts`),
+// dialoghi, lettore): la stessa testata del pannello (`ui/titleBar.tsx`),
 // ridotta a quel che una finestra di servizio porta — il logo e il titolo.
 //
 // La finestra nasce con `cornicePropria()` (`desktop/apparato/theme.ts`) e lo

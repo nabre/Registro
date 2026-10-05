@@ -1,4 +1,4 @@
-// I testi del campo della firma (`settings/signature.ts`). Le lettere dei
+// I testi del campo della firma (`settings/signature.tsx`). Le lettere dei
 // gesti di stile seguono la lingua (G, C, S; F, K, U); le scorciatoie restano
 // Ctrl+B, Ctrl+I, Ctrl+U, decise dal campo.
 

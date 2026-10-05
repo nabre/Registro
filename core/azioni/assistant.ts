@@ -39,7 +39,7 @@ export function contestoDelRegistro (): ContestoAssistente | null {
 
 export const assistente = {
   // Il rientro lo fa la finestra (`manda({ riattacca })` in
-  // `ui/assistantWindow.ts`), che ha la conversazione in mano.
+  // `ui/assistantWindow.tsx`), che ha la conversazione in mano.
   'assistente.stacca': (_contesto, azione) => {
     // Rifiuta se la finestra non si apre: chi chiama ha già svuotato il
     // riquadro e deve potersi rimettere dentro la conversazione.

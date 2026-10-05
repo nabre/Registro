@@ -136,7 +136,7 @@ let erroreElenco = ''
 /**
  * Il numero dell'ultima domanda al catalogo e dell'ultimo deposito aperto: con
  * due domande in volo vince l'ultima chiesta, non l'ultima arrivata. Come in
- * `forms/calendar.ts`.
+ * `forms/calendar.tsx`.
  */
 let giroCatalogo = 0
 let giroDeposito = 0

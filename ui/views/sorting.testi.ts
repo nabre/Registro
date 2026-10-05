@@ -1,5 +1,5 @@
 // I testi dello smistamento dei PDF di classe (`sorting.ts`) e della pagina
-// «Da smistare» (`sorting/toSort.ts`).
+// «Da smistare» (`sorting/toSort.tsx`).
 // «Carica dei PDF» e «Archivio documentale» sono nomi di comandi e pagine: in
 // ogni lingua uguali a come li scrivono i loro cataloghi.
 

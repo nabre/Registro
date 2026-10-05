@@ -1,4 +1,4 @@
-// I testi di `forms/check.ts`: le finestre del check — la data di una casella,
+// I testi di `forms/check.tsx`: le finestre del check — la data di una casella,
 // il nome di una colonna, l'elenco delle colonne da mettere in ordine.
 
 import { catalogo } from '#core/i18n/index.js'

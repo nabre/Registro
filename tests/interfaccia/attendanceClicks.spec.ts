@@ -1,5 +1,4 @@
-// Le caselle dell'appello, su Chromium: quel che provava
-// `tests/ui/attendanceClicks.test.mjs` su un DOM finto, dall'esterno.
+// Le caselle dell'appello, su Chromium e dall'esterno.
 //
 // - i clic a raffica, prima che l'host risponda, girano gli stati dal primo
 //   mandato e non dal disegno: presente, assente, ritardo;

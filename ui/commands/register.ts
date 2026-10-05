@@ -81,8 +81,8 @@ export const COMANDI_REGISTRO: readonly ComandoUI[] = [
     al: () => scegliModoCalendario(modo.valore),
   })),
   // La modifica è un modo del registro, non di una pagina: nel calendario la
-  // griglia prende in mano le ore (`views/calendar/editor.ts`). Per questo sta
-  // nella barra accanto a «Proietta» (`commandBar.ts`): si vede e si spegne da ovunque.
+  // griglia prende in mano le ore (`views/calendar/editor.tsx`). Per questo sta
+  // nella barra accanto a «Proietta» (`commandBar.tsx`): si vede e si spegne da ovunque.
   {
     id: 'calendario.editor',
     titolo: P.modifica,

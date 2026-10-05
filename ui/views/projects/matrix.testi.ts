@@ -1,4 +1,4 @@
-// I testi di `views/projects/matrix.ts`: la matrice a livelli e la progressione.
+// I testi di `views/projects/matrix.tsx`: la matrice a livelli e la progressione.
 
 import { catalogo } from '#core/i18n/index.js'
 

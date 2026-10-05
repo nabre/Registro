@@ -240,6 +240,7 @@ La radice: lo stato di un anno, più le intestazioni di tutti gli anni.
 
 - Semestri contigui (`validaAnno` rifiuta, `allineaSemestri` ripara);
   `inizio`/`fine` riscritti da `annoAllineato()`; sospensioni dentro l'anno.
+- `fine − inizio` al più 731 giorni (`validaAnno`).
 - Con `calendarioUfficiale` inizio, fine e le chiusure collegate (id
   `sos-<cantone>-<aaaa-aaaa>-…`, `èCollegata`) non si cambiano da `anno.salva`
   (`motivoCalendarioToccato`); il marcatore lo mette e lo toglie solo
@@ -291,6 +292,7 @@ Una fascia fissa dell'orario.
 | `dal?`, `al?` | `Iso` | vigenza parziale |
 
 - Due fasce dello stesso corso non hanno stesso `giorno` e `inizio`.
+- Una fascia finisce entro mezzanotte: `inizio + durataMin ≤ 24:00`.
 - L'alternanza A/B si fa con ricorrenze distinte e `dal`/`al`; la lettera è
   solo un'etichetta.
 - Norm.: `validaRicorrenza(ricorrenza, altre)`, `normalizzaRicorrenza`;
@@ -661,6 +663,9 @@ resta.
 
 `min` (1), `max` (6), `sufficienza` (4), `passo` (0.25) = `SCALA_PREDEFINITA`.
 `min < max` (altrimenti `max = min + 1`), `sufficienza` dentro, `passo > 0`.
+Estremi in `[-1000, 1000]` e al più 400 voti (`(max − min) / passo`,
+`LIMITI_SCALA`): in lettura estremi fuori misura tornano alla scala di serie,
+un passo troppo fitto si allarga.
 Due usi: `Impostazioni.scala` (per le prove nuove) e `MomentoValutazione.scala`
 (copia). Norm.: `validaScala`, `normalizzaScala`.
 

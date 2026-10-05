@@ -378,7 +378,7 @@ function avanzaLavoro (messaggio: MessaggioLavoro): void {
 iscriviti(disegna)
 // La fila dei posti visitati (Alt+←/→), che fornisce anche gli scorrimenti del ritorno.
 installaCammino()
-// Il filo di lavoro si accende e si spegne da sé, fuori dal disegno (`shell.ts`).
+// Il filo di lavoro si accende e si spegne da sé, fuori dal disegno (`shell.tsx`).
 iscrivitiAttesa(mostraFiloDiLavoro)
 
 ascolta((messaggio) => {

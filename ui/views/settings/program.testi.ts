@@ -1,4 +1,4 @@
-// I testi della pagina delle impostazioni del programma (`settings/program.ts`).
+// I testi della pagina delle impostazioni del programma (`settings/program.tsx`).
 // Nomi e descrizioni delle voci li scrive il manifesto.
 
 import { catalogo } from '#core/i18n/index.js'

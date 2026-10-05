@@ -1,5 +1,5 @@
 // Le righe delle impostazioni dell'anno in React, con la forma di quelle del
-// programma (`settings/program.ts`): nome, «i», e sotto il controllo condiviso
+// programma (`settings/program.tsx`): nome, «i», e sotto il controllo condiviso
 // di `core/controlli/` (`campo()`). Una sezione dell'anno si legge nello stesso
 // ordine delle altre: Stato e gesti, Scelte, Avanzate (chiuse).
 

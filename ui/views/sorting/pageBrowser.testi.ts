@@ -1,5 +1,5 @@
-// I testi dello sfoglio di un PDF da dividere (`pageBrowser.ts`) e dei bersagli
-// su cui se ne lasciano cadere le pagine (`pageDrop.ts`).
+// I testi dello sfoglio di un PDF da dividere (`pageBrowser.tsx`) e dei bersagli
+// su cui se ne lasciano cadere le pagine (`pageDrop.tsx`).
 // `pagine` arriva da `dicePagine` già tradotto e in minuscolo.
 
 import { catalogo, conMaiuscola } from '#core/i18n/index.js'

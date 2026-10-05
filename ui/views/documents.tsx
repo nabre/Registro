@@ -10,11 +10,11 @@
 // La pagina non porta altrove: premere una riga apre il suo documento.
 //
 //   documents.ts          il telaio e quale scheda si guarda
-//   documents/sheets.ts   un foglio, la sua riga, i suoi gesti
-//   documents/cards.ts    i riquadri: che cosa un corso sa stampare
-//   documents/preview.ts  la cornice e i gesti del foglio aperto
+//   documents/sheets.tsx   un foglio, la sua riga, i suoi gesti
+//   documents/cards.tsx    i riquadri: che cosa un corso sa stampare
+//   documents/preview.tsx  la cornice e i gesti del foglio aperto
 //
-// Riquadri e anteprima dipendono dai mattoni (`sheets.ts`), non viceversa;
+// Riquadri e anteprima dipendono dai mattoni (`sheets.tsx`), non viceversa;
 // solo questo file li conosce tutti.
 
 import type { ReactElement, ReactNode } from 'react'

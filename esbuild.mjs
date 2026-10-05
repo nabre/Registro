@@ -148,7 +148,7 @@ function pagina_ (pagina, estensione) {
 }
 
 /**
- * `{ dialog: 'desktop/shell/pages/dialog/dialog.ts', … }`: le chiavi sono i nomi
+ * `{ dialog: 'desktop/shell/pages/dialog/dialog.tsx', … }`: le chiavi sono i nomi
  * in `dist/`. In `dist-dev/` anche quelle di sviluppo.
  *
  * @param {string} estensione

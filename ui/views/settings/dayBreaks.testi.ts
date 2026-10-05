@@ -1,4 +1,4 @@
-// I testi delle pause della giornata (`settings/dayBreaks.ts`). Gli ordinali
+// I testi delle pause della giornata (`settings/dayBreaks.tsx`). Gli ordinali
 // («la seconda pausa») cambiano per lingua, quindi le frasi sono intere qui.
 
 import { catalogo } from '#core/i18n/index.js'

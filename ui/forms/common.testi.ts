@@ -1,4 +1,4 @@
-// I testi di `forms/common.ts`: quel che ogni modulo dice allo stesso modo —
+// I testi di `forms/common.tsx`: quel che ogni modulo dice allo stesso modo —
 // la guardia dell'anno, gli errori di ripiego, la domanda prima di eliminare.
 
 import { catalogo } from '#core/i18n/index.js'

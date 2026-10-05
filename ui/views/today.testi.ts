@@ -1,4 +1,4 @@
-// I testi della Dashboard (`today.ts`). I nomi delle pagine a cui portano le
+// I testi della Dashboard (`today.tsx`). I nomi delle pagine a cui portano le
 // tessere vengono da `pages.testi.ts`, così coincidono con la barra laterale.
 
 import { catalogo } from '#core/i18n/index.js'

@@ -1,4 +1,4 @@
-// I testi della pagina della guida (`help.ts`). Le sezioni hanno i loro
+// I testi della pagina della guida (`help.tsx`). Le sezioni hanno i loro
 // cataloghi in `help/`.
 
 import { catalogo } from '#core/i18n/index.js'

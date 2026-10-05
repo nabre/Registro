@@ -1,4 +1,4 @@
-// I testi di `forms/retake.ts`: la finestra del recupero di una prova.
+// I testi di `forms/retake.tsx`: la finestra del recupero di una prova.
 
 import { catalogo } from '#core/i18n/index.js'
 

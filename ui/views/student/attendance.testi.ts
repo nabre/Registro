@@ -1,4 +1,4 @@
-// I testi della scheda personale, parte presenze (`student/attendance.ts`).
+// I testi della scheda personale, parte presenze (`student/attendance.tsx`).
 
 import { catalogo, perNumero } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

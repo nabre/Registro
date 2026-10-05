@@ -39,7 +39,7 @@ export function vuoleCopiare (evento: { ctrlKey: boolean, altKey: boolean, metaK
 }
 
 /**
- * La pulizia di fine trascinamento, su `document` (come `views/sorting/pageBrowser.ts`):
+ * La pulizia di fine trascinamento, su `document` (come `views/sorting/pageBrowser.tsx`):
  * un ridisegno durante il gesto butta via il blocco con il suo `dragend`, e
  * resterebbero `trascinata` e le colonne `.zona-posa` non cliccabili.
  */

@@ -256,7 +256,7 @@ export const COMANDI_PROGRAMMA: readonly ComandoUI[] = [
   // ---------------------------------------------------------- Manutenzione
   //
   // Impostazioni non ha comandi qui: non mostra la riga delle azioni, i gesti
-  // stanno nelle sezioni (`views/settings.ts`).
+  // stanno nelle sezioni (`views/settings.tsx`).
   {
     id: 'file.ripara',
     titolo: t.ripara,

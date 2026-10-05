@@ -1,4 +1,4 @@
-// I testi della barra dei comandi (`commandBar.ts`): il menu «File» con i
+// I testi della barra dei comandi (`commandBar.tsx`): il menu «File» con i
 // registri recenti e preferiti, le tendine del contesto, la scheda della
 // proiezione e l'interruttore delle azioni.
 

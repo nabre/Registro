@@ -1,7 +1,7 @@
 // I mattoni della pagina Documenti: un foglio, la sua riga, i suoi gesti.
 // Trovare il file nella cartella, aprirlo, rifarlo, buttarlo; e il registro
 // delle righe disegnate, da cui vengono il conto in testa alle schede e
-// l'ordine dell'anteprima. `cards.ts` dichiara solo nome,
+// l'ordine dell'anteprima. `cards.tsx` dichiara solo nome,
 // foglio e azione che lo rifà.
 
 import {

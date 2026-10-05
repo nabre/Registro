@@ -124,13 +124,11 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       classe) e `grigliaDiClasse` (check, matrice, appello) con CSS comune
       (`.check__telaio` = `.matrice__telaio` = `.appello__telaio`); colori
       positivi già divergenti.
-- [ ] `forms/plan.ts` `moduloPiano`: il primo argomento `piano` e il ramo
-      «modifica» non li raggiunge più nessuno (con `scegliPiano`, il
-      re-export in `forms.ts`); `pastigliaSpunta` ha `dopo` mai passato.
 - [ ] «Segna/togli tutti» di una consegna per tre strade: nella modale «togli
       tutti» non chiede conferma e ignora i fogli raccolti (D2: decidere).
-- [ ] Finestre native: stessa ricetta in 5 posti (`menu.ts`, `welcome.ts`,
-      `reader.ts`, `dialogs.ts`, `windows.ts`) → fabbrica unica.
+- [ ] Finestre native: stessa ricetta in 5 posti (`menu.ts`,
+      `desktop/shell/windows/welcome.ts`, `reader.ts`, `dialogs.ts`,
+      `windows.ts`) → fabbrica unica.
 - [ ] Monte ore del corso fra due date: `corso/presenze.ts`,
       `persone/scheda.ts`, `persone/assenze.ts` lo rifanno accanto a
       `matriceDelCorsoNelPeriodo`.
@@ -143,8 +141,8 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 - [ ] `ui/state.ts` in tre: store, posto, selettori di dominio
       (~60 selettori). Mappa «da → a» prima (D5).
 - [ ] Stato fuori da `stato`: `let` di modulo in ~42 file di `ui/` (es.
-      `languageModels.ts`, `assistant/chat.ts`, `help.ts`), ognuno da pulire a
-      mano al cambio di documento (`main.ts`: `scordaEditorDelPiano`…).
+      `languageModels.tsx`, `assistant/chat.tsx`, `help.tsx`), ognuno da pulire a
+      mano al cambio di documento (`main.tsx`: `scordaEditorDelPiano`…).
       Censirli con `census` o una regola ESLint.
 - [ ] La normalizzazione scrive testi nella lingua di chi apre
       (`core/dominio/normalization/readers.ts`, `titolo: testo(dati.titolo,
@@ -173,12 +171,11 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       src/), che `npm run docs` non vede perché
       non hanno un prefisso di oggi. I più colpiti: `contract/protocol.ts`,
       `desktop/transports/assistant.ts`, `core/dominio/models.ts`.
-- [ ] Frecce nelle griglie: `frecceNellaGriglia` (`views/check.ts`) e
-      `spostaFuoco` (`views/assessments/grades.ts`, con finestra virtuale) si
-      somigliano; un aiuto comune in `components/table.ts` se ne arriva una
-      terza.
+- [ ] Frecce nelle griglie: cinque viste usano già
+      `ui/components/gridArrows.ts`; resta fuori `spostaFuoco`
+      (`views/assessments/grades.tsx`, con finestra virtuale).
 - [ ] Tasti del gruppo radio ripetuti: `dove()` in
-      `core/controlli/control.tsx`, `views/settings.ts`, `components/base.ts`.
+      `core/controlli/control.tsx`, `views/settings.tsx`, `components/base.tsx`.
 - [ ] `tools/mail-probe.ps1` porta di serie un indirizzo personale e un id di
       tenant reale: parametri senza valori di serie?
 
@@ -227,7 +224,7 @@ Verificati a mano i primi otto.
 - [ ] Performance: agenda annuale senza `content-visibility`/virtualizzazione;
       `core/dati/kit.ts:279` estrazione sincrona; soglia di `rifai`
       (`package.ts`) che conta gli allegati.
-- [ ] Accessibilità: fuoco perso nell'appello (Invio/Esc, `attendance.ts`);
+- [ ] Accessibilità: fuoco perso nell'appello (Invio/Esc, `lesson/attendance.tsx`);
       apice 15 px (< 24); titolo-selettore con controlli dentro `h2` e
       `change` sulle frecce; linguette strumenti senza `aria-pressed`;
       dialogo nativo senza `listbox`/`combobox`/`role=alert`; axe non apre
@@ -238,9 +235,48 @@ Verificati a mano i primi otto.
       mano.
 - [ ] Minori: fuses `onlyLoadAppFromAsar`/`grantFileProtocolExtraPrivileges`;
       `REGISTRO_SVILUPPO` nel pacchetto; `shell.openPath` senza guardia
-      (`commands.ts:71`, `dialogs.ts:454`); `switch-exhaustiveness-check`;
-      `calendar.ts:311` `fasce[0]`; storia di `conversation.ts:200` non
+      (`desktop/apparato/commands.ts:73`, `dialogs.ts`); `switch-exhaustiveness-check`;
+      `core/dominio/calendar.ts:273` `fasce[0]`; storia di `conversation.ts:200` non
       convalidata.
+
+### Giro del 2026-10-05
+
+Otto esplorazioni (conversione React, funzioni recenti, limiti, docs). Gli
+alti e i medi sono corretti; qui restano le scelte e i bassi.
+
+- [ ] `progetti.compito.elimina` porta via anche gli inizi in ore svolte,
+      `togliInizio` (`core/azioni/projects.ts`) lo rifiuta: stessa regola o
+      avviso (D2: decidere).
+- [ ] `progetti.salva` con `corsoId` (chiamante di prima di v7): il campo
+      cade in silenzio e il progetto nasce non integrato. Integrare o
+      avvisare.
+- [ ] Eliminando un anno, i progetti integrati solo nei suoi corsi restano
+      con zero integrazioni (`core/dominio/deletions.ts`): toglierli o
+      dirlo fra gli staccati.
+- [ ] Normalizzazione: `conCorsoVero` (`normalization/register.ts`,
+      `projects.ts`) con due integrazioni dello stesso progetto sullo stesso
+      corso superstite tiene la prima e perde compiti, giudizi e celle
+      dell'altra; fondere come `fondiIntegrazione`.
+- [ ] Supplenza: lo zip con foto e nomi resta in `cartellaDocumento()`
+      (spesso OneDrive) dopo l'invio; il foglio delle foto mette
+      `allievo.azienda` sotto ogni foto, dato in più per un supplente. Due
+      supplenze lo stesso giorno senza orario e per le stesse classi hanno
+      ancora lo stesso nome.
+- [ ] Allievi omonimi nella stessa classe hanno la stessa collocazione
+      (`core/dominio/locations.ts`, cartella e scheda): la seconda copre la
+      prima. `distinzione()` come per prove e progetti, ma cambia i percorsi
+      dei documenti già scritti: serve un passo che sposti.
+- [ ] Eventi ICS con lo stesso UID alla stessa ora danno la stessa `key`
+      React (`views/calendar/week.tsx`, `month.tsx`, `agenda.tsx`):
+      deduplicare in `core/dominio/calendarIcs.ts`.
+- [ ] ESLint senza `react/jsx-key`: oggi nessuna chiave manca (scansione
+      AST), ma niente lo impedisce. `eslint-plugin-react` (ADR-50) o regola
+      locale.
+- [ ] Minori React: `views/classTeacher.tsx` ridisegna due volte allo
+      scorrimento (`useFinestra` più `virtuale`); classi del bersaglio di
+      trascinamento messe con `classList` su nodi di React
+      (`views/sorting.tsx`, `sorting/pageDrop.tsx`), innocuo finché il
+      `className` non cambia durante il volo.
 
 ### Modelli e assistente
 
@@ -298,7 +334,7 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 - [ ] Accesso Microsoft nel browser: nessun **Annulla** nella notifica
       d'avanzamento (oggi si ripreme e il nuovo sostituisce il vecchio). Va
-      con l'azione nelle notifiche (§ Impostazioni).
+      con l'azione nelle notifiche.
 - [ ] Il filo d'attesa resta acceso per tutta l'attesa del browser (fino a
       5 min): sembra un blocco. Toglierlo dal conto è scelta di comportamento.
 

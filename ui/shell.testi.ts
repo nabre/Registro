@@ -1,4 +1,4 @@
-// I testi del telaio (`shell.ts`): la barra degli avvisi sui riferimenti che
+// I testi del telaio (`shell.tsx`): la barra degli avvisi sui riferimenti che
 // non tornano, il filo di lavoro e l'apertura.
 
 import { catalogo } from '#core/i18n/index.js'

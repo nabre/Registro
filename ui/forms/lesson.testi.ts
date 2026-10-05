@@ -1,4 +1,4 @@
-// I testi di `forms/lesson.ts`: il modulo di un'ora di lezione — l'editor delle
+// I testi di `forms/lesson.tsx`: il modulo di un'ora di lezione — l'editor delle
 // fasce con le sue pause, il legame con il calendario ICS — e quello di
 // un'osservazione.
 

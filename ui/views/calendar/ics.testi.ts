@@ -1,4 +1,4 @@
-// I testi degli eventi ICS nel calendario (`ics.ts`).
+// I testi degli eventi ICS nel calendario (`ics.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

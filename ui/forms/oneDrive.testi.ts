@@ -1,4 +1,4 @@
-// I testi della finestra che sfoglia OneDrive (`oneDrive.ts`).
+// I testi della finestra che sfoglia OneDrive (`oneDrive.tsx`).
 
 import { catalogo, perNumero } from '#core/i18n/index.js'
 

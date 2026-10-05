@@ -1,4 +1,4 @@
-// I testi dei suggerimenti (`hint.ts`): il nome del segno «i» per chi legge
+// I testi dei suggerimenti (`hint.tsx`): il nome del segno «i» per chi legge
 // con la voce.
 
 import { catalogo } from '#core/i18n/index.js'

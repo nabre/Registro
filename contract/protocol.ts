@@ -1075,7 +1075,7 @@ export type ImpostazioniDaSalvare = Omit<Impostazioni, 'intestazione'> & {
 
 /**
  * Le sezioni del pannello, qui perché host e webview le leggono entrambi. Una
- * vista dichiarata ma non disegnata da `shell.ts` è una pagina bianca: chi ne
+ * vista dichiarata ma non disegnata da `shell.tsx` è una pagina bianca: chi ne
  * aggiunge una la aggiunge anche a `vistaCorrente` e a `PAGINE`.
  */
 export type Vista =

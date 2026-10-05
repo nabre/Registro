@@ -1,5 +1,4 @@
-// I comandi della barra in volo, su Chromium: quel che provava
-// `tests/ui/commandBarInFlight.test.mjs` su un DOM finto, dall'esterno.
+// I comandi della barra in volo, su Chromium e dall'esterno.
 //
 // - un comando che parla con l'host spegne il suo pulsante e lo segna
 //   occupato (`aria-busy`) finché la risposta non torna, anche se nel

@@ -1,4 +1,4 @@
-// I testi del percorso (`breadcrumb.ts`): come si chiama ogni anello per chi
+// I testi del percorso (`breadcrumb.tsx`): come si chiama ogni anello per chi
 // lo sente leggere a voce.
 
 import { catalogo } from '#core/i18n/index.js'

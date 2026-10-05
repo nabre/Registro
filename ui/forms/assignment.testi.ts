@@ -1,4 +1,4 @@
-// I testi di `forms/assignment.ts`: il modulo di una consegna — che cosa, a
+// I testi di `forms/assignment.tsx`: il modulo di una consegna — che cosa, a
 // chi, con quale documento, entro quando.
 
 import { catalogo } from '#core/i18n/index.js'

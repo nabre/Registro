@@ -1,4 +1,4 @@
-// I testi dei recuperi (`views/assessments/retakes.ts`).
+// I testi dei recuperi (`views/assessments/retakes.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import type { StatoRecupero } from '#core/dominio/retakes.js'

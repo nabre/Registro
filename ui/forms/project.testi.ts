@@ -1,4 +1,4 @@
-// I testi di `forms/project.ts`: le finestre del progetto — testata, criteri,
+// I testi di `forms/project.tsx`: le finestre del progetto — testata, criteri,
 // livelli, compiti, proroghe, inizi, giudizi e caselle della matrice.
 
 import { catalogo } from '#core/i18n/index.js'

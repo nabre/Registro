@@ -1,6 +1,6 @@
 // I testi dell'assistente attorno alla conversazione: il pulsante nella barra,
 // la testata del riquadro (`assistant.ts`) e della finestra staccata
-// (`assistantWindow.ts`), il menu del contesto. «Riattacca» sta qui con la
+// (`assistantWindow.tsx`), il menu del contesto. «Riattacca» sta qui con la
 // frase che lo cita fra virgolette.
 
 import { catalogo, perNumero } from '#core/i18n/index.js'

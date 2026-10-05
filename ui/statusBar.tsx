@@ -171,9 +171,9 @@ function vociDelLavoro (): ReactElement[] {
   return voci
 }
 
-// testo-fisso: identificatore interno della scheda corso di `views/todo.ts`
+// testo-fisso: identificatore interno della scheda corso di `views/todo.tsx`
 const schedaDelCorso = (id: string) => `corso:${id}`
-// testo-fisso: identificatore interno della scheda classe di `views/todo.ts`
+// testo-fisso: identificatore interno della scheda classe di `views/todo.tsx`
 const schedaDellaClasse = (id: string) => `classe:${id}`
 
 /**

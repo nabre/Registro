@@ -1,4 +1,4 @@
-// I testi della scheda dei calendari ufficiali (`settings/officialCalendars.ts`).
+// I testi della scheda dei calendari ufficiali (`settings/officialCalendars.tsx`).
 // Nomi delle chiusure e descrizione della fonte vengono dal calendario generato
 // così come sono scritti nei PDF: sono dati, non si traducono.
 

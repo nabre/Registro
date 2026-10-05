@@ -1,4 +1,4 @@
-// I testi delle carte intestate (`settings/letterhead.ts`); li usa anche
+// I testi delle carte intestate (`settings/letterhead.tsx`); li usa anche
 // `letterheadCourses.ts`, che nomina i corsi senza DOM.
 
 import { catalogo } from '#core/i18n/index.js'

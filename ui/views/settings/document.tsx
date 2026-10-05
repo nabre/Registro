@@ -1,5 +1,5 @@
 // Quel che sta dentro il documento d'anno: la scala dei voti. La
-// giornata sta in `settings/schoolDay.ts`, che usa da qui il salvataggio e i
+// giornata sta in `settings/schoolDay.tsx`, che usa da qui il salvataggio e i
 // lettori dei campi.
 // Queste impostazioni viaggiano con il `.regi`. Si salvano appena si tocca un
 // campo. I campi disegnati con i controlli condivisi (`CampoAnno`) dicono

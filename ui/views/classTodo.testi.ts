@@ -1,4 +1,4 @@
-// I testi del lavoro aperto di una classe (`classTodo.ts`).
+// I testi del lavoro aperto di una classe (`classTodo.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

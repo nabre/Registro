@@ -1,6 +1,5 @@
-// Il calendario ICS si legge fuori dal disegno, su Chromium: quel che provava
-// `tests/ui/externalCalendarLoading.test.mjs` con ponte e stato finti,
-// sull'app vera e guardando solo i messaggi al ponte.
+// Il calendario ICS si legge fuori dal disegno, su Chromium: sull'app vera,
+// guardando solo i messaggi al ponte.
 //
 //   1. entrando nel calendario parte una lettura sola (`calendario.eventi`),
 //      anche se la pagina si ridisegna più volte prima della risposta, e

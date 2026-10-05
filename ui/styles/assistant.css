@@ -46,7 +46,7 @@
 }
 
 /*
- * L'isola del riquadro e il suo involucro di telaio (`ui/assistant.ts`) non
+ * L'isola del riquadro e il suo involucro di telaio (`ui/assistant.tsx`) non
  * sono scatole: testata e conversazione restano figli della colonna flessibile.
  */
 .riquadro-assistente__isola,
@@ -60,7 +60,7 @@
  * la ✕.
  *
  * Qui `.guscio--con-sidebar` non serve: col riquadro aperto e finestra stretta
- * la navigazione la tiene minimizzata `sidebarCostretta` in `ui/sidebar.ts`.
+ * la navigazione la tiene minimizzata `sidebarCostretta` in `ui/sidebar.tsx`.
  */
 @media (max-width: 64em) {
   .guscio--con-assistente {
@@ -239,7 +239,7 @@
 
 /*
  * La risposta è fatta di blocchi (paragrafi, elenchi, tabelle), stilati qui.
- * Niente di interpretato entra nella pagina: sono nodi costruiti da `answer.ts`.
+ * Niente di interpretato entra nella pagina: sono nodi costruiti da `answer.tsx`.
  *
  * Gli a capo restano solo dentro un paragrafo: una tabella con `pre-wrap`
  * andrebbe a capo dove il modello ha incolonnato.

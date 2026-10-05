@@ -1,4 +1,4 @@
-// I testi dei mattoni della pagina Documenti (`sheets.ts`).
+// I testi dei mattoni della pagina Documenti (`sheets.tsx`).
 // `nome` è il foglio detto in una frase, con il suo articolo: lo scrivono i
 // riquadri (`cards.testi.ts`).
 

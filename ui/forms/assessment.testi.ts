@@ -1,4 +1,4 @@
-// I testi di `forms/assessment.ts`: la finestra che corregge un momento di
+// I testi di `forms/assessment.tsx`: la finestra che corregge un momento di
 // valutazione, e il riquadro che dice da dove viene.
 
 import { catalogo } from '#core/i18n/index.js'

@@ -1,5 +1,5 @@
 // Il microfono: dal clic ai pezzi di voce che Whisper sa leggere, uno alla
-// volta mentre si parla. Tutto l'audio sta qui; `chat.ts` vede solo una presa
+// volta mentre si parla. Tutto l'audio sta qui; `chat.tsx` vede solo una presa
 // che consegna pezzi.
 //
 // A pezzi perché chi detta vuole vedere le parole mentre le dice, e voicebox

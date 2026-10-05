@@ -1,4 +1,4 @@
-// I testi di `forms/year.ts`: l'anno scolastico, i suoi due semestri e le
+// I testi di `forms/year.tsx`: l'anno scolastico, i suoi due semestri e le
 // pause — vacanze e giorni di chiusura — che la generazione dell'orario salta.
 
 import { catalogo } from '#core/i18n/index.js'

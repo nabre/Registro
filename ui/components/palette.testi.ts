@@ -1,4 +1,4 @@
-// I testi della palette di Ctrl+K (`palette.ts`). I nomi dei gruppi persone,
+// I testi della palette di Ctrl+K (`palette.tsx`). I nomi dei gruppi persone,
 // corsi e classi sono termini del registro: li dà `lessico()`.
 
 import { catalogo } from '#core/i18n/index.js'

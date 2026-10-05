@@ -1,4 +1,4 @@
-// I testi di `forms/calendar.ts`: il confronto con un calendario ICS, i mucchi
+// I testi di `forms/calendar.tsx`: il confronto con un calendario ICS, i mucchi
 // di voci da spuntare, le regole che abbinano gli eventi ai corsi.
 
 import { catalogo } from '#core/i18n/index.js'

@@ -1,4 +1,4 @@
-// I testi della sezione dell'anno scolastico (`settings/year.ts`).
+// I testi della sezione dell'anno scolastico (`settings/year.tsx`).
 
 import { catalogo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

@@ -1,6 +1,5 @@
-// La tastiera dell'editor del calendario, su Chromium: quel che provava
-// `tests/ui/calendarEditor.test.mjs` con documento e moduli finti, sull'app
-// vera e dall'esterno. Quel che dipende dai tempi:
+// La tastiera dell'editor del calendario, su Chromium, sull'app vera e
+// dall'esterno. Quel che dipende dai tempi:
 //
 //   1. Ctrl+Z con uno spostamento delle frecce in attesa: lo spostamento parte
 //      subito, prima dell'annulla, e il timer delle frecce non lo riscrive;

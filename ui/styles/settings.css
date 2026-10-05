@@ -410,7 +410,7 @@
 
 /* Le quattro schede della giornata, numerate nell'ordine in cui le misure si
    concatenano: il numero lo mette il contatore, e l'ordine sta solo in
-   `settings/schoolDay.ts`. */
+   `settings/schoolDay.tsx`. */
 .giornata-passi {
   counter-reset: passo-giornata;
   display: flex;

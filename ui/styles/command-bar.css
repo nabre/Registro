@@ -177,7 +177,7 @@
  * Il gruppo a segmenti: più interruttori di cui uno solo acceso
  * (Settimana/Mese/Anno, Tutte/Mie, Pianificata/Svolta/Annullata).
  *
- * Lo riconosce `aria-pressed`, che `commandBar.ts` mette sui comandi con stato:
+ * Lo riconosce `aria-pressed`, che `commandBar.tsx` mette sui comandi con stato:
  * un gruppo fatto solo di questi è una scelta fra valori, disegnata come
  * binario tenue con il segmento scelto sollevato. Un gruppo misto resta com'è.
  *

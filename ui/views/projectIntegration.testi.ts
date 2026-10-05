@@ -1,4 +1,4 @@
-// I testi di `views/projectIntegration.ts`: la pagina Integrazione progetti
+// I testi di `views/projectIntegration.tsx`: la pagina Integrazione progetti
 // della progettazione. Le parti del progetto che ha in comune con la pagina
 // Progetti (matrice, compiti, esiti) stanno in `projects.testi.ts`.
 

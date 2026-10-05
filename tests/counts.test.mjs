@@ -51,7 +51,7 @@ function gruppi () {
 }
 
 // Le viste del protocollo. L'assistente non è una vista: è un riquadro
-// (`ui/assistant.ts`).
+// (`ui/assistant.tsx`).
 const viste = () => varianti(sorgente('contract/protocol.ts'), 'Vista')
 
 describe('i conteggi che INDICE.md dichiara', () => {
