@@ -26,10 +26,10 @@ import { testi } from './archive.testi.js'
 import { Deposito, dentroIlDocumento } from './store.js'
 import { Storia, type EsitoStoria } from './history.js'
 import {
-  applicaInBozza,
   applicaInPosto,
   copiaDelle,
   inBozza,
+  inBozzeInFila,
   perCollezione,
   pesoDelle,
   sostituisciLeToccate,
@@ -1056,8 +1056,8 @@ export class Archivio implements apparato.Smaltitore {
 
   /**
    * Rimette nello stato un passo della storia e lo fa scrivere. Le patch vanno
-   * su una bozza, così se non combaciano lancia senza aver toccato niente, e le
-   * raccolte rimesse sono oggetti nuovi. Torna le patch che rifanno quel che ha
+   * su bozze (`inBozzeInFila`), così se non combaciano lancia senza aver
+   * toccato niente, e le raccolte rimesse sono oggetti nuovi. Torna le patch che rifanno quel che ha
    * disfatto. Non passa da `modifica`: le versioni le rimette la storia, e un
    * annulla non va in pila. Niente normalizzazione: le patch vengono da uno
    * stato già normalizzato.
@@ -1065,10 +1065,12 @@ export class Archivio implements apparato.Smaltitore {
   private rimetti (inverse: Map<NomeCollezione, Patch[]>): Map<NomeCollezione, Patch[]> {
     // La cartella di un anno sta nel documento, non nei dati del gesto.
     const cartelle = new Map(this.stato.anni.map((a) => [a.id, a.cartella]))
-    const { nuovo, patch, inverse: indietro } = inBozza(this.stato, (bozza) => {
-      applicaInBozza(bozza, [...inverse.values()].flat())
+    const vivo = dichiarazioneSevera() ? JSON.stringify(this.stato) : null
+    const tutte = [...inverse.values()].flat()
+    const { nuovo, patch, inverse: indietro } = inBozzeInFila(this.stato, tutte, (bozza) => {
       if (inverse.has('registro')) tieniLeCartelle(bozza, cartelle)
     })
+    if (vivo !== null) controllaVivo(vivo, this.stato)
     // Qui non in posto: chi confronta prima e dopo un annulla guarda l'identità
     // delle raccolte (`core/azioni/history.ts`).
     sostituisciLeToccate(this.stato, nuovo, patch)
