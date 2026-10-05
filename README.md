@@ -149,7 +149,8 @@ npm run dev        # esbuild in ascolto, app avviata, ricarica a caldo
 | `npm start` | Compila e avvia, senza ascolto; può girare insieme a `npm run dev`, che parte come «Regiklass-dev» con dati suoi |
 | `npm test` | Le prove con `node --test` |
 | `npm run typecheck` · `npm run lint` | TypeScript e ESLint |
-| `npm run layers` · `census` · `collections` · `forms` · `buttons` · `procedures` · `docs` | I controlli d'architettura scritti in casa |
+| `npm run layers` · `census` · `collections` · `forms` · `buttons` · `procedures` · `i18n` · `docs` | I controlli d'architettura scritti in casa |
+| `npm run knip` · `licenze` | Export, file e dipendenze inutilizzati; licenze delle dipendenze |
 | `npm run ui-tests` | Le prove dell'interfaccia su Chromium |
 | `npm run ci` | I passi della CI, letti da `verifica.yml` ed eseguiti in locale |
 | `npm run clean` | Butta i bundle e le cache, quando si sospetta qualcosa di vecchio |

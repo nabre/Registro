@@ -5,8 +5,9 @@ description: Come si scrive un pezzo d'interfaccia di Regiklass in React (ADR-56
 
 # Interfaccia in React
 
-Il perché: ADR-56 in `docs/DECISIONI.md`; com'è stata fatta la conversione:
-`docs/PIANO-REACT.md`. Qui: come si scrive.
+Il perché: ADR-56 in `docs/DECISIONI.md`; i cambi di comportamento della
+conversione ancora da confermare: `docs/PIANO-REACT.md`; la conversione stessa
+sta nella storia di git. Qui: come si scrive.
 
 ## Come gira
 
@@ -130,6 +131,50 @@ così come sono.
 - `contesto.corpo` esiste dal primo disegno in poi: non usarlo mentre si disegna.
 - Tutte le modali stanno in una pila (Escape, Tab, `chiudiTutte` al cambio
   di documento).
+
+## Comportamenti da non perdere
+
+Toccando il guscio, lo stato o un pezzo condiviso, queste prove dicono se un
+comportamento trasversale è rimasto. Una prova da cambiare è un comportamento
+cambiato (D2): si cambia solo per un dettaglio d'implementazione, col motivo
+nel commit.
+
+| Comportamento | Dove vive | Prova |
+| --- | --- | --- |
+| Posto, `vai`, `completa`, ripieghi | `ui/place.ts`, `ui/state.ts` | `tests/ui/posto.test.mjs` |
+| Storia indietro/avanti con scorrimenti | `ui/history.ts` | `navigation`, `movimento` |
+| Memoria per documento | `ui/memory.ts` | `tests/ui/memoria.test.mjs` |
+| Segnalibri di scorrimento | `ui/bookmark.ts` | `tests/ui/segnalibri.test.mjs` |
+| Scorciatoie (Alt+frecce, Ctrl+K/B/Z/Y/1…9, tasti del mouse) | `ui/shortcuts.ts` | `settingsKeyboard`, `navigation`, `gesti` (annulla e ripristina) |
+| Clic in volo (pulsante spento, `aria-busy`) | `ui/commandBar.tsx`, `ui/components/inFlight.ts` | `clicInVolo`, `check` |
+| Differenze dall'host, stato intero al buco | `ui/statePatches.ts` | `tests/ui/statePatches.test.mjs`, `tests/panels/stateDifferences.test.mjs` |
+| Cambio documento: modali chiuse, storia azzerata, posto ripristinato | `ui/main.tsx` `ricevoStato` | `informazioniDocumento` |
+| Orologio: riga di adesso al minuto, giorno nuovo senza rompere un trascinamento | `ui/clock.ts`, `avviaOrologio` in `ui/state.ts` | `tests/ui/aggiorna.test.mjs` |
+| Mira della proiezione e contesto dell'assistente a ogni cambio di posto | `ui/main.tsx` (iscritti) | `gesti` |
+| Rete in linea/fuori linea | `avviaRete` in `ui/state.ts` | `gesti` |
+| Quattro lingue | cataloghi `*.testi.ts` | `lingue`, `npm run i18n` |
+| Chiaro/scuro, contrasto | `ui/styles/theme.css` | `accessibility`, `calendarContrast`, `themeChoice` |
+| Modali: Esc, Tab dentro, Invio, pila, errori dell'host | `ui/components/modal.tsx` | `modalErrors`, `modaleOccupata`, `moduli` |
+| Finestre virtuali (voti, archivio, persone) | `ui/components/virtualList.tsx` | `misure`, `persone`, `tabelle` |
+| Iframe e PDF che non si ricaricano, cursore e scorrimento che restano | `key` = sorgente, struttura fissa | `stabilita`, `riquadri`, `documentiRiquadri`, `sfoglioIsole` |
+| Animazione d'entrata della pagina | `segnaEntrata` in `ui/main.tsx` | `telaioVista` |
+| CSP `default-src 'none'` | `desktop/pannelli/page.ts` | nessun `eval`, `style={}` dal CSSOM, nessun `<style>` iniettato |
+
+I nomi senza percorso sono spec di `tests/interfaccia/`.
+
+### Dove si rompe più facilmente
+
+- **Prestazioni.** Ogni `aggiorna` ridisegna tutto l'albero: una vista pesante
+  si tiene sotto le soglie di `tests/interfaccia/misure.spec.ts` (ridisegno
+  ≤ 50 ms o ≤ 3× la tabella corta). Se non basta, selettori memoizzati per
+  collezione: il registro cambia identità solo dove immer l'ha toccato.
+- **Niente API concorrenti** (`startTransition`, `Suspense` per i dati) finché
+  `derivato()` di `ui/state.ts` sostituisce `stato.registro` con un Proxy
+  durante il calcolo: regge solo con un disegno sincrono.
+- **La firma** (`ui/views/settings/signature.tsx`) è `contenteditable` non
+  controllato: ref e sanificazione all'uscita, mai il valore riscritto da React.
+- **Trascinamenti** (ore, pagine, loghi): puntatore catturato in un effetto e
+  ascoltatori nativi sul nodo con ref, non eventi sintetici.
 
 ## Scrivere un file
 

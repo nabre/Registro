@@ -148,7 +148,7 @@ gli indirizzi (`area#sezione`): quelli di prima si riportano in
 | Che cosa mostra | tutte e quattro le aree | Utente › Posta e Programma; Calendario e Didattica dicono che stanno nel file |
 
 I controlli sono **gli stessi** (ADR-52): `core/controlli/control.tsx` sceglie il
-disegno dalla `VoceProgramma`, `field.ts` fa lo stesso per i campi dell'anno.
+disegno dalla `VoceProgramma`, `field.tsx` fa lo stesso per i campi dell'anno.
 `core/controlli/` importa solo `core/i18n`, le parole comuni e i tipi di
 `contract/` (`npm run layers`).
 

@@ -1,9 +1,10 @@
 # Piano: pagine impostazioni
 
-Stato: **approvato** 2026-09-29 (§ 8 chiuso). In lavorazione per fasi (§ 7). Fonte: giro di sciame 2026-09-28, quattro
-esplorazioni parallele (programma, documento, navigazione e doppioni, controlli).
-Ogni riga cita il posto nel codice; i dettagli di lettura stanno nel codice, non
-qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
+Stato: **fatto** (tutte le fasi del § 7; § 8 chiuso il 2026-09-29). Fonte: giro
+di sciame 2026-09-28, quattro esplorazioni parallele (programma, documento,
+navigazione e doppioni, controlli). Gli inventari (§§ 4–5) fotografano il punto
+di partenza; le chiavi di oggi stanno in [CATALOGO](CATALOGO.md) § 5. Il
+sistema del § 3 è quello in vigore, e il codice lo cita.
 
 ## 1. Problemi, in breve
 
@@ -14,7 +15,7 @@ qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
 - Ambito detto a metà: pastiglia «file» solo su riga 2 (Liste non la mostra mai), nessuna pastiglia «computer».
 - Stessa scelta in più posti: modelli `.gguf` (6), cartella modelli (2), posta (scheda, Ctrl+K, menu nativo), account Microsoft vs posta, OneDrive (3 porte), materie (impostazioni e Corsi), tipi di settimana (Liste e Anno).
 - Finestra nativa diversa dal pannello: 13 gruppi con altri nomi, valori grezzi (`tel`, `outlookWeb`), niente avanzate, posta modificabile a mano, figure copiate a mano.
-- Controlli: testo libero dove c'è una scelta; unità in etichetta o assenti; `passo:'any'` sui minuti; tendine con frasi intere come opzioni; controlli senza nome accessibile (`program.ts:88,106,128`), checkbox col nome «Acceso».
+- Controlli: testo libero dove c'è una scelta; unità in etichetta o assenti; `passo:'any'` sui minuti; tendine con frasi intere come opzioni; controlli senza nome accessibile (`program.tsx`), checkbox col nome «Acceso».
 - Conferme e riscontri incoerenti fra schede (toast sì/no, conferma sì/no/pericolo).
 
 ## 2. Guasti trovati (da correggere per primi)
@@ -22,14 +23,14 @@ qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
 | # | Guasto | Dove | Stato |
 |---|---|---|---|
 | G0 | Ogni salvataggio da scala, giornata, liste, firma cancellava appellativo/nome/cognome | `ui/views/settings/document.tsx` `intestazioneDaSalvare`; rete in `core/azioni/system.ts` `partiDelNome` | **fatto**, prova in `tests/api/writes.test.mjs` |
-| G1 | Dogana `formato:'modello'` vuole un percorso assoluto, il valore giusto è un nome nudo: rifiuta il giusto, accetta e ignora il sbagliato | `desktop/apparato/settings.ts:350`, `core/dati/gguf.ts:228` | **fatto**: `nomeDiModello` in `core/dati/ggufName.ts`, prova in `tests/environment/settings.test.mjs` |
-| G2 | Il filtro mostra `ocr.modello`, `ocr.proiettore`, `assistente.modello` come testo libero | `sections.ts` `vociMostrateDaSezione`, `program.ts` `controllo` | **fatto**: sola lettura + «Scegli in Modelli linguistici» (`program.ts` `campoModello`), il filtro si svuota |
-| G3 | «Lettura spenta» in Da smistare apre la finestra nativa, dove il modello non si sceglie: vicolo cieco | `core/azioni/sorting.ts:592` | **fatto**: `vista.apri` su `modelliLinguistici`, prova in `tests/api/conduitGuards.test.mjs` |
-| G4 | Etichetta delle avanzate «Programmi già installati (n)» su ogni sezione | `program.ts:308`, `program.testi.ts:33` | **fatto**: «Avanzate (n)», guida aggiornata |
-| G5 | Nativa: `posta.utente`/`posta.mittente` modificabili e ritirabili; `avanzata` ignorata | `desktop/shell/pages/settings/settings.tsx:420` e `:586` | **fatto**: `CHIAVI_DEL_COLLEGAMENTO` in `contract/manifest.ts`, `VoceProgramma.delCollegamento`; avanzate in `<details>` |
-| G6 | `assistente.modello` non bloccato dal condotto (`ocr.modello` sì) | `desktop/transports/conduit.ts:443` | **fatto**, prova in `tests/api/conduitGuards.test.mjs` |
+| G1 | Dogana `formato:'modello'` vuole un percorso assoluto, il valore giusto è un nome nudo: rifiuta il giusto, accetta e ignora il sbagliato | `desktop/apparato/settings.ts`, `core/dati/gguf.ts` | **fatto**: `nomeDiModello` in `core/dati/ggufName.ts`, prova in `tests/environment/settings.test.mjs` |
+| G2 | Il filtro mostra `ocr.modello`, `ocr.proiettore`, `assistente.modello` come testo libero | `sections.ts` `vociMostrateDaSezione`, `program.tsx` `controllo` | **fatto**: sola lettura + «Scegli in Modelli linguistici» (`program.tsx` `campoModello`), il filtro si svuota |
+| G3 | «Lettura spenta» in Da smistare apre la finestra nativa, dove il modello non si sceglie: vicolo cieco | `core/azioni/sorting.ts` | **fatto**: `vista.apri` su `modelliLinguistici`, prova in `tests/api/conduitGuards.test.mjs` |
+| G4 | Etichetta delle avanzate «Programmi già installati (n)» su ogni sezione | `program.tsx`, `program.testi.ts` | **fatto**: «Avanzate (n)», guida aggiornata |
+| G5 | Nativa: `posta.utente`/`posta.mittente` modificabili e ritirabili; `avanzata` ignorata | `desktop/shell/pages/settings/settings.tsx` | **fatto**: `CHIAVI_DEL_COLLEGAMENTO` in `contract/manifest.ts`, `VoceProgramma.delCollegamento`; avanzate in `<details>` |
+| G6 | `assistente.modello` non bloccato dal condotto (`ocr.modello` sì) | `desktop/transports/conduit.ts` | **fatto**, prova in `tests/api/conduitGuards.test.mjs` |
 | G7 | `avvio.soloVassoio` senza `dipendeDa vassoio.attivo`; `dettatura.attivo` senza `dipendeDa assistente.attivo` (il programma le rispetta, la pagina no) | `contract/manifest.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
-| G8 | Vecchie chiavi posta (`server`, `porta`, `autenticazione`, `clientId`, `tenant`) non in `CHIAVI_DISMESSE` | `contract/manifest.ts:385`, `core/dati/mail.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
+| G8 | Vecchie chiavi posta (`server`, `porta`, `autenticazione`, `clientId`, `tenant`) non in `CHIAVI_DISMESSE` | `contract/manifest.ts`, `core/dati/mail.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
 
 ## 3. Sistema proposto
 
@@ -79,7 +80,7 @@ Area di partenza: l'ultima aperta, alla sezione dove si era.
 
 ### 3.4 Filtro unico
 
-Un filtro in testata per i due ambiti (voci del documento comprese), risultati per area con pastiglia d'ambito. Stessa sorgente per Ctrl+K (specie «Impostazioni»: oggi Ctrl+K non trova «tema» né «lingua», `palette.ts:29`).
+Un filtro in testata per i due ambiti (voci del documento comprese), risultati per area con pastiglia d'ambito. Stessa sorgente per Ctrl+K (specie «Impostazioni»: prima Ctrl+K non trovava «tema» né «lingua», `palette.tsx`).
 
 ### 3.5 Regola del tipo di input
 
@@ -93,7 +94,7 @@ Ordine di preferenza; il testo libero solo per ultimo.
 6. **File o cartella** — una sola resa: percorso, Sfoglia, verifica (esiste? scrivibile?), Apri.
 7. **Testo libero** — solo nomi propri, indirizzi, URL. Validazione in linea.
 
-Nel manifesto: `controllo?: 'segmenti' | 'tendina' | 'cursore'`, `unita`, `passo`, `figura`, `scelteDinamiche` + `sceltaLibera`, `formato: 'ora' | 'colore'`. Viaggiano in `VoceProgramma` (`contract/protocol.ts`); un solo `controllo()` per pannello e nativa. Codice DOM condiviso fra le due superfici: serve una decisione (ADR), vedi `core/i18n/flags.ts` come precedente.
+Nel manifesto: `controllo?: 'segmenti' | 'tendina' | 'cursore'`, `unita`, `passo`, `figura`, `scelteDinamiche` + `sceltaLibera`, `formato: 'ora' | 'colore'`. Viaggiano in `VoceProgramma` (`contract/protocol.ts`); un solo `<Controllo>` (`core/controlli/control.tsx`) per pannello e nativa (ADR-52).
 
 ### 3.6 Coerenza di comportamento
 
@@ -102,7 +103,7 @@ Nel manifesto: `controllo?: 'segmenti' | 'tendina' | 'cursore'`, `unita`, `passo
 - Togliere: conferma solo se si perde qualcosa che non torna; per il resto «Annulla» nella notifica. Stessa regola in tutte le schede.
 - Correzioni dell'host (valore raddrizzato): sempre dette accanto al campo.
 
-## 4. Inventario: impostazioni del programma (32 chiavi)
+## 4. Inventario: impostazioni del programma (al 2026-09-28)
 
 Legenda stato: ✅ ok · ⚠️ da cambiare · 🔁 doppione · 🔗 catena da rivedere.
 
@@ -141,7 +142,7 @@ Legenda stato: ✅ ok · ⚠️ da cambiare · 🔁 doppione · 🔗 catena da r
 | `api.lettura` | interruttore figlio | 🔗 | assorbita | — |
 | `api.scrittura` | interruttore figlio | 🔗 | assorbita | — |
 
-Da sapere: nessuna chiave morta (tutte lette). Lette ma non dichiarate: `assistente.proiettore`, `assistente.programma` (`core/dati/llm.ts:177` e `:183`, sempre vuote). Stato nel file fuori manifesto: `registroDocenti.ultimoDocumento`, `cartellaLavoro` (da spostare in `userData/interfaccia/`).
+Da sapere: nessuna chiave morta (tutte lette). Lette ma non dichiarate: `assistente.proiettore`, `assistente.programma` (`core/dati/llm.ts`, sempre vuote). Stato nel file fuori manifesto: `registroDocenti.ultimoDocumento`, `cartellaLavoro` (da spostare in `userData/interfaccia/`).
 
 ## 5. Inventario: impostazioni dell'anno (documento)
 
@@ -204,12 +205,12 @@ Ogni fase: perimetri di file disgiunti, verifica `npm run ci -- --solo verifica`
 
 | Fase | Contenuto | Perimetri paralleli |
 |---|---|---|
-| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifest.ts` + `desktop/transports/conduit.ts` (G6–G8) |
+| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/views/settings/sections.ts`, `program.tsx` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifest.ts` + `desktop/transports/conduit.ts` (G6–G8) |
 | **1 Contratto dei controlli** ✅ | campi manifesto (`controllo`, `unita`, `passo`, `figura`, `scelteDinamiche`, `formato ora/colore`), `VoceProgramma`, `vociImpostazioni()`, dogana; ADR del DOM condiviso | uno solo (contratto) |
-| **2 Controlli** ✅ | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `controllo()` unico | A: componenti pannello · B: nativa |
-| **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`place.ts` · B: palette · C: stili |
+| **2 Controlli** ✅ | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `<Controllo>` unico | A: componenti pannello · B: nativa |
+| **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.tsx`/`sections.ts`/`place.ts` · B: palette · C: stili |
 | **4 Aree** ✅ | Calendario · Didattica · Utente · Programma | uno per area (file separati per sezione) |
-| **5 Fuori** ✅ (voce nel menu nativo: cantiere) | «Informazioni documento», Materie in Corsi, anni in File, nativa come scialuppa | A: File/menu · B: Corsi · C: nativa |
+| **5 Fuori** ✅ | «Informazioni documento», Materie in Corsi, anni in File, nativa come scialuppa | A: File/menu · B: Corsi · C: nativa |
 | **6 Guida e documenti** ✅ | `help/settings*`, CATALOGO, skill `impostazione` (superata: sezioni, nativa, `pagina`) | uno |
 
 Migrazioni necessarie: condotto (3 chiavi → 1), promemoria (2 → 1, facoltativo), programma OCR (2 → 1), dettatura indirizzo → porta. Tutte programma (`impostazioni.json`), non documento: `CHIAVI_DISMESSE` + lettura del vecchio valore al primo avvio.

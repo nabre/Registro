@@ -119,7 +119,7 @@ flowchart TB
 | Proiezione | [desktop/pannelli/projection.ts](../desktop/pannelli/projection.ts) | sì | false | bundle separato, riceve solo i blocchi accesi |
 | Assistente | [desktop/pannelli/assistant.ts](../desktop/pannelli/assistant.ts) | sì | false | non riceve il `Registro` (API § 9) |
 | Benvenuto | [desktop/shell/windows/welcome.ts](../desktop/shell/windows/welcome.ts) | sì | false | elenco degli anni noti |
-| Impostazioni | [desktop/shell/windows/menu.ts](../desktop/shell/windows/menu.ts) | sì | false | la scialuppa senza anno aperto: Utente › Posta e Programma; pagina in bundle esbuild ([settings.ts](../desktop/shell/pages/settings/settings.tsx)) |
+| Impostazioni | [desktop/shell/windows/menu.ts](../desktop/shell/windows/menu.ts) | sì | false | la scialuppa senza anno aperto: Utente › Posta e Programma; pagina in bundle esbuild ([settings.tsx](../desktop/shell/pages/settings/settings.tsx)) |
 | Lettore PDF | [desktop/shell/windows/reader.ts](../desktop/shell/windows/reader.ts) | **no** | **true** | muto: lettore di Chromium |
 | Dialogo | [desktop/apparato/dialogs.ts](../desktop/apparato/dialogs.ts) | sì | false | parametri nella query string |
 
@@ -249,13 +249,14 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   di adesso.
 - **`core/controlli/`** — i controlli delle impostazioni del programma, disegnati
   una volta per il pannello e per la finestra nativa (ADR-52):
-  [control.ts](../core/controlli/control.tsx) sceglie dalla `VoceProgramma`
+  [control.tsx](../core/controlli/control.tsx) sceglie dalla `VoceProgramma`
   figura, segmentato, tendina, interruttore, numero con unità, cursore,
-  percorso; [field.ts](../core/controlli/field.tsx) gli stessi disegni per i
+  percorso; [field.tsx](../core/controlli/field.tsx) gli stessi disegni per i
   campi dell'anno; [areas.ts](../core/controlli/areas.ts) le quattro aree, le
   sezioni con chiavi (`DIVISIONI`, `divisioneDi`) e i loro nomi, comuni al
-  pannello e alla finestra nativa. DOM passato come argomento, niente ponte: il
-  valore esce da `quandoCambia`. Lo importano `ui/` e `desktop/shell/pages/`.
+  pannello e alla finestra nativa. Sono componenti React (`<Controllo>`,
+  `<Campo>`, ADR-56), niente ponte: il valore esce da `quandoCambia`. Lo
+  importano `ui/` e `desktop/shell/pages/`.
 - **`cli/`** — la riga di comando autonoma: `regi`, disinstallazione, esportazioni
   senza interfaccia grafica.
 

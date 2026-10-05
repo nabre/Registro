@@ -69,15 +69,20 @@ La CI esegue questi controlli a ogni push, e una PR entra solo se passano tutti:
 npm run typecheck
 npx eslint .
 npm test
-npm run layers && npm run census && npm run collections
-npm run forms && npm run buttons && npm run procedures
+npm run layers && npm run census && npm run knip && npm run licenze
+npm run collections && npm run forms && npm run buttons && npm run procedures
 npm run i18n -- --severo && npm run docs
 ```
+
+In più, su job separati, le prove dell'interfaccia (`npm run ui-tests`) e una
+costruzione con la prova del fumo.
 
 Gli otto controlli scritti in casa verificano regole che TypeScript non vede:
 nessun import attraversa uno strato, nessun export resta inutilizzato, ogni
 campo di un modulo viene salvato, nessun testo per chi legge sta fuori da un
-catalogo, i documenti citano file che esistono. Quando uno fallisce, l'uscita dice dove. `npm run ci` esegue in
+catalogo, i documenti citano file che esistono. `knip` cerca export, file e
+dipendenze inutilizzati; `licenze` vuole licenze permissive su tutto l'albero
+delle dipendenze (ADR-50). Quando uno fallisce, l'uscita dice dove. `npm run ci` esegue in
 locale gli stessi passi della CI, letti da `.github/workflows/verifica.yml`.
 
 ## Commit e versioni

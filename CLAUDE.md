@@ -63,6 +63,10 @@ Apri la skill pertinente prima di intervenire:
   compatibilità dei documenti `.regi`.
 - `.claude/skills/testi/SKILL.md`: qualsiasi testo visibile o traduzione; le
   lingue sono italiano, tedesco, francese e inglese.
+- `.claude/skills/react/SKILL.md`: qualsiasi file che disegna in `ui/`,
+  `core/controlli/` o `desktop/shell/pages/`: componenti, campi, modali, hook.
+- `.claude/skills/prove/SKILL.md`: aggiungere, ridurre o riordinare le prove
+  senza perdere garanzie.
 - `.claude/skills/verifica/SKILL.md`: verifica finale e lettura dei controlli.
 - `.claude/skills/sciame/SKILL.md`: lavori larghi con agenti o perimetri
   paralleli disgiunti.

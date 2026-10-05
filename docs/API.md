@@ -766,7 +766,7 @@ usaAttrezzo()                    chiama la procedura
   esteso, mai un id. I risultati stanno **sotto** la bolla e restano anche se la
   risposta non arriva.
 - Il testo del modello: `ui/assistant/format.ts` lo divide in blocchi
-  (paragrafi, elenchi, titoletti, tabelle), `answer.ts` li costruisce;
+  (paragrafi, elenchi, titoletti, tabelle), `answer.tsx` li costruisce;
   **nessun HTML** interpretato. Prova `tests/ui/answerFormat.test.mjs`.
 - Mentre si aspetta si vedono gli attrezzi con il loro nome vero: una risposta
   senza attrezzi sotto non viene dal registro.

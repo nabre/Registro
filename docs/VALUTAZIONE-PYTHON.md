@@ -32,10 +32,12 @@ ragionevole in Python: strumenti di sviluppo isolati, come già
 - Prove: 236 file `node:test` con **~3 200 casi**; 44 file Playwright con **~83
   casi** sull'app vera (`tests/interfaccia/`); prove per proprietà
   (fast-check), mutanti (Stryker), campioni del formato `tests/samples/formato/`.
-- Contratto: 226 procedure, 184 azioni (`docs/INDICE.md`), JSON Schema per
-  ognuna, catalogo `resources/tools.json` per CLI e assistente.
-- Dipendenze di programma: `electron-updater`, `node-llama-cpp`, `immer`,
-  `idiomorph`, `valibot`, `@tanstack/virtual-core`. In bundle (dev): `@cantoo/pdf-lib`,
+- Contratto: al 2026-10-01, 226 procedure e 184 azioni (i conti di oggi in
+  `docs/INDICE.md`), JSON Schema per ognuna, catalogo `resources/tools.json`
+  per CLI e assistente.
+- Dipendenze di programma, oggi: `electron-updater`, `node-llama-cpp`, `immer`,
+  `react`, `react-dom` (ADR-56, che ha tolto `idiomorph`), `valibot`,
+  `@tanstack/virtual-core`. In bundle (dev): `@cantoo/pdf-lib`,
   `pdfjs-dist`. ZIP, OAuth, SMTP, JSON-RPC, i18n: scritti in casa.
 - Controlli statici propri: layers, census, collections, forms, buttons,
   procedures, docs, i18n, licenze.

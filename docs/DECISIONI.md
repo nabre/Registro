@@ -528,7 +528,7 @@ omonimi da dichiarare). Il come: skill `testi`.
 - Navigazione: **Dashboard** (vista `oggi`, solo collegamenti, ADR-07), barra
   laterale a pillola, ricerca in vista (Ctrl+K) con persone, corsi e classi,
   indietro/avanti (`ui/history.ts`), Ctrl+1…9.
-- Nessuna libreria per l'aspetto; icone mancanti da Lucide (ISC) in `icons.ts`.
+- Nessuna libreria per l'aspetto; icone mancanti da Lucide (ISC) in `icons.tsx`.
 
 **Vincoli.** Un token nuovo va in tutte e due le tavolozze e, se lo usa la
 miniatura del tema, nei blocchi `[data-tema-figura]`
@@ -724,8 +724,8 @@ ripristina in `ricevoStato`, dopo l'arrivo dei dati e prima di `proiezione.mira`
 telaio stabile: i nodi `data-telaio` lungo la catena dalla radice (guscio, contenuto,
 radice della vista, contenitori che scorrono) restano e cambiano solo i figli. Una
 lettura asincrona (anteprima, PDF, CSV, miniature, risposta dell'host, avanzamento di
-un'operazione) rifà solo l'**isola** che la mostra (`isola`/`ridisegnaIsola` in
-`ui/islands.ts` e `<Isola>` in `ui/island.tsx`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
+un'operazione) rifà solo l'**isola** che la mostra (`<Isola>` in `ui/island.tsx`,
+`ridisegnaIsola` in `ui/islands.ts`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
 (`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) sono componenti con
 la sorgente per `key` e non si ricreano finché la sorgente non cambia. L'orologio
 muove solo ciò che segna l'ora (`clock.ts`, `alMinuto`). Nessun ridisegno e
@@ -796,10 +796,10 @@ tutti questi criteri, scritti qui perché ogni proposta futura abbia la stessa r
    docente: si adotta con larghezza. Una del programma deve togliere più codice di
    quanto ne porta, e non toccare il formato `.regi` né la rete.
 3. **Dietro un confine già nostro.** Entra sotto un contratto che c'è già
-   (`~standard` degli schemi, `modifica` dell'archivio, `aggiornaElemento` del DOM,
-   le funzioni di `dates.ts`): chi usa quel confine non cambia.
+   (`~standard` degli schemi, `modifica` dell'archivio, le funzioni di
+   `dates.ts`): chi usa quel confine non cambia.
 4. **Niente sostituti di quel che è specifico.** Non entrano: framework d'interfaccia
-   (React, Vue, Svelte), tRPC, zod, librerie ZIP (JSZip & co.: l'aggiunta
+   (Vue, Svelte; React sì, ADR-56), tRPC, zod, librerie ZIP (JSZip & co.: l'aggiunta
    incrementale sicura al file è nostra), librerie i18n al posto del lessico.
 5. **La riga di comando resta nuda** (D10): niente di questo arriva in `cli/`.
 6. **Un passo alla volta**, con `npm run ci` verde dopo ognuno.
@@ -914,34 +914,34 @@ blocca l'apertura: tiene quel che c'era.
 `ui/forms/schoolCalendar.tsx`, `ui/views/settings/year.tsx`,
 `desktop/boot.ts`, `tests/api/officialCalendar.test.mjs`.
 
-### ADR-52 — Un disegno solo dei controlli delle impostazioni, per pannello e finestra nativa
+### ADR-52 — Un disegno solo dei controlli delle impostazioni, per pannello e finestra nativa (modificata da ADR-56)
 
 **Decisione.** Come si disegna una voce lo dice il manifesto: `controllo`
 (`segmenti`, `tendina`, `cursore`), `passo` (1 se assente: numeri interi),
 `unita`, `scelteDinamiche` con `sceltaLibera`. `vociImpostazioni()` li mette in
-`VoceProgramma`; `null` vuol dire «segui il tipo». Il codice DOM che ne fa un
-controllo sta in una cartella nuova, `core/controlli/…` (nasce in fase 2): un
-`controllo(voce, quandoCambia, documento)`
-e i suoi pezzi (segmentato, tendina, numero con unità, cursore, interruttore,
-percorso, figure di tema e lingua). Ci arrivano tutte e due le superfici per
-import: il pannello (`ui/`) e la finestra nativa, che è già un bundle esbuild
+`VoceProgramma`; `null` vuol dire «segui il tipo». Il componente che ne fa un
+controllo sta in `core/controlli/`: `<Controllo voce quandoCambia>` e i suoi
+pezzi (segmentato, tendina, numero con unità, cursore, interruttore, percorso,
+figure di tema e lingua); `<Campo spec quandoCambia>` disegna allo stesso modo
+i campi dell'anno. Ci arrivano tutte e due le superfici per import: il pannello
+(`ui/`) e la finestra nativa, che è già un bundle esbuild
 (`desktop/shell/pages/settings/settings.tsx` → `dist/settings.js`). Niente
 script generato.
 
-Regole della cartella, come `core/i18n/flags.ts`: elementi costruiti uno a
-uno, `documento: Document` come argomento, testi in `textContent`, mai
-`innerHTML`. Importa solo `core/i18n/`, le parole di tutti
+Regole della cartella: componenti React (ADR-56), testi come testo fra i tag o
+negli attributi, mai `innerHTML`; i nodi già fatti da `core/i18n/flags.ts`
+(bandiere e figure della lingua) entrano come nodi (`core/controlli/dom.tsx`).
+Importa solo `react`, `core/i18n/`, le parole di tutti
 (`core/dominio/words.testi.ts`, «Sfoglia…», come le pagine native) e tipi da
 `contract/`. Niente ponte, IPC, Node, Electron: il valore esce da
 `quandoCambia`, e ogni superficie lo manda per la sua strada; se torna una
 promessa con l'esito (`null` salvato, un testo il motivo della dogana) il
-controllo lo dice sotto il campo. I gestori si attaccano con `ascolta` (di
-serie `addEventListener`, nel pannello `gestisci`, che regge i ridisegni) e
-prendono il nodo da `currentTarget`. Un foglio `controls.css`, classi
-`controllo-*`, importato dai due fogli; le schede con la figura restano in
-`figure-choice.css`; i colori dalle variabili che le due pagine hanno già.
-La finestra nativa prende da `core/controlli/areas.ts` anche i nomi di aree e
-sezioni del pannello, che da `ui/` non vede.
+controllo lo dice sotto il campo. Il valore lo legge il `change` del browser
+(`core/controlli/fields.tsx`), non l'`onChange` di React. Un foglio
+`controls.css`, classi `controllo-*`, importato dai due fogli; le schede con la
+figura restano in `figure-choice.css`; i colori dalle variabili che le due
+pagine hanno già. La finestra nativa prende da `core/controlli/areas.ts` anche
+i nomi di aree e sezioni del pannello, che da `ui/` non vede.
 
 **Perché.** Due disegni divergono: la nativa mostrava modificabile quel che il
 pannello leggeva soltanto (G5), le figure del tema erano copiate a mano, il
@@ -964,14 +964,14 @@ segmentato con nomi lunghi diventa tendina.
 
 **Dove.** `contract/manifest.ts` (`Controllo`, `FonteScelte`), `contract/protocol.ts`
 (`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
-`numeroStorto`), `core/controlli/control.tsx`, `core/controlli/areas.ts`,
-`core/controlli/controls.css`, `ui/views/settings/program.tsx`,
+`numeroStorto`), `core/controlli/control.tsx`, `core/controlli/field.tsx`,
+`core/controlli/fields.tsx`, `core/controlli/areas.ts`, `core/controlli/controls.css`, `ui/views/settings/program.tsx`,
 `desktop/shell/pages/settings/settings.tsx`, `tests/ui/controlli.test.mjs`.
 
 ### ADR-53 — I nomi dei file in inglese
 
 **Decisione.** Il nome di un file sorgente è inglese, in camelCase, come già
-la maggioranza (`views/check.ts`, `core/dati/sorter.ts`). Il codice dentro
+la maggioranza (`views/check.tsx`, `core/dati/sorter.ts`). Il codice dentro
 resta italiano: nomi di dominio, funzioni, commenti. Fuori dalla regola: le
 cartelle (i nomi degli strati sono ruoli, ADR-02), il suffisso `.testi.ts`
 (ADR-38), i file di `contract/procedure/` (portano il nome della procedura,
@@ -1069,7 +1069,7 @@ pila sola. Menu, palette e notifiche si aprono con una chiamata e hanno anche
 loro una radice propria. I campi tengono la regola di prima: il valore dello stato entra
 solo quando cambia e il campo non ha il fuoco, e `onCambio` è il `change` del
 browser (`ui/fields.tsx`). Avvio e lettore PDF restano senza React. Come si
-scrive: skill `react`; il piano e l'avanzamento: [PIANO-REACT](PIANO-REACT.md).
+scrive: skill `react`; i cambi di comportamento ancora da confermare: [PIANO-REACT](PIANO-REACT.md).
 
 **Perché.** Il motore in casa (`h()`, telaio, isole, `data-tieni`, idiomorph,
 gestori per delega) rifaceva a mano quel che la riconciliazione fa da sé, e

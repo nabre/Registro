@@ -43,7 +43,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
                                 │ (solo core/dominio/, core/i18n/, core/controlli/)
 ┌───────────────────────────────┴──────────────────────────────────┐
 │                              ui/                                 │
-│  ui/ (views/, forms/, components/, bridge.ts, dom.ts)   │
+│  ui/ (views/, forms/, components/, bridge.ts, focus.ts)          │
 │  (webview Chromium, nessun accesso a Node né Electron)           │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -167,7 +167,7 @@ Alla webview è concesso importare solo funzioni pure di calcolo da `core/domini
 
 ### `core/controlli/`: il DOM condiviso dei controlli (ADR-52)
 
-I controlli delle impostazioni del programma (`controllo()` in `core/controlli/control.tsx`, le aree in `core/controlli/areas.ts`, il foglio `core/controlli/controls.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole, come `core/i18n/flags.ts`: `documento: Document` come argomento, elementi costruiti uno a uno, testo in `textContent`, niente ponte, IPC, Node o Electron; importa solo `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
+I controlli delle impostazioni del programma (il componente `<Controllo>` in `core/controlli/control.tsx`, `<Campo>` in `core/controlli/field.tsx` per i campi dell'anno, le aree in `core/controlli/areas.ts`, il foglio `core/controlli/controls.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole: componenti React (ADR-56, skill `react`), il valore esce da `quandoCambia`, mai `innerHTML` (i nodi di `core/i18n/flags.ts` entrano come nodi, `core/controlli/dom.tsx`), niente ponte, IPC, Node o Electron; importa solo `react`, `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
 
 ---
 
