@@ -80,7 +80,9 @@ after(() => smonta(radice, archivio))
 describe('la cartella completa, con un altro anno aperto a metà', () => {
   it('le schede dell’anno di prima non finiscono nel documento nuovo', async () => {
     const annoA = await apriAnno('A-2026-2027', '2026-09-01', '2027-06-30')
-    const { corso } = classeCon(annoA, 20)
+    // Tanti fogli che il giro duri più dell'apertura dell'altro anno (~100 ms
+    // di disco): i fogli non si copiano su disco, e ognuno costa pochi ms.
+    const { corso } = classeCon(annoA, 100)
 
     const semestreId = archivio.registro.anni[0].semestri[0].id
     const giro = api.esegui(archivio, { tipo: 'rapporto.completo', corsoId: corso.id, semestreId })

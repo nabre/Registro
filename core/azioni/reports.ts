@@ -392,6 +392,9 @@ export function scriviTutti (
     let scritti = 0
     const errori: string[] = []
     for (const preparato of da) {
+      // Un giro di eventi fra un foglio e l'altro: la composizione non tocca il
+      // disco, e senza una pausa vera il processo non risponde fino alla fine.
+      if (scritti > 0 || errori.length > 0) await cedi()
       // Un documento cambiato ferma tutta la fila.
       if (!ancora()) {
         return { scritti, errori: [testi().giroInterrotto, ...errori], interrotto: true }
@@ -405,6 +408,11 @@ export function scriviTutti (
     }
     return { scritti, errori, interrotto: false }
   })
+}
+
+/** Lascia passare un giro del ciclo degli eventi (timer, file, finestre). */
+function cedi (): Promise<void> {
+  return new Promise((risolvi) => { setImmediate(risolvi) })
 }
 
 export const rapporti = {
