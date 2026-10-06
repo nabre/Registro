@@ -46,6 +46,9 @@ tabella: sospensioni
 
 sezione: {{frase.voti-e-medie}}
 tabella: voti
+se: {{avvisoScale}}
+avviso: {{avvisoScale}}
+fine:
 
 sezione: {{frase.andamento}}
 grafico: andamento

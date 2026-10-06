@@ -398,7 +398,7 @@ dichiara: non si estende, c'è e basta.
 ```
 [frasi]
 presenze: Presenze
-appello-incompleto: Appello incompleto: {{udSenzaAppello}} caselle non impostate.
+appello-incompleto: Appello incompleto, caselle non impostate: {{udSenzaAppello}}.
 
 [colonne]
 UD seguite: Ore seguite

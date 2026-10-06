@@ -74,6 +74,10 @@ riquadro: {{frase.nota-semestre}}={{notaSemestre}}
 altrimenti:
 tabella: medie
 fine:
+# Prove su scale diverse non fanno una media: lo si dice invece di un trattino muto.
+se: {{avvisoScale}}
+avviso: {{avvisoScale}}
+fine:
 
 sezione: {{frase.le-prove}}
 tabella: prove

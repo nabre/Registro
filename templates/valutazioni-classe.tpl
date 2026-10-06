@@ -16,6 +16,10 @@ usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{materia}} · {{p
 
 sezione: {{frase.voti-e-medie}}
 tabella: voti
+# Prove su scale diverse non fanno una media: lo si dice invece di un trattino muto.
+se: {{avvisoScale}}
+avviso: {{avvisoScale}}
+fine:
 
 # La media della classe prova per prova, con la barra dal voto più basso al
 # più alto: la griglia sopra dice chi, questo dice come va il corso.
