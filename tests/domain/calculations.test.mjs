@@ -1126,7 +1126,9 @@ describe('le percentuali', () => {
     assert.equal(diario.tabelle.diario.righe.length, 2)
     assert.equal(diario.valori.quanti, '2')
     const presenze = datiPresenze(registro, corso, PERIODO)
-    assert.equal(presenze.valori.quanti, '2')
+    // «Lezioni a calendario» conta le stesse ore di «UD a calendario»: tutte
+    // quelle non annullate, anche le pianificate.
+    assert.equal(presenze.valori.quanti, '4')
     // La percentuale è quella dell'elenco a schermo, pianificate comprese.
     assert.match(presenze.elenchi.oltreSoglia[0], /assenza del 8,4% su 12 UD previste/)
   })

@@ -5,8 +5,6 @@ import {
   distribuzione,
   distribuzioneAPunti,
   formattaVoto,
-  mediaAllievo,
-  notaFineSemestre,
   nomeCompleto,
   ordinaAllievi,
 } from '#core/dominio/calculations.js'
@@ -27,7 +25,15 @@ import type {
 } from '#core/dominio/models.js'
 import type { Andamento, DatiRapporto } from '#core/dominio/reports.js'
 import { testi } from './reportData.testi.js'
-import { vuoto, colonne, comuni, periodoDi } from './common.js'
+import {
+  vuoto,
+  colonne,
+  comuni,
+  periodoDi,
+  righeDiClasse,
+  mediaStampata,
+  mediaDiClasse,
+} from './common.js'
 
 /**
  * Le valutazioni di un corso in un semestre: la griglia con le medie. Di un
@@ -55,6 +61,14 @@ export function datiValutazioni (
     periodo: etichettaSemestre(semestre),
     quanti: String(momenti.length),
   }
+
+  // Chi frequenta, e chi si è ritirato lasciando un voto o un recupero: la sua
+  // casella non sparisce, ma non entra nella media della classe.
+  const persone = righeDiClasse(classe, (allievo) =>
+    momenti.some((m) =>
+      m.voti.some((v) => v.allievoId === allievo.id) || rigaDelRecupero(m, allievo.id) !== null))
+  const mediaCorso = mediaDiClasse(registro, momenti, classe)
+  dati.valori.avvisoScale = mediaCorso.scaleDiverse ? t.avvisoScale : ''
 
   const giorno = oggi()
   // Tutti i recuperi delle prove del periodo: spiegano le caselle vuote.
@@ -85,31 +99,17 @@ export function datiValutazioni (
       c.notaSemestre,
     ]),
     pesi: [4, ...momenti.map(() => 2), 2, 2],
-    righe: (classe?.allievi ?? []).map((allievo) => {
+    righe: persone.map(({ allievo, nome }) => {
       const suoi = momenti.map((momento) => casella(momento, allievo.id))
       // Media e nota di pagella tutte e due, se no l'arrotondamento lo rifà a
       // mente chi legge.
-      const media = mediaAllievo(momenti, allievo.id)
-      const nota = notaFineSemestre(
-        media.media,
-        registro.impostazioni.scala,
-        registro.impostazioni.passoFineSemestre,
-      )
-      return [
-        nomeCompleto(allievo),
-        ...suoi,
-        media.media === null ? '' : media.media.toFixed(2),
-        nota === null ? '' : formattaVoto(nota),
-      ]
+      const { media, nota } = mediaStampata(registro, momenti, allievo.id)
+      return [nome, ...suoi, media, nota]
     }),
   }
 
   // L'andamento del corso: una prova dopo l'altra, la media della classe.
-  dati.grafici.andamento = andamentoCorso(
-    registro,
-    momenti,
-    mediaDelCorso(momenti, classe?.allievi ?? []),
-  )
+  dati.grafici.andamento = andamentoCorso(registro, momenti, mediaCorso.valore)
 
   // La stessa griglia con le date al posto dei voti: quando ognuno ha fatto la
   // prova e quando l'ha riavuta, le due cose che si contestano. Per chi ha
@@ -142,8 +142,8 @@ export function datiValutazioni (
     ]),
     // Colonne larghe: due date per esteso in ogni casella.
     pesi: [4, ...momenti.map(() => 4)],
-    righe: (classe?.allievi ?? []).map((allievo) => [
-      nomeCompleto(allievo),
+    righe: persone.map(({ allievo, nome }) => [
+      nome,
       ...momenti.map((momento) => {
         const fatta = esecuzione(momento, allievo.id)
         if (fatta === '') return ''
@@ -216,8 +216,9 @@ export function datiValutazioni (
     dati.tabelle.check = {
       ...colonne((c) => [c.pif, ...checkCorso.colonne.map((col) => col.titolo)]),
       pesi: [4, ...checkCorso.colonne.map(() => 2)],
-      righe: (classe?.allievi ?? []).map((allievo) => [
-        nomeCompleto(allievo),
+      righe: righeDiClasse(classe, (allievo) =>
+        checkCorso.spunte.some((s) => s.allievoId === allievo.id)).map(({ allievo, nome }) => [
+        nome,
         ...checkCorso.colonne.map((col) => {
           const spunta = checkCorso.spunte.find(
             (s) => s.allievoId === allievo.id && s.colonnaId === col.id,
@@ -432,18 +433,4 @@ function andamentoCorso (
     linee: lineeDiRiferimento(scala, media),
     punti,
   }
-}
-
-/**
- * La media del corso: la media delle medie di chi ha almeno un voto, come la
- * riga in fondo alla griglia. Nulla senza voti.
- */
-function mediaDelCorso (
-  momenti: MomentoValutazione[],
-  allievi: readonly { id: string }[],
-): number | null {
-  const medie = allievi
-    .map((a) => mediaAllievo(momenti, a.id).media)
-    .filter((m): m is number => m !== null)
-  return medie.length === 0 ? null : medie.reduce((s, m) => s + m, 0) / medie.length
 }
