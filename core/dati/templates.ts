@@ -122,7 +122,9 @@ export function firmaPosta (intestazione: Intestazione): string {
   // La prima carta: una mail non riguarda un corso solo.
   const sede = intestazione.carte[0]?.sede ?? ''
   if (!intestazione.docente && !sede) return ''
-  const modelloFirma = MODELLI_PREDEFINITI[FIRMA] ?? ''
+  // I commenti del file sono per chi lo scrive: lasciati dentro, ogni mail
+  // porterebbe le istruzioni, con il nome del docente riempito anche lì.
+  const modelloFirma = (MODELLI_PREDEFINITI[FIRMA] ?? '').replace(/<!--[\s\S]*?-->\s*/g, '')
   return riempi(modelloFirma, {
     docente: inHtml(intestazione.docente),
     sede: inHtml(sede),

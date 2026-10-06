@@ -40,7 +40,7 @@ pagina-di-pagine: pagina {{pagina}} di {{pagine}}
 # --- I sottotitoli
 
 quanti-pif: {{allievi}} PiF
-quanti-momenti: {{quanti}} momenti di valutazione
+quanti-momenti: Momenti di valutazione: {{quanti}}
 
 # --- Le etichette dei campi
 
@@ -107,7 +107,6 @@ osservazioni: Osservazioni
 com-e-andata: Com'è andata
 consuntivo: Consuntivo
 persone-in-formazione: Persone in formazione
-documenti-raccolti: Documenti raccolti
 periodi-di-assenze: Periodi di assenze
 distribuzione: Distribuzione
 andamento: Andamento dei voti
@@ -126,13 +125,11 @@ i-momenti: I momenti
 recuperi: Recuperi
 da-ridare: Prove ancora da ridare
 check: Lista di controllo
-dettaglio-prove: Dettaglio delle prove
 quadro-orario: Quadro orario
 sospensioni-calendario: Sospensioni del calendario
 consegne: Consegne e compiti
 richieste-documenti: Richieste e consegne di classe
 comunicazioni: Comunicazioni
-dettaglio-assenze: Dettaglio assenze e firme
 diario-lezioni: Diario delle lezioni
 piani-lezione: Piani di lezione
 pendenze: Pendenze del corso
@@ -158,7 +155,7 @@ nota-livelli: L'ultimo livello dato per ogni criterio. Il percorso per arrivarci
 
 oltre-soglia: Assenza oltre il {{sogliaAssenza}}% previsto:
 
-appello-incompleto: Appello incompleto: {{udSenzaAppello}} caselle non impostate.
+appello-incompleto: Appello incompleto, caselle non impostate: {{udSenzaAppello}}.
 
 riepilogo-presenze: Presenti {{presenti}}/{{conAppello}} · assenti {{assenti}} · parziali {{parziali}} · ritardi {{ritardi}}
 
@@ -191,7 +188,9 @@ esecuzione-riconsegna: Ogni casella dice il giorno in cui la prova è stata fatt
 # stampa in italiano.
 #
 # Sono commentate perché di serie non si cambia niente. Togliendo il cancelletto
-# a una riga, quel nome cambia dalla stampa dopo.
+# a una riga, quel nome cambia dalla versione successiva del programma: i
+# modelli sono compilati dentro (ADR-34), e un cambiamento qui vuole
+# «npm run templates» e una nuova build.
 #
 # PiF: Nome e cognome
 # UD seguite: Ore seguite

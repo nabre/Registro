@@ -47,5 +47,9 @@ fine:
 # La legenda va con la griglia e non dopo, sempre: un foglio che esce dal
 # registro finisce in mano a chi quella griglia sullo schermo non l'ha mai
 # vista, e la legenda lasciata indietro una volta è una griglia illeggibile.
+#
+# Senza righe niente legenda: da sola terrebbe in piedi una sezione vuota.
+se: {{presenze}}
 tabella: presenze
 testo: {{frase.legenda-presenze}}
+fine:

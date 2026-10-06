@@ -31,19 +31,24 @@ affianco.
 
 **Le misure stanno in `_stile.tpl`.** Quanto è grande il foglio, quanto è
 grande la scrittura, come si spartisce la larghezza fra le colonne di una
-tabella. Stava dentro il codice, e cambiarlo voleva dire ricompilare — cioè non
-cambiarlo mai. Ma «esce troppo piccolo per leggerlo», «questa tabella non ci
-sta in larghezza» e «in sede si stampa in A3» sono cose che si scoprono
-usando i rapporti, non scrivendoli.
+tabella. Stava sparso in costanti dentro il codice, dove nessuno lo andava a
+cercare. Ma «esce troppo piccolo per leggerlo», «questa tabella non ci sta in
+larghezza» e «in sede si stampa in A3» sono cose che si scoprono usando i
+rapporti, non scrivendoli, e vogliono un posto solo dove si cambiano.
 
 **Le parole stanno in `_testi.tpl`.** Tutte: i titoli delle sezioni, le
 etichette dei campi, la riga «Registro scolastico» in testata, «pagina 2 di 3»
-in fondo, le frasi che contengono un numero — «4 caselle non impostate», la nota
+in fondo, le frasi che contengono un numero — «caselle non impostate: 4», la nota
 che spiega come sono calcolate le percentuali — e come si chiamano le colonne
 delle tabelle. Erano dentro il codice o dentro i modelli, mescolate ai conti e
 all'impaginazione; ma «dillo in un altro modo» non è «contalo in un altro modo»
-né «mettilo in un altro posto», e la prima non deve costare né una
-ricompilazione né la caccia a una parola in otto file.
+né «mettilo in un altro posto», e la prima non deve costare la caccia a una
+parola in otto file.
+
+Ogni cambiamento in questa cartella — misure, parole, modelli — arriva nel
+programma solo con `npm run templates`, che rigenera
+`core/dati/defaultTemplates.ts`, e una build nuova: il registro non legge
+`templates/` mentre gira (ADR-34).
 
 **E sono per lingua.** Il registro parla italiano, tedesco, francese e inglese,
 e i rapporti escono nella lingua in cui parla al momento di stampare. Un
@@ -277,34 +282,34 @@ giro invece di girare per sempre.
 ### Mostrare qualcosa solo quando c'è
 
 ```
-se: {{udSenzaAppello}}
-testo: {{frase.appello-incompleto}}
-altrimenti:
-testo: {{frase.appello-completo}}
+se: {{oltreSoglia}}
+sezione: {{frase.da-seguire}}
+avviso: {{frase.oltre-soglia}}
+elenco: oltreSoglia
 fine:
 ```
 
 Vero vuol dire «c'è qualcosa da mostrare»: un valore non vuoto, una tabella con
-delle righe, un elenco con dei punti, un gruppo con delle voci. `se:` e `ripeti:`
+delle righe, un elenco con dei punti, un gruppo con delle voci. Un `altrimenti:`
+fra `se:` e `fine:` apre la parte che vale quando non c'è. `se:` e `ripeti:`
 si annidano. Un `fine:` dimenticato porta il blocco fino in fondo al corpo,
 invece di far cadere il rapporto; un `fine:` spaiato si salta come ogni riga che
 non si capisce.
 
-### Ripetere un pezzo per ogni persona in formazione
+### Ripetere un pezzo per ogni voce di un gruppo
 
 ```
-ripeti: allievi
-pagina-nuova:
-titolo: {{allievo}}
-sezione: {{frase.le-prove}}
-tabella: prove
+ripeti: piani
+sottosezione: {{intestazionePiano}}
+tabella: scaletta
 fine:
 ```
 
-Dentro il giro i nomi si scrivono come fuori — `{{allievo}}`, `tabella: prove` —
-e valgono per la voce di quel giro: chi scrive un modello non deve imparare due
-vocabolari. Quali gruppi un rapporto offre lo dice `reportData/`, come per
-le tabelle.
+Dentro il giro i nomi si scrivono come fuori — `{{intestazionePiano}}`,
+`tabella: scaletta` — e valgono per la voce di quel giro: chi scrive un modello
+non deve imparare due vocabolari. Quali gruppi un rapporto offre lo dice
+`reportData/`, come per le tabelle: oggi `piani` nella scheda del corso e
+`fasi` nel progetto di classe.
 
 ### Un'immagine
 

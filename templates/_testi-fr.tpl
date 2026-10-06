@@ -21,7 +21,7 @@ pagina-di-pagine: page {{pagina}} sur {{pagine}}
 # --- I sottotitoli
 
 quanti-pif: {{allievi}} PeF
-quanti-momenti: {{quanti}} évaluations
+quanti-momenti: Évaluations : {{quanti}}
 
 # --- Le etichette dei campi
 
@@ -81,14 +81,13 @@ prerequisiti: Prérequis
 scaletta: Déroulement
 scaletta-svolta: Déroulement effectué
 materiali: Matériel
-note: Notes
+note: Remarques
 argomenti-svolti: Sujets traités
 consegne-date: Devoirs donnés
 osservazioni: Observations
 com-e-andata: Comment ça s’est passé
 consuntivo: Bilan
 persone-in-formazione: Personnes en formation
-documenti-raccolti: Documents recueillis
 periodi-di-assenze: Périodes d'absence
 distribuzione: Répartition
 andamento: Évolution des notes
@@ -107,13 +106,11 @@ i-momenti: Les évaluations
 recuperi: Rattrapages
 da-ridare: Épreuves encore à rendre
 check: Liste de contrôle
-dettaglio-prove: Détail des évaluations
 quadro-orario: Grille horaire
 sospensioni-calendario: Congés du calendrier
 consegne: Devoirs et travaux
 richieste-documenti: Documents et remises de classe
 comunicazioni: Communications
-dettaglio-assenze: Détail des absences et signatures
 diario-lezioni: Journal des leçons
 piani-lezione: Plans de leçon
 pendenze: En suspens du cours
@@ -139,7 +136,7 @@ nota-livelli: Le dernier niveau attribué pour chaque critère. Le parcours pour
 
 oltre-soglia: Absence au-delà des {{sogliaAssenza}} % prévus :
 
-appello-incompleto: Appel incomplet : {{udSenzaAppello}} cases non saisies.
+appello-incompleto: Appel incomplet, cases non saisies : {{udSenzaAppello}}.
 
 riepilogo-presenze: Présents {{presenti}}/{{conAppello}} · absents {{assenti}} · partiels {{parziali}} · retards {{ritardi}}
 
