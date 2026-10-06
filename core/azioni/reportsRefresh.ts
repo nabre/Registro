@@ -68,6 +68,13 @@ let coda: Promise<unknown> = Promise.resolve()
 // chiave tiene il periodo perché i fogli di un corso sono divisi per semestre.
 let inAttesa = new Map<string, { corsoId: string, semestreId: string | null }>()
 let orologio: ReturnType<typeof setTimeout> | null = null
+/** Quel che fa l'orologio allo scadere: lo spegnimento lo fa scattare subito. */
+let alloScadere: (() => void) | null = null
+/**
+ * Fin quando, spegnendo, si scrivono ancora fogli: dopo, il giro si ferma al
+ * foglio in corso (`finchéSiPuò`). Null fuori dallo spegnimento.
+ */
+let tettoSpegnimento: number | null = null
 /** Da quando il più vecchio dei corsi in attesa aspetta: vedi `ATTESA_MASSIMA`. */
 let attendeDa = 0
 /**
@@ -76,6 +83,11 @@ let attendeDa = 0
  * chiusura rilegge comunque il registro al suo turno.
  */
 const appenaAccodate = new Set<string>()
+
+/** L'ancora di un giro, che allo spegnimento cede quando il tempo è finito. */
+function finchéSiPuò (ancora: Ancora): Ancora {
+  return () => ancora() && (tettoSpegnimento === null || Date.now() < tettoSpegnimento)
+}
 
 /** La chiave di un corso in un periodo: `corsoId|semestreId`, con l'anno intero vuoto. */
 function chiaveAttesa (corsoId: string, semestreId: string | null): string {
@@ -124,7 +136,7 @@ export function aggiornaDopoChiusura (archivio: Archivio, lezione: Lezione): voi
       // L'ora ripresa dal registro di adesso, che può essere stata corretta.
       const suo = ora.lezioni.find((l) => l.id === lezione.id)
       if (!suo) return { scritti: 0, errori: [] }
-      const ancora = stessoDocumento(archivio, documentoAtteso, annoAtteso)
+      const ancora = finchéSiPuò(stessoDocumento(archivio, documentoAtteso, annoAtteso))
       return rapportiDiChiusura(archivio, ora, suo, ancora)
     })
     .then((esito) => {
@@ -196,8 +208,9 @@ function programmaRigenerazione (
   const restano = Math.min(ATTESA_RIGENERAZIONE, Math.max(0, attendeDa + ATTESA_MASSIMA - adesso))
 
   if (orologio) clearTimeout(orologio)
-  orologio = setTimeout(() => {
+  alloScadere = () => {
     orologio = null
+    alloScadere = null
     attendeDa = 0
     const daFare = [...inAttesa.values()]
     inAttesa = new Map()
@@ -222,7 +235,7 @@ function programmaRigenerazione (
         const esito = await scriviTutti(
           archivio,
           da,
-          stessoDocumento(archivio, documentoAtteso, annoAtteso),
+          finchéSiPuò(stessoDocumento(archivio, documentoAtteso, annoAtteso)),
           ora.impostazioni.intestazione,
         )
         // Fermato dal cambio di documento: in silenzio.
@@ -235,7 +248,8 @@ function programmaRigenerazione (
       .catch((errore: unknown) => {
         void apparato.dialoghi.avvisa(testi().nonRifattiPerche(motivoSicuro(errore)))
       })
-  }, restano)
+  }
+  orologio = setTimeout(alloScadere, restano)
 }
 
 /**
@@ -306,15 +320,31 @@ export function rigenerazioniInAttesa (): number {
   return inAttesa.size
 }
 
+/** Quanto, spegnendo, si scrivono ancora i fogli in attesa. */
+const TETTO_SPEGNIMENTO = 20000
+
 /**
- * Per `spegni()`: scarta l'attesa (non ancora cominciata) e aspetta la coda,
- * perché un PDF scritto a metà resterebbe rotto. La promessa non rifiuta mai.
+ * Per `spegni()`: i fogli in attesa si rifanno subito invece di scartarli —
+ * scartati, i PDF resterebbero più vecchi dei dati senza che nessuno lo sappia
+ * — ma solo per `tetto` ms; poi il giro si ferma al foglio in corso. La coda si
+ * aspetta, perché un PDF scritto a metà resterebbe rotto. Con `tetto` zero si
+ * scarta e basta. La promessa non rifiuta mai.
  */
-export function fermaRapporti (): Promise<void> {
+export async function fermaRapporti (tetto = TETTO_SPEGNIMENTO): Promise<void> {
   if (orologio) clearTimeout(orologio)
   orologio = null
+  const scatta = alloScadere
+  alloScadere = null
+  appenaAccodate.clear()
+  if (tetto > 0 && scatta) {
+    tettoSpegnimento = Date.now() + tetto
+    scatta()
+  }
   attendeDa = 0
   inAttesa = new Map()
-  appenaAccodate.clear()
-  return coda.then(() => undefined, () => undefined)
+  try {
+    await coda.then(() => undefined, () => undefined)
+  } finally {
+    tettoSpegnimento = null
+  }
 }

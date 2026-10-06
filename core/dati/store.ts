@@ -201,7 +201,7 @@ export class Deposito {
         await apparato.file.writeFile(destinazione, contenuto)
       } catch (errore) {
         // Su Windows un PDF aperto altrove non si riscrive (EBUSY, EPERM): nome
-        // numerato accanto, e la copia non si segna aggiornata, così si riprova.
+        // segnato accanto, e la copia non si segna aggiornata, così si riprova.
         const altrove = await this.copiaAccanto(destinazione, contenuto)
         if (altrove === null) throw errore
         return altrove
@@ -225,8 +225,11 @@ export class Deposito {
   }
 
   /**
-   * Scrive la copia sotto un nome numerato accanto a quello vero —
-   * `Verifica (2).pdf` — e ne torna l'indirizzo, o null se nessuno va.
+   * Scrive la copia sotto un nome segnato accanto a quello vero —
+   * `Verifica ~2.pdf` — e ne torna l'indirizzo, o null se nessuno va. Non
+   * « (2)»: è il nome di un altro file del documento (bozza gemella, progetto
+   * omonimo), la cui copia verrebbe coperta. Se un file del documento si
+   * chiama davvero così, la sua copia non vale più come aggiornata.
    */
   private async copiaAccanto (
     destinazione: apparato.Uri,
@@ -237,13 +240,19 @@ export class Deposito {
     const radice = punto > 0 ? nome.slice(0, punto) : nome
     const estensione = punto > 0 ? nome.slice(punto) : ''
     for (let copia = 2; copia <= 9; copia += 1) {
-      const dove = apparato.Uri.joinPath(destinazione, '..', `${radice} (${copia})${estensione}`)
+      const dove = apparato.Uri.joinPath(destinazione, '..', `${radice} ~${copia}${estensione}`)
       try {
         await apparato.file.writeFile(dove, contenuto)
-        return dove
       } catch {
         // Occupato anche questo: si prova il prossimo nome.
+        continue
       }
+      const coperte = [...this.copie.keys()].filter(
+        (altro) => this.percorsoCopia(altro).path === dove.path,
+      )
+      for (const altro of coperte) this.copie.delete(altro)
+      if (coperte.length > 0) await this.scriviCopie()
+      return dove
     }
     return null
   }

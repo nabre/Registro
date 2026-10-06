@@ -1,7 +1,7 @@
 // La copia materializzata di un file dell'anno è quella di adesso:
 //
 //   1. con l'originale occupato (su Windows, un PDF aperto in Acrobat) la copia
-//      nuova ha un nome numerato, e chi la chiede per indirizzo riceve quello;
+//      nuova ha un nome segnato accanto, e chi la chiede per indirizzo riceve quello;
 //   2. un file riscritto e salvato mentre la richiesta aspetta in fila non lascia
 //      sul disco i byte vecchi segnati con l'impronta nuova.
 
@@ -39,7 +39,7 @@ function finoPdf (quanti) {
 }
 
 describe('le copie materializzate', () => {
-  it('chiesta per indirizzo con l’originale occupato, torna la copia numerata', async () => {
+  it('chiesta per indirizzo con l’originale occupato, torna la copia segnata accanto', async () => {
     const { deposito: d } = await deposito()
     d.scrivi('esportazioni/Presenze.pdf', finoPdf(256))
     const chiesto = Uri.joinPath(d.radice(), 'esportazioni', 'Presenze.pdf')
@@ -49,7 +49,7 @@ describe('le copie materializzate', () => {
     const dove = await d.materializzaChiesto(chiesto)
 
     assert.ok(dove && typeof dove === 'object', 'doveva tornare dove sta la copia')
-    assert.equal(percorso.basename(dove.fsPath), 'Presenze (2).pdf')
+    assert.equal(percorso.basename(dove.fsPath), 'Presenze ~2.pdf')
     assert.equal(readFileSync(dove.fsPath).length, 256)
   })
 

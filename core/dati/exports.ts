@@ -245,18 +245,27 @@ export function testoLezione (
 
 /**
  * Scrive quel che il registro genera al percorso dato (composto da chi chiama con
- * `locations.ts`). Sovrascrive: un rapporto è una fotografia di adesso, e quello
- * di prima non serve più.
+ * `locations.ts`), solo nel documento. Sovrascrive: un rapporto è una
+ * fotografia di adesso, e quello di prima non serve più. Torna il percorso, o
+ * null senza anno aperto.
  */
-export async function scriviGenerato (
+export async function depositaGenerato (
   relativo: string,
   contenuto: Uint8Array | string,
   precedenti: readonly string[] = [],
   gemelle: readonly string[] | null = null,
-): Promise<apparato.Uri | null> {
+): Promise<string | null> {
   const byte = typeof contenuto === 'string' ? new TextEncoder().encode(contenuto) : contenuto
   const esito = await riscrivi(relativo, byte, precedenti, gemelle)
-  if ('errore' in esito) return null
-  // Un file vero, perché chi lo ha chiesto lo vuole aprire.
-  return uriArchivio(esito.relativo)
+  return 'errore' in esito ? null : esito.relativo
+}
+
+/** Come `depositaGenerato`, e in più un file vero: chi lo ha chiesto lo vuole aprire. */
+export async function scriviGenerato (
+  relativo: string,
+  contenuto: Uint8Array | string,
+  precedenti: readonly string[] = [],
+): Promise<apparato.Uri | null> {
+  const scritto = await depositaGenerato(relativo, contenuto, precedenti)
+  return scritto === null ? null : uriArchivio(scritto)
 }

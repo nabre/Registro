@@ -3,14 +3,14 @@
 // qui il giro comune — trova, componi, scrivi. La rigenerazione automatica sta
 // in `reportsRefresh.ts`.
 
-import { scriviGenerato } from '#core/dati/exports.js'
+import { depositaGenerato } from '#core/dati/exports.js'
 import {
   ESPORTAZIONI,
   collocazioneDi,
   fogliDeiProgettiOrfani,
+  fogliFratelli,
   percorsoDi,
   precedentiDi,
-  bozzeGemelle,
   type Collocazione,
   type ContestoRapporto,
   type GenereRapporto,
@@ -51,14 +51,20 @@ import type { Blocchi, DatiRapporto, Modello } from '#core/dominio/reports.js'
 import { cestina, conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi } from './reports.testi.js'
 
-/** Che cosa serve per scrivere il file: il modello, i dati e dove va a finire. */
-interface Preparato {
+/** Il modello e i dati di un rapporto. */
+interface Pezzi {
   modello: string
   dati: DatiRapporto
+}
+
+/** Che cosa serve per scrivere il file: il modello, i dati e dove va a finire. */
+interface Preparato extends Pezzi {
   /** Il posto lo decide il dominio, lo stesso che legge la pagina Documenti. */
   dove: Collocazione
-  /** Di un piano in bozza: i PDF delle gemelle vive (`bozzeGemelle`). */
+  /** I PDF vivi accanto che portano « (N)» come i doppioni (`fogliFratelli`). */
   gemelle?: string[] | null
+  /** Di che cosa è il foglio: `genere|id`. */
+  chiave?: string
 }
 
 /**
@@ -109,7 +115,7 @@ export function impaginazioneDi (
 /**
  * Se il documento aperto è ancora quello su cui un lavoro è partito. Si
  * ricontrolla a ogni foglio: il cambio di documento può arrivare a metà fila, e
- * `scriviGenerato` scriverebbe nel `.regi` nuovo.
+ * `depositaGenerato` scriverebbe nel `.regi` nuovo.
  */
 export type Ancora = () => boolean
 
@@ -159,9 +165,11 @@ async function scriviRapporto (
 
   const relativo = percorsoDi(preparato.dove)
   // Dopo la composizione (l'attesa lunga, dove il documento può cambiare):
-  // fra questa riga e `scriviGenerato` non ci sono attese.
+  // fra questa riga e `depositaGenerato` non ci sono attese.
   if (!ancora()) return { errore: t.giroInterrotto, interrotto: true }
-  if (!(await scriviGenerato(relativo, byte, precedentiDi(preparato.dove), preparato.gemelle))) {
+  // Solo nel documento: la copia su disco la fa chi lo apre (la cornice della
+  // pagina Documenti), non ogni foglio di un giro che nessuno guarda.
+  if (!(await depositaGenerato(relativo, byte, precedentiDi(preparato.dove), preparato.gemelle))) {
     return { errore: t.senzaCartella }
   }
   return { relativo }
@@ -346,11 +354,16 @@ export function conPosto (
   genere: GenereRapporto,
   id: string,
   contesto: ContestoRapporto,
-  resto: Omit<Preparato, 'dove'>,
+  resto: Pezzi,
 ): Preparato | null {
   const dove = collocazioneDi(registro, genere, id, contesto)
   if (!dove) return null
-  return genere === 'piano' ? { ...resto, dove, gemelle: bozzeGemelle(registro, id, contesto) } : { ...resto, dove }
+  return {
+    ...resto,
+    dove,
+    gemelle: fogliFratelli(registro, genere, id, contesto),
+    chiave: `${genere}|${id}`,
+  }
 }
 
 /** Il semestre scelto dentro l'anno di una classe, o l'anno intero. */
@@ -403,13 +416,14 @@ export const rapporti = {
     const t = testi()
     const registro = contesto.registro
     const ancora = ancoraAdesso(contesto.archivio)
-    const dove = collocazioneDi(registro, azione.genere, azione.id, {
+    const richiesto: ContestoRapporto = {
       corsoId: azione.corsoId ?? null,
       semestreId: azione.semestreId ?? null,
       docenteDiClasse: azione.docenteDiClasse ?? false,
       allievoId: azione.allievoId ?? null,
-    })
-    let pezzi: Omit<Preparato, 'dove'> | null = null
+    }
+    const dove = collocazioneDi(registro, azione.genere, azione.id, richiesto)
+    let pezzi: Pezzi | null = null
 
     if (azione.genere === 'corso') {
       const corso = registro.corsi.find((c) => c.id === azione.id)
@@ -517,9 +531,7 @@ export const rapporti = {
     if (!pezzi || !dove) return rifiuta(t.rapportoSconosciuto)
 
     const intestazione = registro.impostazioni.intestazione
-    const gemelle = azione.genere === 'piano'
-      ? bozzeGemelle(registro, azione.id, { corsoId: azione.corsoId ?? null })
-      : null
+    const gemelle = fogliFratelli(registro, azione.genere, azione.id, richiesto)
     const esito = await scriviRapporto({ ...pezzi, dove, gemelle }, ancora, intestazione)
     if ('errore' in esito && esito.interrotto) return rifiutaCon('conflitto', esito.errore)
     if ('errore' in esito) return rifiuta(esito.errore)
@@ -562,9 +574,13 @@ export const rapporti = {
       return tuttoDelCorso(registro, corso, semestre)
     })
 
-    // Un foglio una volta sola: due corsi della stessa classe chiedono lo stesso fascicolo.
+    // Un foglio una volta sola: due corsi della stessa classe chiedono lo stesso
+    // fascicolo. Per cosa e posto, non per posto solo: due cose che finissero
+    // allo stesso percorso non devono sparire in silenzio l'una nell'altra.
     const unaVolta = new Map<string, Preparato>()
-    for (const preparato of da) unaVolta.set(percorsoDi(preparato.dove), preparato)
+    for (const preparato of da) {
+      unaVolta.set(`${preparato.chiave ?? ''}|${percorsoDi(preparato.dove)}`, preparato)
+    }
 
     const intestazione = registro.impostazioni.intestazione
     const esito = await scriviTutti(contesto.archivio, [...unaVolta.values()], ancora, intestazione)

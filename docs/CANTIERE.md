@@ -336,8 +336,6 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       per tutto il giro: le altre scritture escono «occupato» dopo 30 s. Una
       pausa fra i fogli non basta (ogni foglio già cede); serve la
       composizione in un utility process o worker. Decisione strutturale.
-- [ ] Ogni foglio automatico si materializza su disco (`scriviGenerato` →
-      `uriArchivio`) anche se nessuno lo apre: I/O e CRC sprecati.
 - [ ] Nel `.regi` restano le esportazioni coi nomi di prima (id nel nome,
       «1° sem.» e «1° semestre»): su un registro vero 470 voci che nessun dato
       cita, e percorsi oltre i 260 caratteri che Esplora risorse non estrae.

@@ -19,7 +19,7 @@ import { LINGUE } from '#core/i18n/index.js'
 import { DOCUMENTO_SCHEDE_PRIMA } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 import { testi } from './locations.testi.js'
-import type { Corso, Iso, PianoLezione, Registro } from './models.js'
+import type { Allievo, Classe, Corso, Iso, PianoLezione, Registro } from './models.js'
 import { integrazioneDi } from './projects.js'
 import { nomeSicuro } from './text.js'
 
@@ -230,6 +230,34 @@ export function bozzeGemelle (
     const dove = collocazioneDi(registro, 'piano', gemella.id, contesto)
     return dove ? [percorsoDi(dove)] : []
   })
+}
+
+/**
+ * I PDF vivi accanto a quello di `genere`/`id` che possono portare « (N)» in
+ * coda come i doppioni: bozze gemelle, progetti omonimi (o intitolati davvero
+ * «X (2)»), prove omonime. Chi riscrive un foglio li lascia; gli altri « (N)»
+ * della cartella sono doppioni vecchi. Null per i generi in cui un « (N)» non
+ * è mai di un altro foglio.
+ */
+export function fogliFratelli (
+  registro: Registro, genere: GenereRapporto, id: string, contesto: ContestoRapporto = {},
+): string[] | null {
+  const percorsi = (ids: readonly string[]) => ids.flatMap((altro) => {
+    const dove = collocazioneDi(registro, genere, altro, contesto)
+    return dove ? [percorsoDi(dove)] : []
+  })
+  if (genere === 'piano') return bozzeGemelle(registro, id, contesto)
+  // Quello di una persona sta nella sua cartella: i fratelli sono i suoi
+  // fogli degli altri progetti del corso, con lo stesso `contesto.allievoId`.
+  if (genere === 'progetto-classe' || genere === 'progetto-allievo') {
+    const corsoId = contesto.corsoId ?? null
+    return percorsi(registro.progetti.filter((p) => integrazioneDi(p, corsoId)).map((p) => p.id))
+  }
+  if (genere === 'momento') {
+    const corsoId = registro.valutazioni.find((v) => v.id === id)?.corsoId
+    return percorsi(registro.valutazioni.filter((v) => v.corsoId === corsoId).map((v) => v.id))
+  }
+  return null
 }
 
 /**
@@ -463,12 +491,12 @@ function collocazioneBase (
     }
     const classe = corso ? classeDelCorsoId(registro, corso.id) : null
     const allievo = classe?.allievi.find((a) => a.id === contesto.allievoId) ?? null
-    if (!allievo) return null
+    if (!classe || !allievo) return null
     return {
       ...diUnCorso(registro, corso),
       documento: testi().documenti.progetto,
-      chi: nomeCompleto(allievo),
-      allievo: nomeCompleto(allievo),
+      chi: nomeNeiPercorsi(classe, allievo),
+      allievo: nomeNeiPercorsi(classe, allievo),
       dettaglio: titolo,
       datato: false,
     }
@@ -539,8 +567,8 @@ function collocazioneBase (
       classe: classe.nome,
       ambito: null,
       documento: testi().documenti.schedaDocenteClasse,
-      chi: nomeCompleto(allievo),
-      allievo: nomeCompleto(allievo),
+      chi: nomeNeiPercorsi(classe, allievo),
+      allievo: nomeNeiPercorsi(classe, allievo),
       dettaglio: etichettaPeriodo(registro, classe.id, contesto.semestreId ?? null),
       datato: false,
     }
@@ -554,11 +582,25 @@ function collocazioneBase (
     classe: classe.nome,
     ambito: corso ? materiaDelCorso(registro, corso)?.nome ?? corso.titolo : null,
     documento: lessico().documentoSchede,
-    chi: nomeCompleto(allievo),
-    allievo: nomeCompleto(allievo),
+    chi: nomeNeiPercorsi(classe, allievo),
+    allievo: nomeNeiPercorsi(classe, allievo),
     dettaglio: etichettaPeriodo(registro, classe.id, contesto.semestreId ?? null),
     datato: false,
   }
+}
+
+/**
+ * Il nome di una persona come lo scrive un percorso: due omonimi della stessa
+ * classe si distinguono con un numero, nell'ordine della classe, come i
+ * progetti; se no la scheda del secondo coprirebbe quella del primo. Omonimi
+ * anche per il disco: Windows non distingue le maiuscole.
+ */
+function nomeNeiPercorsi (classe: Classe, allievo: Allievo): string {
+  const nome = nomeCompleto(allievo)
+  const comeSulDisco = (a: Allievo) => nomeSicuro(nomeCompleto(a)).toLocaleLowerCase()
+  const suo = comeSulDisco(allievo)
+  const omonimi = classe.allievi.filter((a) => comeSulDisco(a) === suo)
+  return `${nome}${distinzione(omonimi.findIndex((a) => a.id === allievo.id))}`
 }
 
 /** Classe e materia di un corso, come le scrive un percorso. */
