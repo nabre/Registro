@@ -5,6 +5,7 @@
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from '@cantoo/pdf-lib'
 
+import { locale } from '#core/i18n/index.js'
 import {
   cellaFissa,
   componiCorpo,
@@ -106,8 +107,11 @@ const BRUTTO = rgb(0.71, 0.21, 0.21)
 const NEUTRO = rgb(0.55, 0.57, 0.62)
 
 /**
- * I caratteri fuori dal Latin-1 dei font di serie (Helvetica), con l'equivalente
- * ASCII: trattini lunghi, apostrofi curvi, spunte. ¼ ½ ¾ sono Latin-1 e restano.
+ * I caratteri che si preferiscono in ASCII anche se la codifica dei font di
+ * serie (WinAnsi) li avrebbe: trattini, apostrofi e virgolette curve escono
+ * uguali a quelli battuti a mano. Poi quelli che WinAnsi non ha e che non si
+ * riducono a una lettera di base: frecce, confronti, lettere con la barra.
+ * ¼ ½ ¾ sono Latin-1 e restano.
  */
 const SOSTITUZIONI: Array<[RegExp, string]> = [
   // I trattini tipografici, usati negli orari e fra i nomi.
@@ -115,18 +119,61 @@ const SOSTITUZIONI: Array<[RegExp, string]> = [
   [/[\u2018\u2019\u201b]/g, "'"],
   [/[\u201c\u201d]/g, '"'],
   [/\u2026/g, '...'],
-  // La spunta della scaletta e il pallino degli elenchi: fuori da Latin-1.
+  // La spunta della scaletta e il pallino degli elenchi.
   [/\u2713/g, 'x'],
   [/\u2022/g, '-'],
   // Gli spazi che non sono lo spazio: unificatore, sottile, a larghezza zero.
   [/[\u2000-\u200b\u202f\u205f\u3000]/g, ' '],
+  // Le frecce dei modelli («A → B») e i confronti.
+  [/[\u2192\u27f6]/g, '->'],
+  [/[\u2190\u27f5]/g, '<-'],
+  [/[\u21d2\u27f9]/g, '=>'],
+  [/\u2264/g, '<='],
+  [/\u2265/g, '>='],
+  [/\u2260/g, '!='],
+  // Senza decomposizione Unicode: la barra non è un accento.
+  [/\u0141/g, 'L'],
+  [/\u0142/g, 'l'],
+  [/\u0110/g, 'D'],
+  [/\u0111/g, 'd'],
+  [/\u0126/g, 'H'],
+  [/\u0127/g, 'h'],
+  [/\u0131/g, 'i'],
 ]
 
+/**
+ * Quel che la codifica WinAnsi dei font di serie ha oltre il Latin-1: l'euro,
+ * le lettere col cuneo (Š Ž), le legature (Œ), i segni di stampa.
+ */
+const WIN_ANSI = new Set([
+  0x20ac, 0x201a, 0x0192, 0x201e, 0x2020, 0x2021, 0x02c6, 0x2030, 0x0160, 0x2039,
+  0x0152, 0x017d, 0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x017e, 0x0178,
+].map((codice) => String.fromCharCode(codice)))
+
+/**
+ * Un carattere che Helvetica non sa disegnare: la lettera di base senza segni
+ * (č → c, ﬁ → fi) se c'è; se no «?», che si vede che manca qualcosa.
+ */
+function ripiega (carattere: string): string {
+  if (WIN_ANSI.has(carattere)) return carattere
+  const base = carattere.normalize('NFKD').replace(/\p{M}/gu, '')
+  return base !== '' && /^[\u0000-\u00ff]+$/.test(base) ? base : '?'
+}
+
+/** Gli a capo, di qualunque sistema: in una riga sola non hanno posto. */
+const A_CAPO = /[\n\r\f\v\u0085\u2028\u2029]/
+const A_CAPO_CON_SPAZI = /\s*[\n\r\f\v\u0085\u2028\u2029]+\s*/g
+
+/**
+ * Il testo come lo sa scrivere il font di serie, su una riga sola: un a capo
+ * dentro una cella, un titolo o un'etichetta diventa « · ». Con un a capo
+ * dentro, pdf-lib scriverebbe la seconda riga sopra quel che segue; chi va a
+ * capo da sé (`aCapo`) divide in paragrafi prima di passare di qui.
+ */
 function sanifica (testo: string): string {
-  let esito = testo
+  let esito = A_CAPO.test(testo) ? testo.trim().replace(A_CAPO_CON_SPAZI, ' \u00b7 ') : testo
   for (const [cerca, con] of SOSTITUZIONI) esito = esito.replace(cerca, con)
-  // Il resto fuori dal Latin-1 diventa «?»: si vede che manca qualcosa.
-  return esito.replace(/[^\u0000-\u00ff]/g, '?')
+  return esito.replace(/[^\u0000-\u00ff]/gu, ripiega)
 }
 
 interface Penna {
@@ -147,7 +194,7 @@ interface Penna {
   /** I corpi già scalati: si leggono qui e non si ricalcolano a ogni scritta. */
   corpi: Corpi
   /** Le immagini già incorporate, per nome di file. */
-  immagini: Map<string, PDFImage>
+  immagini: Incorporate
   /**
    * Lo spazio che un'immagine affiancata si tiene sul fianco; sotto `fino` la
    * larghezza torna intera.
@@ -170,7 +217,8 @@ function aCapo (
   larghezza: number,
 ): string[] {
   const righe: string[] = []
-  for (const paragrafo of sanifica(testo).split('\n')) {
+  // Prima i paragrafi: `sanifica` metterebbe gli a capo su una riga sola.
+  for (const paragrafo of testo.split(/\r\n|[\n\r\f\v\u0085\u2028\u2029]/).map(sanifica)) {
     let corrente = ''
     for (const parola of paragrafo.split(/\s+/)) {
       if (parola === '') continue
@@ -187,7 +235,10 @@ function aCapo (
   return righe
 }
 
-/** Il testo accorciato con i puntini se non sta: nelle tabelle non si va a capo. */
+/**
+ * Il testo accorciato con i puntini se non sta: nelle tabelle non si va a capo,
+ * e gli a capo di un testo lungo diventano « · » (`sanifica`).
+ */
 function tronca (testo: string, font: PDFFont, corpo: number, larghezza: number): string {
   const pulito = sanifica(testo)
   if (font.widthOfTextAtSize(pulito, corpo) <= larghezza) return pulito
@@ -883,6 +934,18 @@ function conDuePunti (etichetta: string): string {
 }
 
 /**
+ * Le coppie di un `campi:` o di un `riquadro:`: quelle già divise da
+ * `componiCorpo` prima di riempire; il testo si rilegge solo per un blocco
+ * fatto a mano, senza dati dentro.
+ */
+function vociDi (blocco: Blocco): NonNullable<Blocco['campi']> {
+  if (blocco.campi) return blocco.campi
+  return blocco.tipo === 'campi'
+    ? leggiRichiestaCampi(blocco.valore)
+    : { voci: leggiCampi(blocco.valore), colonne: 1 }
+}
+
+/**
  * Dove cominciano i valori di tutti i `campi:` del rapporto: uno solo, così i
  * gruppi restano allineati. Tetto al 30% del foglio: un'etichetta più lunga si
  * accorcia lei.
@@ -893,7 +956,7 @@ function tabulatore (penna: Penna, corpo: Blocco[]): number {
   let piu = 0
   for (const blocco of corpo) {
     if (blocco.tipo !== 'campi') continue
-    for (const voce of leggiRichiestaCampi(blocco.valore).voci) {
+    for (const voce of vociDi(blocco).voci) {
       piu = Math.max(
         piu,
         penna.normale.widthOfTextAtSize(sanifica(conDuePunti(voce.etichetta)), misura),
@@ -907,8 +970,8 @@ function tabulatore (penna: Penna, corpo: Blocco[]): number {
  * Le coppie etichetta/valore, con i valori al tabulatore del foglio. Se la
  * colonna è stretta (più colonne, immagine accanto) il tabulatore si stringe.
  */
-function campi (penna: Penna, valore: string): void {
-  const { voci, colonne } = leggiRichiestaCampi(valore)
+function campi (penna: Penna, blocco: Blocco): void {
+  const { voci, colonne } = vociDi(blocco)
   if (voci.length === 0) return
 
   const larghezza = larghezzaUtile(penna)
@@ -983,8 +1046,8 @@ function altaRiquadro (penna: Penna): number {
   return 8 + penna.corpi.piccolo * 1.5 + penna.corpi.titolo + 8
 }
 
-function riquadro (penna: Penna, valore: string): void {
-  const voci = leggiCampi(valore)
+function riquadro (penna: Penna, blocco: Blocco): void {
+  const voci = vociDi(blocco).voci
   if (voci.length === 0) return
 
   const larghezza = larghezzaUtile(penna)
@@ -1029,7 +1092,115 @@ function riquadro (penna: Penna, valore: string): void {
  * Le immagini incorporate nel PDF, per nome di file: una volta sola, anche se
  * il logo ricompare su ogni pagina.
  */
-type Incorporate = Map<string, PDFImage>
+type Incorporate = Map<string, Foto>
+
+/**
+ * Un'immagine incorporata, con le misure come si deve vedere: una foto da
+ * telefono è salvata di traverso e dice nell'EXIF come girarla (1 diritta, 3
+ * capovolta, 6 e 8 di un quarto, 2 4 5 7 le stesse allo specchio).
+ */
+interface Foto {
+  immagine: PDFImage
+  width: number
+  height: number
+  orientamento: number
+}
+
+/**
+ * Il tag Orientation (0x0112) dell'EXIF di un JPEG, o 1 se non c'è. Si legge
+ * solo il primo IFD dell'APP1, con ogni lunghezza controllata: un file rotto
+ * vale diritto.
+ */
+function orientamentoJpeg (byte: Uint8Array): number {
+  if (byte[0] !== 0xff || byte[1] !== 0xd8) return 1
+  let i = 2
+  while (i + 4 <= byte.length) {
+    if (byte[i] !== 0xff) return 1
+    const marcatore = byte[i + 1]
+    // Riempitivo fra due segmenti, e segmenti senza lunghezza.
+    if (marcatore === 0xff) {
+      i += 1
+      continue
+    }
+    if (marcatore === 0x01 || (marcatore >= 0xd0 && marcatore <= 0xd7)) {
+      i += 2
+      continue
+    }
+    // Inizio dei dati o fine: l'EXIF sta prima.
+    if (marcatore === 0xda || marcatore === 0xd9) return 1
+    const lungo = (byte[i + 2] << 8) | byte[i + 3]
+    const fine = Math.min(i + 2 + lungo, byte.length)
+    const exif = byte[i + 4] === 0x45 && byte[i + 5] === 0x78 && byte[i + 6] === 0x69 &&
+      byte[i + 7] === 0x66 && byte[i + 8] === 0 && byte[i + 9] === 0
+    if (marcatore === 0xe1 && exif) return orientamentoTiff(byte, i + 10, fine)
+    i += 2 + lungo
+  }
+  return 1
+}
+
+/** Il tag Orientation nel primo IFD di un'intestazione TIFF fra `tiff` e `fine`. */
+function orientamentoTiff (byte: Uint8Array, tiff: number, fine: number): number {
+  if (tiff + 8 > fine) return 1
+  const piccolo = byte[tiff] === 0x49 && byte[tiff + 1] === 0x49
+  if (!piccolo && !(byte[tiff] === 0x4d && byte[tiff + 1] === 0x4d)) return 1
+  const leggi16 = (dove: number) =>
+    piccolo ? byte[dove] | (byte[dove + 1] << 8) : (byte[dove] << 8) | byte[dove + 1]
+  const leggi32 = (dove: number) =>
+    piccolo
+      ? (byte[dove] | (byte[dove + 1] << 8) | (byte[dove + 2] << 16)) + byte[dove + 3] * 0x1000000
+      : byte[dove] * 0x1000000 + ((byte[dove + 1] << 16) | (byte[dove + 2] << 8) | byte[dove + 3])
+  const ifd = tiff + leggi32(tiff + 4)
+  if (ifd + 2 > fine) return 1
+  const quante = leggi16(ifd)
+  for (let k = 0; k < quante; k += 1) {
+    const voce = ifd + 2 + k * 12
+    if (voce + 12 > fine) return 1
+    if (leggi16(voce) !== 0x0112) continue
+    const valore = leggi16(voce + 8)
+    return valore >= 1 && valore <= 8 ? valore : 1
+  }
+  return 1
+}
+
+/**
+ * Come ogni orientamento EXIF porta un punto dell'immagine salvata (s, t:
+ * da sinistra e dall'alto, fra 0 e 1) a quella da vedere (p, q):
+ * p = a·s + b·t + c, q = d·s + e·t + f.
+ */
+const GIRI: Record<number, [number, number, number, number, number, number]> = {
+  2: [-1, 0, 1, 0, 1, 0],
+  3: [-1, 0, 1, 0, -1, 1],
+  4: [1, 0, 0, 0, -1, 1],
+  5: [0, 1, 0, 1, 0, 0],
+  6: [0, -1, 1, 1, 0, 0],
+  7: [0, -1, 1, -1, 0, 1],
+  8: [0, 1, 0, -1, 0, 1],
+}
+
+/**
+ * Disegna una foto nel rettangolo dato, girata come dice l'EXIF. Diritta passa
+ * da `drawImage` come sempre, così i rapporti di prima restano gli stessi byte.
+ */
+function disegnaFoto (
+  pagina: PDFPage,
+  foto: Foto,
+  { x, y, width: w, height: h }: { x: number, y: number, width: number, height: number },
+): void {
+  const giro = GIRI[foto.orientamento]
+  if (!giro) {
+    pagina.drawImage(foto.immagine, { x, y, width: w, height: h })
+    return
+  }
+  // Dall'unità del PDF (u da sinistra, v dal basso; t = 1 - v) al rettangolo.
+  const [a1, b1, c1, a2, b2, c2] = giro
+  pagina.drawImage(foto.immagine, {
+    x: 0,
+    y: 0,
+    width: 1,
+    height: 1,
+    matrix: [w * a1, -h * a2, -w * b1, h * b2, x + w * (b1 + c1), y + h - h * (b2 + c2)],
+  })
+}
 
 /**
  * Carica e incorpora le immagini che il modello nomina. Quelle mancanti o
@@ -1054,7 +1225,16 @@ async function incorpora (
     try {
       // PNG o JPEG dai primi byte: l'estensione può mentire.
       const png = byte[0] === 0x89 && byte[1] === 0x50
-      esito.set(nome, png ? await pdf.embedPng(byte) : await pdf.embedJpg(byte))
+      const immagine = png ? await pdf.embedPng(byte) : await pdf.embedJpg(byte)
+      const orientamento = png ? 1 : orientamentoJpeg(byte)
+      // Da 5 a 8 la foto è di traverso: larghezza e altezza si scambiano.
+      const traverso = orientamento >= 5
+      esito.set(nome, {
+        immagine,
+        width: traverso ? immagine.height : immagine.width,
+        height: traverso ? immagine.width : immagine.height,
+        orientamento,
+      })
     } catch {
       // Non è né PNG né JPEG, o è rotta.
     }
@@ -1068,7 +1248,7 @@ async function incorpora (
  */
 function misuraImmagine (penna: Penna, valore: string): {
   chiesta: ImmagineModello
-  incorporata: PDFImage
+  incorporata: Foto
   altaVera: number
   largaVera: number
 } | null {
@@ -1095,7 +1275,7 @@ function immagine (penna: Penna, valore: string): void {
     if (penna.y - altaVera - 6 < penna.basso) nuovaPagina(penna)
     // Non si scende: l'immagine occupa il fianco, non la fascia.
     const piede = penna.y - altaVera
-    penna.pagina.drawImage(incorporata, {
+    disegnaFoto(penna.pagina, incorporata, {
       x: penna.sinistra + scarto(chiesta.allineamento, larghezzaUtile(penna), largaVera),
       y: piede,
       width: largaVera,
@@ -1109,7 +1289,7 @@ function immagine (penna: Penna, valore: string): void {
   }
 
   spazio(penna, altaVera + 6)
-  penna.pagina.drawImage(incorporata, {
+  disegnaFoto(penna.pagina, incorporata, {
     x: penna.sinistra + scarto(chiesta.allineamento, utile, largaVera),
     y: penna.y,
     width: largaVera,
@@ -1155,7 +1335,7 @@ function galleria (penna: Penna, chiesta: Galleria, valore: string): void {
         const scala = Math.min(altaFoto / incorporata.height, larghezzaFoto / incorporata.width)
         const larga = incorporata.width * scala
         const alta = incorporata.height * scala
-        penna.pagina.drawImage(incorporata, {
+        disegnaFoto(penna.pagina, incorporata, {
           x: centro - larga / 2,
           y: base + altaRiga - alta - 4,
           width: larga,
@@ -1243,7 +1423,7 @@ function fissi (
         if (!incorporata) continue
         const alta = chiesta.altezza * MM
         const larga = incorporata.width * (alta / incorporata.height)
-        pagina.drawImage(incorporata, {
+        disegnaFoto(pagina, incorporata, {
           x: penna.sinistra + scarto(chiesta.allineamento, larghezza, larga),
           y: daSopra ? filo + 2 : filo - 2 - alta,
           width: larga,
@@ -1376,6 +1556,9 @@ export async function componiPdf (
   pdf.setProducer('Regiklass')
   // testo-fisso: il marchio, uguale in tutte le lingue
   pdf.setCreator('Regiklass')
+  // La lingua dei modelli è quella del programma (`data/templates.ts`): la
+  // dice ai lettori di schermo e alla sillabazione di chi converte.
+  pdf.setLanguage(locale())
 
   corpo.forEach((blocco, i) => {
     // Prima di un'intestazione si guarda se ci sta con quel che la segue.
@@ -1446,6 +1629,25 @@ function corpoSottosezione (penna: Penna): number {
   return penna.corpi.testo * 1.08
 }
 
+/** Fra le righe di un titolo lungo: più stretto del primo stacco, che lo separa da sopra. */
+const INTERLINEA_TESTATA = 1.2
+
+/** Corpo e font di titolo e sottotitolo. */
+function testata (penna: Penna, tipo: 'titolo' | 'sottotitolo'): { corpo: number, font: PDFFont } {
+  return tipo === 'titolo'
+    ? { corpo: penna.corpi.titolo, font: penna.grassetto }
+    : { corpo: penna.corpi.sottotitolo, font: penna.normale }
+}
+
+/**
+ * Le righe di un titolo o sottotitolo: vanno a capo invece di uscire dal
+ * foglio. Le stesse per chi misura e per chi disegna.
+ */
+function righeTestata (penna: Penna, blocco: Blocco): string[] {
+  const { corpo, font } = testata(penna, blocco.tipo === 'titolo' ? 'titolo' : 'sottotitolo')
+  return aCapo(blocco.valore, font, corpo, larghezzaUtile(penna))
+}
+
 /** L'altezza scrivibile di una pagina intera, fra le due bande. */
 function paginaUtile (penna: Penna): number {
   return penna.altezza - penna.alto - penna.basso
@@ -1465,9 +1667,10 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
   const testo = penna.corpi.testo
   switch (blocco.tipo) {
     case 'titolo':
-      return penna.corpi.titolo * 1.5
-    case 'sottotitolo':
-      return penna.corpi.sottotitolo * 1.5
+    case 'sottotitolo': {
+      const { corpo } = testata(penna, blocco.tipo)
+      return corpo * 1.5 + (righeTestata(penna, blocco).length - 1) * corpo * INTERLINEA_TESTATA
+    }
     case 'sezione':
       return penna.corpi.sezione * 2.2 + 4
     case 'sottosezione':
@@ -1477,7 +1680,7 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
     case 'testo':
       return testo * 1.5
     case 'campi': {
-      const { voci, colonne } = leggiRichiestaCampi(blocco.valore)
+      const { voci, colonne } = vociDi(blocco)
       return Math.ceil(voci.length / colonne) * testo * 1.5
     }
     case 'elenco':
@@ -1500,7 +1703,7 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
     case 'avviso':
       return misuraAvviso(penna, blocco.valore).alta
     case 'riquadro':
-      return leggiCampi(blocco.valore).length === 0 ? 0 : altaRiquadro(penna) + 6
+      return vociDi(blocco).voci.length === 0 ? 0 : altaRiquadro(penna) + 6
     case 'galleria': {
       const parete = blocco.galleria ?? dati.gallerie?.[leggiRichiestaGalleria(blocco.valore).nome]
       if (!parete) return 0
@@ -1608,19 +1811,24 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
 
   switch (blocco.tipo) {
     case 'titolo':
-      spazio(penna, penna.corpi.titolo * 1.5)
-      scrivi(penna, blocco.valore, { corpo: penna.corpi.titolo, font: penna.grassetto })
+    case 'sottotitolo': {
+      const { corpo, font } = testata(penna, blocco.tipo)
+      righeTestata(penna, blocco).forEach((riga, i) => {
+        spazio(penna, corpo * (i === 0 ? 1.5 : INTERLINEA_TESTATA))
+        scrivi(penna, riga, { corpo, font })
+      })
       break
-
-    case 'sottotitolo':
-      spazio(penna, penna.corpi.sottotitolo * 1.5)
-      scrivi(penna, blocco.valore, { corpo: penna.corpi.sottotitolo })
-      break
+    }
 
     case 'sezione':
       chiudiRiserva(penna)
       spazio(penna, penna.corpi.sezione * 2.2)
-      scrivi(penna, blocco.valore, { corpo: penna.corpi.sezione, font: penna.grassetto })
+      // Su una riga, col filo sotto: una sezione lunga si accorcia.
+      scrivi(
+        penna,
+        tronca(blocco.valore, penna.grassetto, penna.corpi.sezione, larghezzaUtile(penna)),
+        { corpo: penna.corpi.sezione, font: penna.grassetto },
+      )
       spazio(penna, 4)
       penna.pagina.drawLine({
         start: { x: penna.sinistra, y: penna.y + 2 },
@@ -1654,7 +1862,7 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
       break
 
     case 'campi':
-      campi(penna, blocco.valore)
+      campi(penna, blocco)
       break
 
     case 'elenco':
@@ -1692,7 +1900,7 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
       break
 
     case 'riquadro':
-      riquadro(penna, blocco.valore)
+      riquadro(penna, blocco)
       break
 
     case 'avviso':

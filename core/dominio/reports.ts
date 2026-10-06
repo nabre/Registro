@@ -52,6 +52,12 @@ export interface Blocco {
   elenco?: string[]
   grafico?: Disegno
   galleria?: Galleria
+  /**
+   * Le coppie di `campi:` e `riquadro:`, divise sul modello prima di
+   * riempirle: un valore con «;» o «=» («Rossi SA; filiale Lugano») resta un
+   * valore solo. `valore` tiene il testo riempito, per chi lo legge e basta.
+   */
+  campi?: { voci: Array<{ etichetta: string, valore: string }>, colonne: number }
 }
 
 /**
@@ -101,8 +107,8 @@ export interface Corpi {
 
 /**
  * Le misure con cui il foglio viene disegnato: `_stile.tpl`, un modello che
- * tutti estendono. Si cambia un numero e vale dalla stampa dopo, senza
- * ricompilare.
+ * tutti estendono. Come ogni modello sta solo nel programma (ADR-34): si
+ * cambia in `templates/` e si rigenera con `npm run templates`.
  */
 export interface Stile {
   /** Il foglio, in millimetri. L'orientamento lo gira; qui sta com'è in piedi. */
@@ -817,6 +823,20 @@ function risolvi (blocco: Blocco, dati: DatiRapporto): Blocco | null {
 
   const testo = riempi(blocco.valore, dati.valori, dati.frasi)
   if (restaVuota(blocco.valore, testo)) return null
+  if (blocco.tipo === 'campi' || blocco.tipo === 'riquadro') {
+    // Si divide il modello, poi si riempie ogni pezzo: i separatori sono
+    // quelli scritti da chi ha fatto il modello, non quelli nei dati.
+    const { voci, colonne } = blocco.tipo === 'campi'
+      ? leggiRichiestaCampi(blocco.valore)
+      : { voci: leggiCampi(blocco.valore), colonne: 1 }
+    const piene = voci
+      .map((voce) => ({
+        etichetta: riempi(voce.etichetta, dati.valori, dati.frasi).trim(),
+        valore: riempi(voce.valore, dati.valori, dati.frasi).trim(),
+      }))
+      .filter((voce) => voce.valore !== '')
+    return { tipo: blocco.tipo, valore: testo, campi: { voci: piene, colonne } }
+  }
   return { tipo: blocco.tipo, valore: testo }
 }
 
@@ -1128,9 +1148,9 @@ function stringi (naturali: number[], larghezza: number): number[] {
 
 /**
  * Le parole comuni a tutti i rapporti: `_testi.tpl` e le traduzioni
- * (`_testi-de.tpl`…). Frasi con un numero e nomi delle colonne, modificabili
- * senza ricompilare. Quale file si legge lo decide chi stampa
- * (`data/templates.ts`) dalla lingua.
+ * (`_testi-de.tpl`…). Frasi con un numero e nomi delle colonne, compilate nel
+ * programma con gli altri modelli (ADR-34). Quale file si legge lo decide chi
+ * stampa (`data/templates.ts`) dalla lingua.
  */
 export interface Testi {
   /** Le frasi, per nome: `{{frase.nome}}` le pesca da qui. */
