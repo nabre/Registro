@@ -919,7 +919,7 @@ describe('l’assenza oltre la soglia', () => {
     )
     assert.equal(
       scheda.valori.avvisoAssenza,
-      'Attenzione: assenza del 33,4%, oltre il 33% previsto.',
+      'Attenzione: assenza del 33.4%, oltre il 33% previsto.',
     )
   })
 

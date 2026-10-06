@@ -339,6 +339,23 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 - [ ] Nel `.regi` restano le esportazioni coi nomi di prima (id nel nome,
       «1° sem.» e «1° semestre»): su un registro vero 470 voci che nessun dato
       cita, e percorsi oltre i 260 caratteri che Esplora risorse non estrae.
+- [ ] Font Unicode nei PDF: Helvetica di serie (WinAnsi) e `sanifica` toglie
+      i segni (č → c, Đ → D). Per i nomi esatti serve LiberationSans
+      incorporata (`resources/pdf-fonts`, ADR-46.7): manca fontkit fra le
+      dipendenze, e il subset va provato deterministico (ADR-48).
+- [ ] Foto delle persone: entrano nel documento a piena risoluzione
+      (`register.ts` all'import) e il PDF le incorpora così; ogni scheda
+      rifatta pesa MB nel `.regi`. Ridurle all'import (lato ~600 px) e
+      raddrizzarle lì (EXIF) invece che a ogni stampa.
+- [ ] Nomi dei file del piano: «Piano», «Piano bozza», «Piano in
+      preparazione» restano in italiano anche in de/fr/en
+      (`locations.ts`). Forse voluto per le bozze gemelle: decidere.
+- [ ] Fascicolo di classe: le colonne «A chi» di comunicazioni e pendenze
+      stampano tutti gli indirizzi. È il foglio del docente di classe, che
+      elenca già l'anagrafica: decidere se va bene così.
+- [ ] Omonimi già scritti prima della distinzione « (N)»: il PDF al
+      percorso comune resta del primo; se il primo omonimo si toglie, il
+      secondo perde il numero (come i progetti).
 
 ### Attese e blocchi
 
