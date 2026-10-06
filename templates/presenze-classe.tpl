@@ -14,8 +14,10 @@ campi: {{frase.lezioni-a-calendario}}={{quanti}}; {{frase.ud-previste}}={{ud}}; 
 campi: {{frase.assenza-di-classe}}={{assenza}}; {{frase.presenza-di-classe}}={{presenza}}
 
 sezione: {{frase.per-persona}}
+se: {{presenze}}
 tabella: presenze
 paragrafo: {{frase.nota-presenze}}
+fine:
 
 # La stessa «% assenza» della tabella, come barra: una a testa sulla stessa
 # scala, con la riga della soglia. Chi è oltre ha la barra piena e la cifra in

@@ -5,11 +5,12 @@
 # modelli lo ereditano passando da _base, e cambiando un numero qui cambiano
 # tutti i rapporti insieme.
 #
-# Stava dentro il codice, in costanti che si potevano toccare solo
-# ricompilando — e quindi non si toccavano. Ma «esce troppo piccolo per
-# leggerlo», «questa tabella non ci sta in larghezza», «in sede si stampa in
-# A3» sono cose che si scoprono usando i rapporti, cioè quando ricompilare non
-# è un'opzione.
+# Stava sparso in costanti dentro il codice, dove nessuno lo andava a cercare.
+# Ma «esce troppo piccolo per leggerlo», «questa tabella non ci sta in
+# larghezza», «in sede si stampa in A3» sono cose che si scoprono usando i
+# rapporti, e vogliono un posto solo dove si cambiano. Come ogni file di questa
+# cartella, un numero cambiato qui arriva nel programma con «npm run templates»
+# e una build nuova (ADR-34).
 #
 # Un singolo modello può ritoccare queste stesse righe in testa al suo file, e
 # vale solo per lui: valutazioni-classe.tpl lo fa già con l'orientamento.

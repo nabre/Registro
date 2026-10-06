@@ -18,7 +18,7 @@ pagina-di-pagine: Seite {{pagina}} von {{pagine}}
 # --- I sottotitoli
 
 quanti-pif: {{allievi}} Lernende
-quanti-momenti: {{quanti}} Leistungsbeurteilungen
+quanti-momenti: Leistungsbeurteilungen: {{quanti}}
 
 # --- Le etichette dei campi
 
@@ -61,11 +61,11 @@ telefono-rappresentante: Telefon der gesetzlichen Vertretung
 telefono-datore: Telefon des Arbeitgebers
 nota-semestre: Semesternote
 ud-settimanali: Wöchentliche Lektionen
-lezioni-svolte: Gehaltene Lektionen
+lezioni-svolte: Gehaltene Stunden
 ud-svolte: Gehaltene Lektionen
 presenza-media: Durchschnittliche Anwesenheit
 media-di-classe: Klassenschnitt
-lezioni: Lektionen
+lezioni: Stunden
 media-progetto: Projektdurchschnitt
 periodo: Zeitraum
 avanzamento: Fortschritt
@@ -85,7 +85,6 @@ osservazioni: Beobachtungen
 com-e-andata: Wie es lief
 consuntivo: Rückblick
 persone-in-formazione: Lernende
-documenti-raccolti: Eingesammelte Dokumente
 periodi-di-assenze: Absenzzeiträume
 distribuzione: Verteilung
 andamento: Verlauf der Noten
@@ -104,20 +103,18 @@ i-momenti: Die Beurteilungen
 recuperi: Nachprüfungen
 da-ridare: Noch zurückzugebende Prüfungen
 check: Checkliste
-dettaglio-prove: Detail der Prüfungen
 quadro-orario: Stundenplan
 sospensioni-calendario: Unterrichtsfreie Tage
 consegne: Aufgaben und Abgaben
 richieste-documenti: Dokumente und Klassenabgaben
 comunicazioni: Mitteilungen
-dettaglio-assenze: Absenzen und Unterschriften
 diario-lezioni: Unterrichtstagebuch
-piani-lezione: Lektionspläne
+piani-lezione: Unterrichtspläne
 pendenze: Pendenzen des Kurses
 quadro-per-persona: Übersicht pro Person
 criteri: Beurteilungskriterien
 scala-livelli: Niveauskala
-lezioni-del-progetto: Lektionen des Projekts
+lezioni-del-progetto: Stunden des Projekts
 avanzamento-attivita: Fortschritt der Aktivitäten
 fasi-del-progetto: Projektphasen
 valutazioni-della-fase: Beurteilungen der Phase
@@ -128,7 +125,7 @@ progressione: Verlauf
 valutazioni-del-progetto: Beurteilungen des Projekts
 giudizi: Bemerkungen
 risorse: Ressourcen
-presenze-progetto: Anwesenheit in den Projektlektionen
+presenze-progetto: Anwesenheit in den Projektstunden
 legenda-compiti: Jedes Feld zeigt, wann die Person den Auftrag begonnen hat, bis wann sie ihn abschliessen muss (mit Verlängerung, falls gewährt) und wie weit sie ist.
 nota-livelli: Das zuletzt vergebene Niveau pro Kriterium. Der Weg dorthin, Tag für Tag, steht in der Tabelle zum Verlauf.
 
@@ -136,7 +133,7 @@ nota-livelli: Das zuletzt vergebene Niveau pro Kriterium. Der Weg dorthin, Tag f
 
 oltre-soglia: Absenz über den vorgesehenen {{sogliaAssenza}}%:
 
-appello-incompleto: Präsenzkontrolle unvollständig: {{udSenzaAppello}} Felder nicht erfasst.
+appello-incompleto: Präsenzkontrolle unvollständig, nicht erfasste Felder: {{udSenzaAppello}}.
 
 riepilogo-presenze: Anwesend {{presenti}}/{{conAppello}} · abwesend {{assenti}} · teilweise {{parziali}} · verspätet {{ritardi}}
 

@@ -1,10 +1,10 @@
 // Rigenera `core/dati/defaultTemplates.ts` dal contenuto di `templates/`: i
-// modelli di serie, scritti al primo avvio quando la cartella non c'è ancora.
+// modelli dei rapporti, compilati dentro il programma (ADR-34).
 //
 //   npm run templates
 //
-// Da lanciare dopo ogni modifica a `templates/`; `npm test` controlla che i
-// due siano d'accordo.
+// Da lanciare dopo ogni modifica a `templates/`, prima della build; `npm test`
+// controlla che i due siano d'accordo.
 
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -12,18 +12,15 @@ import { pathToFileURL } from 'node:url'
 
 import { RADICE } from './common.mjs'
 
-// La copia maestra, che finisce nel pacchetto. Non è la `templates/` del
-// docente, che sta accanto al suo documento d'anno.
+// La sola copia dei modelli. Non è la `templates/` che le versioni vecchie
+// scrivevano accanto al documento d'anno: quella si legge solo per importarne
+// l'intestazione e segnalare i modelli toccati a mano.
 export const CARTELLA_MODELLI = join(RADICE, 'templates')
 export const FILE_GENERATO = join(RADICE, 'core', 'dati', 'defaultTemplates.ts')
 
-const TESTATA = `// I modelli di serie, quelli che il registro scrive in \`templates/\` quando la
-// cartella non c'è ancora.
-//
-// La copia che conta è quella su disco: appena esiste, è lei a essere letta, e
-// questa non la tocca più. Servono a un caso solo — il primo avvio, o una
-// cartella cancellata — perché un registro che non sa stampare finché qualcuno
-// non gli copia dei file dentro sarebbe rotto appena installato.
+const TESTATA = `// I modelli dei rapporti, i soli che il registro usa: non ne scrive una copia
+// su disco e non ne legge una da lì (ADR-34). Un cambiamento in \`templates/\`
+// arriva nel programma solo passando di qui e da una build nuova.
 //
 // Generato da \`templates/\` con \`npm run templates\`: non si scrive a mano. Che i
 // due siano in accordo lo controlla \`npm test\`.

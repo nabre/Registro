@@ -20,8 +20,10 @@ sezione: {{frase.quadro-per-persona}}
 tabella: quadro
 
 sezione: {{frase.presenze}}
+se: {{presenze}}
 tabella: presenze
 paragrafo: {{frase.nota-presenze}}
+fine:
 
 # La stessa «% assenza» della tabella, come barra: una a testa sulla stessa
 # scala, con la riga della soglia. Chi è oltre ha la barra piena e la cifra in

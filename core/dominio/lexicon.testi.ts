@@ -64,7 +64,8 @@ export const lessico = catalogo(it, {
   de: {
     // Die Wörter der Berufsbildung in der Schweiz: «Lernende», «Lehrbetrieb»,
     // «Lektion» für die 45-Minuten-Einheit.
-    pif: { singolare: 'Lernende', plurale: 'Lernende', genere: 'f', breve: 'LP' },
+    // Niente «LP» per abbreviare: in una colonna si legge «Lehrperson».
+    pif: { singolare: 'Lernende', plurale: 'Lernende', genere: 'f', breve: 'Lernende' },
     docente: { singolare: 'Lehrperson', plurale: 'Lehrpersonen', genere: 'f' },
     docenteClasse: { singolare: 'Klassenlehrperson', plurale: 'Klassenlehrpersonen', genere: 'f' },
     rappresentante: {

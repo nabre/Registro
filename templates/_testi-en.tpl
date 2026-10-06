@@ -18,7 +18,7 @@ pagina-di-pagine: page {{pagina}} of {{pagine}}
 # --- I sottotitoli
 
 quanti-pif: {{allievi}} learners
-quanti-momenti: {{quanti}} assessments
+quanti-momenti: Assessments: {{quanti}}
 
 # --- Le etichette dei campi
 
@@ -85,7 +85,6 @@ osservazioni: Observations
 com-e-andata: How it went
 consuntivo: Review
 persone-in-formazione: Learners
-documenti-raccolti: Documents collected
 periodi-di-assenze: Absence periods
 distribuzione: Distribution
 andamento: Grade trend
@@ -104,13 +103,11 @@ i-momenti: The assessments
 recuperi: Resits
 da-ridare: Tests still to be handed back
 check: Checklist
-dettaglio-prove: Assessment details
 quadro-orario: Timetable
 sospensioni-calendario: Calendar breaks
 consegne: Assignments and tasks
 richieste-documenti: Class documents and requests
 comunicazioni: Communications
-dettaglio-assenze: Absences and signatures detail
 diario-lezioni: Lesson journal
 piani-lezione: Lesson plans
 pendenze: Course pending tasks
@@ -136,7 +133,7 @@ nota-livelli: The latest level given for each criterion. The path to it, day by 
 
 oltre-soglia: Absence above the expected {{sogliaAssenza}}%:
 
-appello-incompleto: Attendance incomplete: {{udSenzaAppello}} boxes not set.
+appello-incompleto: Attendance incomplete, boxes not set: {{udSenzaAppello}}.
 
 riepilogo-presenze: Present {{presenti}}/{{conAppello}} · absent {{assenti}} · partial {{parziali}} · late {{ritardi}}
 
