@@ -56,7 +56,7 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     colonnePresenze: [
-      'LP', 'Stunden', 'Lektionen vorgesehen', 'Lektionen kontrolliert', 'Lektionen anwesend',
+      'Lernende', 'Stunden', 'Lektionen vorgesehen', 'Lektionen kontrolliert', 'Lektionen anwesend',
       'Lektionen abwesend', 'Lektionen dispensiert', 'Ganze Absenzen', 'Teilweise Absenzen', 'Verspätungen',
       'Minuten Verspätung', 'Absenzen % der vorgesehenen', 'Absenzen % der kontrollierten',
     ],

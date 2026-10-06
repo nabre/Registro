@@ -26,7 +26,7 @@ export function oltreSoglia (soglia: number, quota: number | null): boolean {
 
 /**
  * La percentuale da leggere: intera, o con un decimale per eccesso quando
- * l'intero sembrerebbe dentro la soglia (20,3% con soglia 20 si legge 20,1,
+ * l'intero sembrerebbe dentro la soglia (20.3% con soglia 20 si legge 20.1,
  * non «20%» accanto a «oltre il 20%»).
  */
 function percentoDaLeggere (quota: number, soglia: number): number {
@@ -39,7 +39,7 @@ function percentoDaLeggere (quota: number, soglia: number): number {
 }
 
 /**
- * Una quota di assenza da leggere accanto alla soglia: «18%», o «20,1%» per
+ * Una quota di assenza da leggere accanto alla soglia: «18%», o «20.1%» per
  * chi è oltre di un soffio. Ogni posto che stampa un'assenza passa di qui.
  */
 export function percentoAssenza (
@@ -49,7 +49,7 @@ export function percentoAssenza (
 ): string {
   if (quota === null || quota === undefined) return vuoto
   if (!oltreSoglia(soglia, quota)) return percento(quota, vuoto)
-  return `${String(percentoDaLeggere(quota, soglia)).replace('.', ',')}%`
+  return `${percentoDaLeggere(quota, soglia)}%`
 }
 
 /** Una persona oltre la soglia, in un corso e in un periodo. */

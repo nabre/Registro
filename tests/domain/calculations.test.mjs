@@ -1075,7 +1075,7 @@ describe('le percentuali', () => {
   it('percentoAssenza non scrive «20%» per chi è oltre il 20', () => {
     const quota = 45 / 224
     assert.equal(percento(quota), '20%')
-    assert.equal(percentoAssenza(quota, 20), '20,1%')
+    assert.equal(percentoAssenza(quota, 20), '20.1%')
     assert.equal(percentoAssenza(0.18, 20), '18%')
     assert.equal(percentoAssenza(0.5, 20), '50%')
     assert.equal(percentoAssenza(null, 20), '—')
@@ -1114,7 +1114,7 @@ describe('le percentuali', () => {
     const { registro, corso } = scuolaDiDodici()
     const dati = datiPresenze(registro, corso, PERIODO)
     assert.equal(dati.elenchi.oltreSoglia.length, 1)
-    assert.match(dati.elenchi.oltreSoglia[0], /assenza del 8,4% su 12 UD previste/)
+    assert.match(dati.elenchi.oltreSoglia[0], /assenza del 8.4% su 12 UD previste/)
   })
 
   it('su carta si elencano solo le ore confermate svolte, i conti restano quelli dello schermo', () => {
@@ -1128,7 +1128,7 @@ describe('le percentuali', () => {
     const presenze = datiPresenze(registro, corso, PERIODO)
     assert.equal(presenze.valori.quanti, '2')
     // La percentuale è quella dell'elenco a schermo, pianificate comprese.
-    assert.match(presenze.elenchi.oltreSoglia[0], /assenza del 8,4% su 12 UD previste/)
+    assert.match(presenze.elenchi.oltreSoglia[0], /assenza del 8.4% su 12 UD previste/)
   })
 })
 
