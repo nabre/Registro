@@ -133,6 +133,11 @@ const it = {
     comunicazione: 'Comunicazione',
   },
   tuttiPresenti: 'Tutti presenti',
+  /** Un'ora svolta in cui nessuno ha segnato niente: non vuol dire tutti presenti. */
+  appelloNonFatto: 'appello non fatto',
+  /** Al posto della nota di chi ha voti su scale diverse: la media sarebbe falsa. */
+  scaleDiverse: 'scale diverse',
+  avvisoScale: 'Le prove usano scale diverse: la media non si calcola.',
   assentiN: (n: number) => plurale(n, 'assente', 'assenti'),
   erroreInvio: 'errore',
   daInviare: 'da inviare',
@@ -207,7 +212,8 @@ const it = {
     ritardi: number,
   ) =>
     `Presenti ${presenti}/${conAppello} · assenti ${assenti} · parziali ${parziali} · ritardi ${ritardi}`,
-  appelloIncompleto: (caselle: number) => `Appello incompleto: ${plurale(caselle, 'casella non impostata', 'caselle non impostate')}.`,
+  /** Senza accordo: la frase non cambia con il numero, in nessuna lingua. */
+  appelloIncompleto: (caselle: number) => `Appello incompleto, caselle non impostate: ${caselle}.`,
   notaPresenze: (previste: number, aCalendario: number) =>
     `Le UD previste dall’orario del corso nel periodo sono ${previste}, ` +
     `di cui ${aCalendario} già a calendario. «% presenza» e «% assenza» sono calcolate su ` +
@@ -227,7 +233,7 @@ const it = {
   statoLezione: (stato: StatoLezione): string => lessico.in('it').statiLezione[stato] ?? stato,
   /** A che punto è una tappa della scaletta, come lo scrive il documento. */
   statiAttivita: {
-    'da-fare': 'da-fare',
+    'da-fare': 'da fare',
     svolta: 'svolta',
     parziale: 'parziale',
     saltata: 'saltata',
@@ -258,7 +264,7 @@ export const testi = catalogo(it, {
       progettoAllievo: 'Projekt: Personenblatt',
     },
     colonne: {
-      pif: 'LP',
+      pif: 'Lernende',
       numero: '#',
       minuti: 'Min.',
       nota: 'Bemerkung',
@@ -346,6 +352,9 @@ export const testi = catalogo(it, {
       comunicazione: 'Mitteilung',
     },
     tuttiPresenti: 'Alle anwesend',
+    appelloNonFatto: 'keine Präsenzkontrolle',
+    scaleDiverse: 'verschiedene Skalen',
+    avvisoScale: 'Die Prüfungen verwenden verschiedene Notenskalen: Ein Durchschnitt wird nicht berechnet.',
     assentiN: (n) => plurale(n, 'abwesend', 'abwesend'),
     erroreInvio: 'Fehler',
     daInviare: 'zu senden',
@@ -402,8 +411,7 @@ export const testi = catalogo(it, {
       `Achtung: Absenz von ${quota}, über den vorgesehenen ${soglia}%.`,
     riepilogoPresenze: (presenti, conAppello, assenti, parziali, ritardi) =>
       `Anwesend ${presenti}/${conAppello} · abwesend ${assenti} · teilweise ${parziali} · verspätet ${ritardi}`,
-    appelloIncompleto: (caselle) =>
-      `Präsenzkontrolle unvollständig: ${plurale(caselle, 'Feld', 'Felder')} nicht erfasst.`,
+    appelloIncompleto: (caselle) => `Präsenzkontrolle unvollständig, nicht erfasste Felder: ${caselle}.`,
     notaPresenze: (previste, aCalendario) =>
       `Laut Stundenplan des Kurses sind im Zeitraum ${previste} Lektionen vorgesehen, ` +
       `davon ${aCalendario} bereits im Kalender. «% Anwesenheit» und «% Absenz» beziehen sich ` +
@@ -534,6 +542,9 @@ export const testi = catalogo(it, {
       comunicazione: 'Communication',
     },
     tuttiPresenti: 'Tous présents',
+    appelloNonFatto: 'appel non fait',
+    scaleDiverse: 'échelles différentes',
+    avvisoScale: 'Les épreuves utilisent des échelles différentes : la moyenne n’est pas calculée.',
     assentiN: (n) => plurale(n, 'absent', 'absents'),
     erroreInvio: 'erreur',
     daInviare: 'à envoyer',
@@ -590,8 +601,7 @@ export const testi = catalogo(it, {
       `Attention : absence de ${quota}, au-delà des ${soglia} % prévus.`,
     riepilogoPresenze: (presenti, conAppello, assenti, parziali, ritardi) =>
       `Présents ${presenti}/${conAppello} · absents ${assenti} · partiels ${parziali} · retards ${ritardi}`,
-    appelloIncompleto: (caselle) =>
-      `Appel incomplet : ${plurale(caselle, 'case non saisie', 'cases non saisies')}.`,
+    appelloIncompleto: (caselle) => `Appel incomplet, cases non saisies : ${caselle}.`,
     notaPresenze: (previste, aCalendario) =>
       `L’horaire du cours prévoit ${previste} périodes sur l’intervalle choisi, dont ` +
       `${aCalendario} déjà au calendrier. Le « % présence » et le « % absence » sont calculés ` +
@@ -722,6 +732,9 @@ export const testi = catalogo(it, {
       comunicazione: 'Notice',
     },
     tuttiPresenti: 'All present',
+    appelloNonFatto: 'attendance not taken',
+    scaleDiverse: 'different scales',
+    avvisoScale: 'The tests use different grading scales: no average is calculated.',
     assentiN: (n) => plurale(n, 'absent', 'absent'),
     erroreInvio: 'error',
     daInviare: 'to send',
@@ -778,7 +791,7 @@ export const testi = catalogo(it, {
       `Warning: absence of ${quota}, above the expected ${soglia}%.`,
     riepilogoPresenze: (presenti, conAppello, assenti, parziali, ritardi) =>
       `Present ${presenti}/${conAppello} · absent ${assenti} · partial ${parziali} · late ${ritardi}`,
-    appelloIncompleto: (caselle) => `Attendance incomplete: ${plurale(caselle, 'box', 'boxes')} not set.`,
+    appelloIncompleto: (caselle) => `Attendance incomplete, boxes not set: ${caselle}.`,
     notaPresenze: (previste, aCalendario) =>
       `The course timetable plans ${previste} periods for this time span, ${aCalendario} of ` +
       'which are already in the calendar. “% attendance” and “% absence” are calculated on the ' +

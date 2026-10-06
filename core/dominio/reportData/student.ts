@@ -1,12 +1,11 @@
 // La scheda di un allievo.
 
 import {
-  formattaVoto,
-  mediaAllievo,
+  confrontaLezioni,
   contaUd,
-  notaFineSemestre,
   nomeCompleto,
   siglaPresenza,
+  statiAllineati,
   statoUd,
   minutiRitardoOra,
 } from '#core/dominio/calculations.js'
@@ -18,7 +17,7 @@ import { scriviIndirizzo } from '#core/dominio/addresses.js'
 import { primoTelefono, scriviTelefoni } from '#core/dominio/phones.js'
 import { matriceCorso, udPrevisteDelCorso } from '#core/dominio/courseMatrix.js'
 import { celleDiAllievo, nomeSegnoScritto } from '#core/dominio/observations.js'
-import { recuperiDelMomento, rigaDelRecupero } from '#core/dominio/retakes.js'
+import { rigaDelRecupero, statoDelRecupero } from '#core/dominio/retakes.js'
 import { dataConsegna } from '#core/dominio/assignments.js'
 import { dataSpunta } from '#core/dominio/check.js'
 import {
@@ -40,6 +39,7 @@ import {
   legenda,
   nomeAspetto,
   avvisoAssenza,
+  mediaStampata,
 } from './common.js'
 
 /**
@@ -159,22 +159,18 @@ export function datiAllievo (
   const suoDelPeriodo = unico
     ? registro.valutazioni.filter((v) => v.corsoId === unico.id && nelPeriodo(v.data))
     : []
-  const conto = unico ? mediaAllievo(suoDelPeriodo, allievo.id) : null
-  const notaSua = conto
-    ? notaFineSemestre(
-        conto.media,
-        registro.impostazioni.scala,
-        registro.impostazioni.passoFineSemestre,
-      )
-    : null
+  const conto = unico ? mediaStampata(registro, suoDelPeriodo, allievo.id) : null
 
   dati.valori.prove = conto ? String(conto.conteggio) : ''
-  dati.valori.media = conto?.media === null || conto === null ? '' : conto.media.toFixed(2)
-  dati.valori.notaSemestre = notaSua === null ? '' : formattaVoto(notaSua)
+  dati.valori.media = conto?.media ?? ''
+  // Con scale diverse la nota di pagella non c'è: il riquadro sparisce, e
+  // l'avviso dice perché.
+  dati.valori.notaSemestre = conto?.scaleDiverse ? '' : conto?.nota ?? ''
+  dati.valori.avvisoScale = conto?.scaleDiverse ? t.avvisoScale : ''
   // I suoi voti nel tempo, di un corso solo: fra due materie la linea non
   // direbbe niente. Con meno di due voti il modello non lo disegna.
   if (unico && conto) {
-    dati.grafici.andamento = andamentoAllievo(registro, suoDelPeriodo, allievo.id, conto.media)
+    dati.grafici.andamento = andamentoAllievo(registro, suoDelPeriodo, allievo.id, conto.valore)
   }
 
   dati.tabelle.medie = {
@@ -185,18 +181,8 @@ export function datiAllievo (
         const suoi = registro.valutazioni.filter(
           (v) => v.corsoId === corso.id && nelPeriodo(v.data),
         )
-        const media = mediaAllievo(suoi, allievo.id)
-        const nota = notaFineSemestre(
-          media.media,
-          registro.impostazioni.scala,
-          registro.impostazioni.passoFineSemestre,
-        )
-        return [
-          corso.titolo,
-          String(media.conteggio),
-          media.media === null ? '' : media.media.toFixed(2),
-          nota === null ? '' : formattaVoto(nota),
-        ]
+        const media = mediaStampata(registro, suoi, allievo.id)
+        return [corso.titolo, String(media.conteggio), media.media, media.nota]
       })
       .filter((riga) => riga[1] !== '0'),
   }
@@ -208,14 +194,14 @@ export function datiAllievo (
     pesi: [2, 4, 5, 1, 1, 3, 2],
     // Numero di prove e media in fondo alla colonna dei voti; con più corsi
     // non c'è.
-    ...(conto && conto.media !== null
+    ...(conto && conto.media !== ''
       ? {
           totale: [
             t.totale,
             '',
             t.prove(conto.conteggio),
             '',
-            conto.media.toFixed(2),
+            conto.media,
             '',
             '',
           ],
@@ -261,7 +247,7 @@ export function datiAllievo (
     .flatMap((suo) => registroDelCorso(registro, suo.id))
     // Su carta solo le ore confermate svolte: una pianificata non è ancora avvenuta.
     .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data))
-    .sort((a, b) => a.data.localeCompare(b.data))
+    .sort(confrontaLezioni)
 
   // Colonne dell'ora più lunga del periodo: le caselle che non esistono
   // restano vuote, perché il trattino vuol dire «UD senza appello».
@@ -296,25 +282,28 @@ export function datiAllievo (
     pesi: [2, 3, 6, 3, 4, 3],
     righe: ore.map((lezione) => {
       const presenza = lezione.presenze.find((p) => p.allievoId === allievo.id)
+      // Gli stati portati alla lunghezza dell'ora, come la tabella sopra: una
+      // riga corta o lunga non deve cambiare il conto.
+      const stati = statiAllineati(presenza, contaUd(lezione, minutiUd))
       let testoPresenza = '—'
-      if (presenza && presenza.stati.length > 0) {
-        const assenti = presenza.stati.filter((s) => s === 'assente').length
-        const presenti = presenza.stati.filter((s) => s === 'presente').length
-        const esonerati = presenza.stati.filter((s) => s === 'esonerato').length
-        if (assenti === presenza.stati.length) {
+      if (presenza && stati.some((s) => s !== 'non-impostato')) {
+        const assenti = stati.filter((s) => s === 'assente').length
+        const presenti = stati.filter((s) => s === 'presente').length
+        const esonerati = stati.filter((s) => s === 'esonerato').length
+        if (assenti === stati.length) {
           testoPresenza = L.presenze.assente
-        } else if (presenti === presenza.stati.length) {
+        } else if (presenti === stati.length) {
           testoPresenza = minutiRitardoOra(presenza)
             ? `${L.presenze.ritardo} (${minutiRitardoOra(presenza)}’)`
             : L.presenze.presente
-        } else if (esonerati === presenza.stati.length) {
+        } else if (esonerati === stati.length) {
           testoPresenza = L.presenze.esonerato
-        } else if (presenza.stati.some((s) => s === 'ritardo')) {
+        } else if (stati.some((s) => s === 'ritardo')) {
           testoPresenza = minutiRitardoOra(presenza)
             ? `${L.presenze.ritardo} (${minutiRitardoOra(presenza)}’)`
             : L.presenze.ritardo
         } else {
-          testoPresenza = `${presenti}/${presenza.stati.length} UD`
+          testoPresenza = `${presenti}/${stati.length} UD`
         }
       }
 
@@ -330,7 +319,8 @@ export function datiAllievo (
         .map((c) => c.testo)
         .join('; ')
 
-      const nota = [presenza?.nota, lezione.consuntivo, lezione.materiali].filter(Boolean).join(' — ')
+      // Il consuntivo no: è la nota del docente sulla classe, non su di lui.
+      const nota = [presenza?.nota, lezione.materiali].filter(Boolean).join(' — ')
 
       return [
         formattaData(lezione.data),
@@ -419,11 +409,13 @@ export function datiAllievo (
     righe: righeCheck,
   }
 
-  // Le consegne e compiti assegnati a questo allievo
+  // Le consegne e compiti assegnati a questo allievo nel periodo, come nella
+  // scheda del corso.
   const consegneAllievo = (registro.consegne ?? []).filter(
     (c) =>
       corsi.some((suo) => suo.id === c.corsoId) &&
-      (c.a === 'classe' || (c.a === 'allievi' && c.allieviIds.includes(allievo.id))),
+      (c.a === 'classe' || (c.a === 'allievi' && c.allieviIds.includes(allievo.id))) &&
+      nelPeriodo(dataConsegna(registro, c)),
   )
   dati.tabelle.consegne = {
     ...colonne((c) => [c.corso, c.tipo, c.cheCosa, c.perQuando, c.stato]),
@@ -444,22 +436,28 @@ export function datiAllievo (
     }),
   }
 
-  // I recuperi dell'allievo nelle materie della scheda
+  // I recuperi dell'allievo nelle materie della scheda, con la stessa regola
+  // della griglia dei voti e della scheda del corso: anche chi mancava
+  // all'ora della prova e non ha ancora una riga di recupero. Di un ritirato
+  // restano solo quelli chiusi: un recupero aperto non lo farà più.
+  const giorno = oggi()
   const recuperiAllievo = registro.valutazioni
     .filter((v) => corsi.some((c) => c.id === v.corsoId) && nelPeriodo(v.data))
+    .sort((a, b) => a.data.localeCompare(b.data))
     .flatMap((m) => {
+      const stato = statoDelRecupero(registro, m, allievo.id, giorno)
+      if (!stato) return []
+      if (!allievo.attivo && stato !== 'fatto' && stato !== 'dispensato') return []
       const riga = rigaDelRecupero(m, allievo.id)
-      if (!riga) return []
       const voto = m.voti.find((v) => v.allievoId === allievo.id)
-      const rec = recuperiDelMomento(registro, m, classe, oggi())
-        .find((r) => r.allievo.id === allievo.id)
+      const resa = riga ? riga.riconsegnataIl ?? null : voto?.riconsegnataIl ?? null
       return [[
         registro.corsi.find((c) => c.id === m.corsoId)?.titolo ?? '',
         m.titolo,
-        riga.previstoIl ? formattaData(riga.previstoIl) : '',
+        riga?.previstoIl ? formattaData(riga.previstoIl) : '',
         voto?.valore !== null && voto?.valore !== undefined ? String(voto.valore) : '',
-        riga.riconsegnataIl ? formattaData(riga.riconsegnataIl) : '',
-        t.statiRecupero[rec?.stato ?? 'da-fissare'],
+        resa ? formattaData(resa) : '',
+        t.statiRecupero[stato],
       ]]
     })
   dati.tabelle.recuperi = {
@@ -487,13 +485,20 @@ export function datiAllievo (
     ]),
   }
 
+  // Gli indirizzi suoi, in minuscolo come li salva l'invio: la scheda di uno
+  // non deve portare in giro quelli dei compagni e delle loro famiglie.
+  const suoi = new Set(
+    [allievo.email, allievo.emailTutore, allievo.emailDatore]
+      .map((indirizzo) => (indirizzo ?? '').trim().toLowerCase())
+      .filter(Boolean),
+  )
+  const aLui = (com: { destinatari: string[] }) =>
+    com.destinatari.filter((dest) => suoi.has(dest.trim().toLowerCase()))
+  // Una comunicazione alla classe (allievi o tutori) lo riguarda anche da
+  // bozza, quando gli indirizzi non sono ancora scritti.
   const comunicazioniAllievo = (!corso && fascicolo)
     ? (fascicolo.comunicazioni ?? []).filter(
-        (com) =>
-          com.destinatari.includes(allievo.email ?? '') ||
-          com.destinatari.includes(allievo.emailTutore ?? '') ||
-          com.destinatari.includes(allievo.emailDatore ?? '') ||
-          com.destinatari.some((dest) => dest.includes(allievo.cognome)),
+        (com) => com.aAllievi || com.aTutori || aLui(com).length > 0,
       )
     : []
   dati.tabelle.comunicazioni = {
@@ -504,7 +509,11 @@ export function datiAllievo (
       const stato = com.inviataIl
         ? formattaData(giornoDi(com.inviataIl) ?? com.inviataIl.slice(0, 10))
         : com.errore ? t.erroreInvio : t.bozza
-      return [data, com.oggetto, com.destinatari.join(', '), stato]
+      const propri = aLui(com).join(', ')
+      const aChi = com.aAllievi || com.aTutori
+        ? propri ? `${t.tuttaLaClasse} (${propri})` : t.tuttaLaClasse
+        : propri
+      return [data, com.oggetto, aChi, stato]
     }),
   }
 

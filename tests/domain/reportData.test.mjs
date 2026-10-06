@@ -81,8 +81,10 @@ describe('il conto delle presenze', () => {
     assert.equal(secondo.valori.periodo, '2° semestre')
     assert.equal(primo.valori.quanti, '1', 'una lezione nel primo')
     assert.equal(secondo.valori.quanti, '1', 'e una nel secondo')
+    // La presenza di classe è sulle UD previste, come la riga «Classe»: Luca,
+    // senza appello, non ha perso niente.
     assert.equal(primo.valori.presenza, '100%')
-    assert.equal(secondo.valori.presenza, '0%')
+    assert.equal(secondo.valori.presenza, '50%')
   })
 
   it('senza semestre guarda l’anno, e lo dice', () => {
@@ -95,7 +97,7 @@ describe('il conto delle presenze', () => {
 
     assert.equal(tutto.valori.periodo, 'anno intero')
     assert.equal(tutto.valori.quanti, '2')
-    assert.equal(tutto.valori.presenza, '50%')
+    assert.equal(tutto.valori.presenza, '75%')
   })
 
   it('le ore annullate non contano: nessuno poteva esserci', () => {

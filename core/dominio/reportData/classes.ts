@@ -20,7 +20,15 @@ import type { Allievo, Classe, Corso, Registro, Semestre } from '#core/dominio/m
 import type { Barre, DatiRapporto } from '#core/dominio/reports.js'
 import { annoInUso } from '#core/dominio/years.js'
 import { testi } from './reportData.testi.js'
-import { aChiConsegna, perQuando, vuoto, colonne, comuni, sopraLaSoglia } from './common.js'
+import {
+  aChiConsegna,
+  perQuando,
+  vuoto,
+  colonne,
+  comuni,
+  sopraLaSoglia,
+  righeDiClasse,
+} from './common.js'
 
 /**
  * Il conto delle presenze di un corso in un semestre (con `semestre` nullo
@@ -50,10 +58,14 @@ export function datiPresenze (
     classe: classe?.nome ?? '',
     materia: materiaDelCorso(registro, corso)?.nome ?? '',
     corso: corso.titolo,
-    quanti: String(lezioni.length),
+    // «Lezioni a calendario» e «UD a calendario» contano le stesse ore: quelle
+    // non annullate del periodo, anche le ancora da fare.
+    quanti: String(contate.length),
     ud: String(matrice.udPreviste),
     udTenute: String(matrice.ud),
-    presenza: percento(totali.presenza),
+    // La presenza di classe è quella della riga «Classe» in fondo alla tabella,
+    // sulle UD previste: la quota sull'appello sta nella colonna «% appello».
+    presenza: percento(totali.presenzaPreviste),
     assenza: percento(totali.assenza),
   }
 
@@ -258,7 +270,8 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
     // testata li nomina, e un valore assente sembrerebbe dimenticato.
     materia: '',
     corso: '',
-    allievi: String(classe.allievi.length),
+    // Chi frequenta, come la tabella e la parete qui sotto.
+    allievi: String(allieviAttivi(classe).length),
     corsi: corsiDellaClasse(registro, classe.id)
       .map((c) => c.titolo)
       .join(', '),
@@ -276,8 +289,8 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
       c.datore,
     ]),
     pesi: [4, 2, 5, 4, 4, 3, 4],
-    righe: classe.allievi.map((allievo: Allievo) => [
-      nomeCompleto(allievo),
+    righe: righeDiClasse(classe).map(({ allievo, nome }) => [
+      nome,
       allievo.dataNascita ? formattaData(allievo.dataNascita) : '',
       scriviIndirizzo(allievo.indirizzo),
       allievo.email ?? '',
@@ -464,13 +477,15 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
     const chk = registro.check?.find((k) => k.corsoId === c.id)
     if (!chk) continue
     for (const col of chk.colonne) {
-      for (const allievo of classe.allievi) {
+      const persone = righeDiClasse(classe, (allievo) =>
+        chk.spunte.some((s) => s.allievoId === allievo.id && s.colonnaId === col.id))
+      for (const { allievo, nome } of persone) {
         const spunta = chk.spunte.find((s) => s.allievoId === allievo.id && s.colonnaId === col.id)
         const giorno = spunta ? dataSpunta(registro, spunta) : ''
         righeCheck.push([
           c.titolo,
           col.titolo,
-          nomeCompleto(allievo),
+          nome,
           giorno ? formattaData(giorno) : '',
           spunta ? '✓' : '—',
         ])

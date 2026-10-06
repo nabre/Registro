@@ -3,12 +3,10 @@
 import {
   allieviAttivi,
   confrontaLezioni,
-  formattaVoto,
   inizioLezione,
-  mediaAllievo,
   minutiDiAttivita,
   nomeCompleto,
-  notaFineSemestre,
+  ordinaAllievi,
 } from '#core/dominio/calculations.js'
 import { matriceDelCorsoNelPeriodo } from '#core/dominio/courseMatrix.js'
 import { percento } from '#core/dominio/text.js'
@@ -41,7 +39,16 @@ import type {
 import type { DatiRapporto, Tabella } from '#core/dominio/reports.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './reportData.testi.js'
-import { aChiConsegna, perQuando, vuoto, colonne, comuni, nomeAspetto } from './common.js'
+import {
+  aChiConsegna,
+  perQuando,
+  vuoto,
+  colonne,
+  comuni,
+  nomeAspetto,
+  mediaStampata,
+  mediaDiClasse,
+} from './common.js'
 import { datiPresenze } from './classes.js'
 import { datiValutazioni, resiUnoPerUno } from './assessments.js'
 import { datiDiario } from './lesson.js'
@@ -71,19 +78,19 @@ export function datiCorso (
     .filter((v) => v.corsoId === corso.id)
     .filter((v) => !semestre || (v.data >= semestre.inizio && v.data <= semestre.fine))
 
-  const medieStudenti = (classe?.allievi ?? [])
-    .map((a) => mediaAllievo(momenti, a.id).media)
-    .filter((m): m is number => m !== null)
-  const mediaClasse = medieStudenti.length > 0
-    ? (medieStudenti.reduce((s, m) => s + m, 0) / medieStudenti.length).toFixed(2)
-    : '—'
+  // Chi frequenta, come nella griglia dei voti; scale diverse, niente numero.
+  const mediaClasse = mediaDiClasse(registro, momenti, classe)
 
   dati.valori = {
     ...dp.valori,
     ...dv.valori,
     ...dd.valori,
     ...comuni(registro, t.titoli.corso, etichettaSemestre(semestre), [corso.id]),
-    media: mediaClasse,
+    // «Lezioni a calendario» accanto a «UD a calendario»: il conto delle
+    // presenze, non quello del diario (solo le svolte), che lo coprirebbe.
+    quanti: dp.valori.quanti,
+    media: mediaClasse.valore === null ? '—' : mediaClasse.valore.toFixed(2),
+    avvisoScale: mediaClasse.scaleDiverse ? t.avvisoScale : '',
   }
 
   dati.elenchi = {
@@ -345,13 +352,8 @@ function quadroPerPersona (
       c.recuperiAperti, c.comeEAndata,
     ]),
     pesi: [5, 2, 2, 2, 2, 2, 2, 2, 2],
-    righe: (classe ? allieviAttivi(classe) : []).map((allievo) => {
-      const media = mediaAllievo(da.momenti, allievo.id).media
-      const nota = notaFineSemestre(
-        media,
-        registro.impostazioni.scala,
-        registro.impostazioni.passoFineSemestre,
-      )
+    righe: ordinaAllievi(classe ? allieviAttivi(classe) : []).map((allievo) => {
+      const { media, nota } = mediaStampata(registro, da.momenti, allievo.id)
       const suoi = da.consegne.filter((c) => destinatariConsegna(c, classe).includes(allievo.id))
       const fatte = suoi.filter((c) => haFatto(c, allievo.id)).length
       const spuntati = colonneCheck.filter((col) =>
@@ -362,8 +364,8 @@ function quadroPerPersona (
       const riga = presenze.get(allievo.id)
       return [
         nomeCompleto(allievo),
-        media === null ? '' : media.toFixed(2),
-        nota === null ? '' : formattaVoto(nota),
+        media,
+        nota,
         percento(riga?.assenza),
         String(riga?.ritardi ?? 0),
         suoi.length === 0 ? '' : `${fatte}/${suoi.length}`,

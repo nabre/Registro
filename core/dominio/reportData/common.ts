@@ -3,14 +3,30 @@
 // Che cosa entra in un rapporto lo dice `index.ts`; l'impaginazione la decide
 // il modello e la disegna `data/reportsPdf.ts`.
 
-import { SIGLE_PRESENZA } from '#core/dominio/calculations.js'
+import {
+  SIGLE_PRESENZA,
+  allieviAttivi,
+  arrotondaCentesimo,
+  formattaVoto,
+  mediaAllievo,
+  nomeCompleto,
+  notaFineSemestre,
+  ordinaAllievi,
+} from '#core/dominio/calculations.js'
 import { LINGUA_PREDEFINITA, lingua, minuscolo, type Lingua } from '#core/i18n/index.js'
 import { Maiuscola } from '#core/dominio/lexicon.js'
 import { oltreSoglia, percentoAssenza } from '#core/dominio/alerts.js'
 import { testoDiVoce } from '#core/dominio/lists.js'
 import { scadenzaConsegna } from '#core/dominio/assignments.js'
 import { etichettaSemestre, formattaData, oggi, semestreDi } from '#core/dominio/dates.js'
-import type { Consegna, Iso, Registro } from '#core/dominio/models.js'
+import type {
+  Allievo,
+  Classe,
+  Consegna,
+  Iso,
+  MomentoValutazione,
+  Registro,
+} from '#core/dominio/models.js'
 import type { DatiRapporto, Tabella } from '#core/dominio/reports.js'
 import { annoInUso } from '#core/dominio/years.js'
 import { cartaDeiCorsi } from '#core/dominio/letterhead.js'
@@ -140,4 +156,81 @@ export function avvisoAssenza (registro: Registro, assenza: number | null): stri
   // Appena oltre, l'intero arrotondato cade sulla soglia (20,09% di 45 UD su
   // 224): un decimale per eccesso, come nella pagina Assenze.
   return testi().avvisoAssenza(percentoAssenza(assenza, soglia), soglia)
+}
+
+/**
+ * Le persone di una tabella di classe, in ordine di elenco: chi frequenta, e
+ * chi si è ritirato solo se ha lasciato una traccia sul foglio (un voto, un
+ * appello), segnato come tale. I conti contano chi frequenta; una casella
+ * scritta però non sparisce.
+ */
+export function righeDiClasse (
+  classe: Classe | null,
+  traccia: (allievo: Allievo) => boolean = () => false,
+): Array<{ allievo: Allievo, nome: string }> {
+  if (!classe) return []
+  const ritirato = testi().ritirato
+  return ordinaAllievi(classe.allievi.filter((a) => a.attivo || traccia(a))).map((allievo) => ({
+    allievo,
+    nome: allievo.attivo ? nomeCompleto(allievo) : `${nomeCompleto(allievo)} (${ritirato})`,
+  }))
+}
+
+/** Una media come si stampa: con la virgola fissa, o «—» quando non ha senso. */
+interface MediaStampata {
+  /** Il numero, se lo si può dire: nullo senza voti o con scale diverse. */
+  valore: number | null
+  media: string
+  nota: string
+  /** Vero se i voti stanno su scale diverse: il numero sarebbe falso. */
+  scaleDiverse: boolean
+  conteggio: number
+}
+
+/**
+ * Media e nota di pagella di una persona sui momenti dati. Con voti su scale
+ * diverse (un 24 su 30 e un 5 su 6) la media pesata non è la media di niente:
+ * niente numero, e la nota dice perché.
+ */
+export function mediaStampata (
+  registro: Registro,
+  momenti: MomentoValutazione[],
+  allievoId: string,
+): MediaStampata {
+  const conto = mediaAllievo(momenti, allievoId)
+  if (conto.scaleEterogenee) {
+    return { valore: null, media: '—', nota: testi().scaleDiverse, scaleDiverse: true, conteggio: conto.conteggio }
+  }
+  const nota = notaFineSemestre(
+    conto.media,
+    registro.impostazioni.scala,
+    registro.impostazioni.passoFineSemestre,
+  )
+  return {
+    valore: conto.media,
+    media: conto.media === null ? '' : conto.media.toFixed(2),
+    nota: nota === null ? '' : formattaVoto(nota),
+    scaleDiverse: false,
+    conteggio: conto.conteggio,
+  }
+}
+
+/**
+ * La media del corso: la media delle medie di chi frequenta e ha almeno un
+ * voto, al centesimo. Senza numero se anche una sola delle medie mescola scale.
+ */
+export function mediaDiClasse (
+  registro: Registro,
+  momenti: MomentoValutazione[],
+  classe: Classe | null,
+): { valore: number | null, scaleDiverse: boolean } {
+  const medie = (classe ? allieviAttivi(classe) : [])
+    .map((a) => mediaStampata(registro, momenti, a.id))
+  if (medie.some((m) => m.scaleDiverse)) return { valore: null, scaleDiverse: true }
+  const valori = medie.map((m) => m.valore).filter((m): m is number => m !== null)
+  const somma = valori.reduce((s, m) => s + m, 0)
+  return {
+    valore: valori.length === 0 ? null : arrotondaCentesimo(somma / valori.length),
+    scaleDiverse: false,
+  }
 }

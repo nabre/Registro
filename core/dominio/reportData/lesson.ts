@@ -5,6 +5,7 @@ import {
   inizioLezione,
   minutiDiAttivita,
   contaUd,
+  deciso,
   nomeCompleto,
   riepilogaPresenze,
   siglaPresenza,
@@ -25,7 +26,9 @@ import {
   formattaDurata,
   formattaUd,
   nelSemestre,
+  semestreDi,
 } from '#core/dominio/dates.js'
+import { annoInUso } from '#core/dominio/years.js'
 import type {
   CellaOsservata,
   Consegna,
@@ -47,6 +50,7 @@ import {
   legenda,
   periodoDi,
   nomeAspetto,
+  righeDiClasse,
 } from './common.js'
 
 /** L'orario di un'ora come lo si legge: gli slot in fila, le pause dichiarate. */
@@ -120,10 +124,14 @@ export function datiLezione (
   dati.tabelle.presenze = {
     ...colonne((c) => [c.pif, ...ud.map((u) => u.inizio), c.minuti, c.nota]),
     pesi: [5, ...ud.map(() => 1), 1, 4],
-    righe: (classe?.allievi ?? []).map((allievo) => {
+    // Chi frequenta in ordine di elenco; un ritirato solo se quel giorno ha un
+    // appello, segnato.
+    righe: righeDiClasse(classe, (allievo) =>
+      lezione.presenze.some((p) => p.allievoId === allievo.id && p.stati.some(deciso)),
+    ).map(({ allievo, nome }) => {
       const presenza = lezione.presenze.find((p) => p.allievoId === allievo.id)
       return [
-        nomeCompleto(allievo),
+        nome,
         ...ud.map((_, i) => siglaPresenza(statoUd(presenza, i))),
         minutiRitardoOra(presenza) ? String(minutiRitardoOra(presenza)) : '',
         presenza?.nota ?? '',
@@ -224,12 +232,17 @@ export function datiPiano (registro: Registro, piano: PianoLezione): DatiRapport
   const usi = registro.lezioni
     .filter((l) => l.pianoId === piano.id && l.stato !== 'annullata')
     .sort(confrontaLezioni)
+  // Il periodo è quello delle ore che lo usano, se cadono tutte nello stesso
+  // semestre; altrimenti, o senza ore, l'anno intero.
+  const anno = annoInUso(registro)
+  const semestri = new Set(usi.map((l) => (anno ? semestreDi(anno, l.data) : null)))
+  const [semestreDegliUsi] = semestri
 
   dati.valori = {
     ...comuni(
       registro,
       t.titoli.piano,
-      etichettaSemestre(null),
+      etichettaSemestre(semestri.size === 1 ? semestreDegliUsi : null),
       piano.corsoId ? [piano.corsoId] : [],
     ),
     classe: classe?.nome ?? '',
@@ -305,7 +318,11 @@ export function datiDiario (
     materia: materiaDelCorso(registro, corso)?.nome ?? '',
     corso: corso.titolo,
     quanti: String(lezioni.length),
-    udSvolte: String(matrice.ud),
+    // Le UD delle sole ore svolte, quelle che il diario elenca: la matrice
+    // conta anche le ore ancora da fare.
+    udSvolte: String(
+      lezioni.reduce((somma, l) => somma + contaUd(l, registro.impostazioni.minutiUd), 0),
+    ),
     presenzaMedia: percento(totali.presenza),
   }
 
@@ -328,13 +345,17 @@ export function datiDiario (
         .map((c) => c.testo)
         .join('; ')
 
-      const assenti = (classe?.allievi ?? []).filter((a) => {
-        const p = lezione.presenze.find((pr) => pr.allievoId === a.id)
-        return p && p.stati.some((s) => s === 'assente')
+      // Un'ora senza appello non è un'ora di tutti presenti: lo si dice.
+      const riepilogo = riepilogaPresenze(lezione.presenze)
+      const assenti = righeDiClasse(classe, () => true).filter(({ allievo }) => {
+        const p = lezione.presenze.find((pr) => pr.allievoId === allievo.id)
+        return p?.stati.some((s) => s === 'assente') ?? false
       })
-      const testoPresenze = assenti.length === 0
-        ? t.tuttiPresenti
-        : `${assenti.length} ${t.assentiN(assenti.length)}: ${assenti.map((a) => a.cognome).join(', ')}`
+      const testoPresenze = riepilogo.totale === riepilogo.senzaAppello
+        ? t.appelloNonFatto
+        : assenti.length === 0
+          ? t.tuttiPresenti
+          : `${t.assentiN(assenti.length)}: ${assenti.map(({ nome }) => nome).join(', ')}`
 
       const nota = [lezione.consuntivo, lezione.materiali].filter(Boolean).join(' — ')
 

@@ -131,14 +131,14 @@ describe('le colonne hanno un nome di serie', () => {
   // Un modello sceglie e ribattezza le colonne col nome italiano, che vale in
   // tutte le lingue.
   const tedesca = {
-    intestazione: ['LP', 'Lekt. Kurs', '% Anwesenheit'],
+    intestazione: ['Lernende', 'Lekt. Kurs', '% Anwesenheit'],
     chiavi: ['PiF', 'UD corso', '% presenza'],
     righe: [['Rossi Maria', '4', '100%']],
   }
 
   it('la scelta delle colonne va per nome di serie', () => {
     const scelta = scegliColonne(tedesca, ['% presenza', 'PiF'])
-    assert.deepEqual(scelta.intestazione, ['% Anwesenheit', 'LP'])
+    assert.deepEqual(scelta.intestazione, ['% Anwesenheit', 'Lernende'])
     assert.deepEqual(scelta.chiavi, ['% presenza', 'PiF'])
     assert.deepEqual(scelta.righe, [['100%', 'Rossi Maria']])
   })
