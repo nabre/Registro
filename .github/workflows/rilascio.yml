@@ -448,12 +448,12 @@ jobs:
       TAG: ${{ needs.versione.outputs.tag }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: pacchetti-linux
           path: pacchetti-linux
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: pacchetti-mac-*
           path: pacchetti-mac
