@@ -22,6 +22,11 @@ updates:
     ignore:
       - dependency-name: electron
       - dependency-name: node-llama-cpp
+      # TypeScript 7 è il compilatore nativo: niente API JavaScript, che
+      # `tools/forms.mjs`, `buttons.mjs` e `i18n.mjs` usano, e `typescript-eslint`
+      # lo rifiuta come pari (`npm ci` esce con ERESOLVE). Si sale a mano.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       minori:
         update-types: ['minor', 'patch']
