@@ -128,7 +128,11 @@ describe('l’indirizzo del condotto', () => {
     assert.deepEqual(busta.result.permessi, { lettura: true, scrittura: false })
   })
 
-  it('dopo un arresto brutale con PID morto i residui vengono ripuliti', async () => {
+  it('dopo un arresto brutale con PID morto i residui vengono ripuliti', {
+    // `processoCondottoAttivo` sta nel ramo Windows di `cli/address.mjs`: fuori
+    // il socket non porta il segreto e la riga di comando non guarda il PID.
+    skip: process.platform !== 'win32' && 'il PID del condotto si legge solo su Windows',
+  }, async () => {
     const sporca = mkdtempSync(percorso.join(radice, 'brutale-'))
     const cartellaDati = percorso.join(sporca, 'Regiklass')
     mkdirSync(cartellaDati, { recursive: true })
