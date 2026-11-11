@@ -81,7 +81,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "axe-core": "^4.14.0",
-    "chokidar": "^5.0.0",
+    "chokidar": "^6.0.0",
     "dependency-cruiser": "^18.7.2",
     "electron": "^44.4.4",
     "electron-builder": "^26.18.0",
