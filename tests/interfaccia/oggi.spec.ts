@@ -110,7 +110,8 @@ test('oggi', async ({ browser }) => {
     // e la pastiglia della barra laterale dicono lo stesso, non zero.
     const pendenze = await tessere.nth(2).locator('.oggi-tessera__valore').innerText()
     expect(Number.parseInt(pendenze, 10)).toBeGreaterThan(0)
-    const vocePendenze = laterale.getByRole('button', { name: 'Pendenze', exact: true })
+    // Il conto sta anche nel nome della voce, per chi non vede la pastiglia.
+    const vocePendenze = laterale.getByRole('button', { name: `Pendenze ${pendenze}`, exact: true })
     await expect(vocePendenze).toContainText(pendenze)
 
     // Due box di giornate: oggi e la prossima giornata

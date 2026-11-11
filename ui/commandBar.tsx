@@ -572,6 +572,9 @@ function scelta (opzioni: {
       onClick={(evento) => alternaMenuSotto(evento.currentTarget, voci())}
     >
       <span className="barra-comandi__scelta-nome">{opzioni.etichetta}</span>
+      {/* Lo spazio separa nome e valore nel testo del pulsante (WCAG 2.5.3);
+          il flex non lo disegna. */}
+      {' '}
       {/* Un valore che non c'è fra le voci (un filtro di un altro anno) resta in bianco. */}
       <strong className="barra-comandi__scelta-valore">{mostrato ?? '—'}</strong>
       <Icona nome="giu" classe="barra-comandi__scelta-freccia" />

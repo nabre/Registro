@@ -146,6 +146,9 @@ export function Pulsante (opzioni: OpzioniPulsante): ReactElement {
   // Un titolo vuoto darebbe `title=""` e `aria-label=""`: un pulsante senza nome
   // per il lettore di schermo.
   const nome = titolo || testo || undefined
+  // Con un testo visibile il nome viene dal contenuto e il titolo resta
+  // descrizione: chi comanda a voce dice quel che legge (WCAG 2.5.3).
+  const etichetta = testo ? undefined : nome
   return (
     <button
       {...resto}
@@ -156,7 +159,7 @@ export function Pulsante (opzioni: OpzioniPulsante): ReactElement {
       type={tipo}
       disabled={Boolean(disabilitato) || occupato}
       title={nome}
-      aria-label={nome}
+      aria-label={etichetta}
       aria-pressed={premuto === undefined ? undefined : premuto}
       aria-busy={rotella ? true : undefined}
       data-fuoco={fuoco}

@@ -171,7 +171,9 @@ test('navigation', async ({ browser }) => {
     await valuta(page, 'prova.scegliCorso(prova.stato.registro.corsi[0].id)')
     await valuta(page, FOTOGRAMMA)
     const titolo = await valuta<string>(page, 'id=>prova.PAGINE.find(p=>p.id===id).titolo', id)
-    await laterale.getByRole('button', { name: titolo, exact: true }).click()
+    // Il nome della voce porta in coda il conto, quando c'è («Pendenze 2»).
+    const nome = new RegExp(`^${titolo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}( \\d+)?$`)
+    await laterale.getByRole('button', { name: nome }).click()
     await expect(laterale.locator('[aria-current="page"]')).toHaveCount(1)
     await attendi(page, 'document.querySelector("main")?.textContent.length > 0')
     await valuta(page, FOTOGRAMMA)

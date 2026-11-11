@@ -52,9 +52,6 @@ controlli statici; skill `verifica`). Non prima.
       ridisegno della pagina intera (ADR-06): `misure.spec.ts` voti 52–56 ms,
       di cui ~44 già senza dati nuovi. Per scendere: isole o ridisegni
       parziali. Differenze scartate → stato intero un giro dopo la risposta.
-      Sul runner Windows il ridisegno dei voti 40×200 costava 3,2–3,8 volte
-      la tabella corta, sopra il `MARGINE` 3: portato a 5, da riabbassare
-      quando il ridisegno scende.
 - [ ] Indice del 1/10 che non tornava: corretti il temporaneo comune di
       `rifai` (ora per processo), il controllo prima di accodare (indice
       intero, non 22 byte) e la serratura (non si copre quella viva di un
@@ -231,12 +228,6 @@ Verificati a mano i primi otto.
       `change` sulle frecce; dialogo nativo senza `listbox`/`combobox`/`role=alert`;
       axe non apre modali né finestre native; casella dell'appello alta
       22 px (< 24).
-- [ ] Accessibilità, «label in name» (WCAG 2.5.3): con axe-core 4.14 la
-      regola `label-content-name-mismatch` trova 164 occorrenze (pastiglia
-      cerca di `ui/titleBar.tsx`, `Tessera` di `ui/views/today.tsx`, pulsanti
-      di stato e della barra comandi): l'`aria-label` non contiene il testo
-      visibile. La regola è spenta in `tests/interfaccia/accessibility.spec.ts`;
-      si chiude correggendo le etichette nelle quattro lingue e riaccendendola.
 - [ ] CSS: la freccia dei `select` con colori a mano resta in
       `desktop/shell/pages/shared/base.css` (righe 87 e 96); il pannello usa ora
       gradienti su `--testo-quieto` (`ui/styles/controls.css`).
