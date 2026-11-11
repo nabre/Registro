@@ -103,8 +103,9 @@ nel codice firmato senza che qualcuno di fidato lo abbia guardato. Quindi:
   costruiscono il pacchetto — `.github/workflows/`, `electron-builder.json`,
   `esbuild.mjs`, `tools/`, `.signpath/` — che sono quelli da guardare con più
   attenzione;
-- si rilascia solo da `main`, e ogni richiesta di firma la approva a mano chi
-  ha il ruolo di *approver*.
+- si firma solo dal ramo `release`, che riceve soltanto commit di `main` e lo
+  avanza il workflow, mai una persona; ogni richiesta di firma la approva a
+  mano chi ha il ruolo di *approver*.
 
 ## Licenza
 

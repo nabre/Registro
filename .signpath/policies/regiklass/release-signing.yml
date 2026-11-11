@@ -1,0 +1,36 @@
+# Politica di pipeline della politica di firma `release-signing`, progetto
+# `regiklass` su SignPath: che cosa SignPath controlla, a ogni richiesta, del
+# workflow che la manda e del ramo da cui viene.
+#
+# - Costruzione: solo runner ospitati da GitHub (condizione della Foundation
+#   per l'open source), e niente «Re-run» di un giro vecchio, che firmerebbe
+#   quel che era stato costruito da un workflow nel frattempo cambiato: un
+#   rilascio caduto si rilancia con un `workflow_dispatch` nuovo.
+# - Sorgente: il ramo costruito, `release`, ha una regola di GitHub che vieta
+#   cancellazione e push forzati. Così la sua storia può solo crescere, e
+#   `rilascio.yml` (`versione`) controlla che ogni suo commit stia in `main`.
+#   Nessuno può scavalcare la regola (`allow_bypass_actors: false`).
+#
+# La regola va creata su GitHub, Settings › Rules › Rulesets: bersaglio
+# `release`, «Restrict deletions» e «Block force pushes», nessun bypass. Non
+# aggiungere «Restrict updates» né «Require a pull request»: il ramo lo avanza
+# `promuovi` con il token del workflow, e quelle regole lo fermerebbero.
+#
+# Il formato è quello di docs.signpath.io, «Trusted build systems › GitHub ›
+# Pipeline policies». Che la politica accetti solo `refs/heads/release` si
+# imposta su SignPath, nella politica di firma (rami ammessi). Vedi GUIDA,
+# § «La firma del codice».
+
+github-build-policies:
+  version: '1.0'
+  disallow_reruns: true
+  runners:
+    require_github_hosted: true
+
+github-scm-policies:
+  version: '1.0'
+  ruleset_constraints:
+    - allow_bypass_actors: false
+      rules:
+        - type: deletion
+        - type: non_fast_forward

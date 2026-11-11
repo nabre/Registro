@@ -256,7 +256,14 @@ certificato di [SignPath Foundation](https://signpath.org), gratuito per
 l'open source, solo per quel che esce da una GitHub Action di questo
 repository. La dichiarazione richiesta sta nel README, § «Code signing policy».
 
-Il lavoro `pacchetti` di `.github/workflows/rilascio.yml`:
+Si firma solo quel che si costruisce sul ramo `release`. Il ramo non si tocca a
+mano: quando su `main` la verifica è verde e la versione è nuova, il lavoro
+`promuovi` di `.github/workflows/rilascio.yml` lo porta in avanti su quel
+commit (lo crea, la prima volta) e ci lancia lo stesso workflow con
+`gh workflow run`. Su `release` il lavoro `versione` controlla che il commit
+stia in `main`; la verifica non si rifà.
+
+Il lavoro `pacchetti`, su `release`:
 
 1. electron-builder costruisce `pacchetti/win-unpacked/` con il bersaglio
    `nsis` (non `--dir`: solo così scrive `app-update.yml`, senza il quale
@@ -271,15 +278,20 @@ Il lavoro `pacchetti` di `.github/workflows/rilascio.yml`:
 Prima di ogni firma `tools/peMetadata.ps1` controlla nome del prodotto e
 versione negli eseguibili; dopo l'ultima, `Get-AuthenticodeSignature` e
 caricamento con `gh`, con note generate da GitHub. Ogni firma aspetta
-l'approvazione su SignPath fino a un'ora; se cade, un `workflow_dispatch` la
-rifà.
+l'approvazione su SignPath fino a un'ora; se cade, un `workflow_dispatch` nuovo
+su `release` (o su `main`) la rifà: il «Re-run» di GitHub SignPath lo rifiuta
+(`disallow_reruns`).
 
 - Configurazioni degli artefatti: `.signpath/artifact-configuration/`
   (`eseguibile.xml`, `installatori.xml`), da tenere uguali a quelle su SignPath.
   La versione arriva da `node tools/signing.mjs versioni`: `X.Y.Z` per
   installatore e portabile (NSIS), `X.Y.Z.0` per l'eseguibile (resedit).
-- Nel pacchetto entra solo il commit: il calendario del DECS si rilegge solo
-  per avvisare se il repository è indietro. Si rilascia solo da `main`.
+- Politica di pipeline: `.signpath/policies/regiklass/release-signing.yml`
+  (runner di GitHub, niente «Re-run», regola del ramo senza cancellazioni né
+  push forzati).
+- Nel pacchetto entra solo il commit: il calendario del DECS si rilegge, in un
+  lavoro a parte, solo per avvisare se il repository è indietro. Si firma solo
+  da `release`, che contiene solo commit di `main`.
 - Senza firma: quel che non è nostro (DLL di Electron, binari di llama.cpp,
   `elevate.exe`) e il disinstallatore di NSIS.
 
@@ -291,7 +303,7 @@ rifà.
 | Niente componenti proprietari | binari CUDA di `node-llama-cpp` esclusi con `files` in `electron-builder.json` |
 | Rilasciato, mantenuto, documentato | release di GitHub e README |
 | Firmare solo i propri binari | eseguibile, installatore, portabile; niente DLL né `.node` |
-| Costruzione verificabile | runner di GitHub, solo da `main`, solo il commit |
+| Costruzione verificabile | runner di GitHub, solo dal ramo `release` (commit di `main` verificati), solo il commit |
 | Privacy | README › «Code signing policy» › «Privacy»; uscite: § «Che cosa esce dal computer» |
 | Modifiche al sistema annunciate | prima pagina dell'installatore (`os/windows/installer.nsh`) |
 | Disinstallazione | disinstallatore NSIS + `cli/uninstall.mjs`; nel portabile «Disinstalla…» |
@@ -308,7 +320,11 @@ firma si saltano. All'ammissione:
 1. domanda su [signpath.org/apply](https://signpath.org/apply);
 2. su SignPath: sistema di build *GitHub.com*, app GitHub sul repository,
    configurazioni `eseguibile` e `installatori` con il contenuto dei due `.xml`,
-   politica `release-signing` con approvazione a mano, 2FA;
+   politica `release-signing` con approvazione a mano, ramo ammesso solo
+   `refs/heads/release`, politica di pipeline da `.signpath/policies/`, 2FA;
+   su GitHub, *Settings › Rules › Rulesets*: regola sul ramo `release` con
+   «Restrict deletions» e «Block force pushes», senza bypass (non «Restrict
+   updates» né pull request obbligatorie: fermerebbero `promuovi`);
 3. su GitHub (*Settings › Secrets and variables › Actions*): segreto e
    variabile. Se progetto o politica hanno altri nomi di `regiklass` e
    `release-signing`, si cambiano `SIGNPATH_PROGETTO` e `SIGNPATH_POLITICA` in

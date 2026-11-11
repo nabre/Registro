@@ -18,14 +18,29 @@
 # giro dopo questo file rilascia la versione corrente, che un tag non l'ha mai
 # avuto.
 #
-# L'ordine dei lavori è il punto:
+# Il giro si fa in due tempi, su due rami:
 #
-#   verifica → versione → pacchetti (Windows) ┐
-#                        → linux              ┼→ pubblica
-#                        → mac                ┘
+#   main:     verifica ┐
+#             versione ┴→ promuovi ──(ramo `release`, `gh workflow run`)──┐
+#                                                                         │
+#   release:  versione → pacchetti (Windows) ┐                            ◄┘
+#                      → linux               ┼→ pubblica
+#                      → mac                 ┘
+#                      → calendario (solo un avviso)
 #
-# La verifica sta in testa e gira sempre, anche quando non c'è niente da
-# rilasciare: è la stessa di `verifica.yml`, che da sola non parte più.
+# Su `main` la verifica gira sempre, anche quando non c'è niente da
+# rilasciare: è la stessa di `verifica.yml`, che da sola non parte più. Se è
+# verde e la versione è nuova, `promuovi` porta il ramo `release` — in avanti
+# soltanto, mai di lato — su quel commit e vi lancia questo stesso workflow.
+#
+# Su `release` si costruisce, si firma e si pubblica, senza rifare la
+# verifica: sul ramo arrivano solo commit che l'hanno già passata su `main`.
+# Il ramo esiste per SignPath: la politica di firma accetta soltanto
+# costruzioni di `refs/heads/release`, e la regola del ramo (niente
+# cancellazioni, niente push forzati) la controlla SignPath a ogni richiesta;
+# vedi `.signpath/policies/` e GUIDA, § «La firma del codice». Così una
+# costruzione lanciata a mano su `main` o su un altro ramo non arriva mai alla
+# firma. Il ramo non si tocca a mano: lo crea e lo avanza `promuovi`.
 #
 # La release nasce bozza e diventa pubblica solo alla fine. Una release
 # visibile prima che i pacchetti ci siano tutti è una release che un registro
@@ -48,37 +63,52 @@ on:
     branches: [main]
   # Una pull request si verifica e basta: `versione` non ci arriva.
   pull_request:
-  # Per rilanciare un rilascio caduto senza dover toccare `package.json`.
+  # Su `main` per rilanciare un rilascio caduto senza toccare `package.json`;
+  # su `release` è il modo in cui `promuovi` lancia la costruzione — un push
+  # fatto con il token del workflow non fa partire workflow — e lo stesso
+  # rilancio a mano, se cade la firma.
   workflow_dispatch:
 
 # Due push ravvicinati sulla stessa versione non devono fare due release: il
 # secondo aspetta il primo, e poi trova il tag e si ferma. Il gruppo è per ramo,
-# così una pull request non fa la fila dietro a `main`.
+# così una pull request non fa la fila dietro a `main`, e `main` non aspetta le
+# ore della firma su `release`. Una pull request invece butta il giro vecchio:
+# conta solo l'ultimo commit.
 concurrency:
   group: rilascio-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
 jobs:
   verifica:
+    if: github.ref != 'refs/heads/release'
     uses: ./.github/workflows/verifica.yml
 
+  # Su `main` gira accanto alla verifica, che è lunga, e non dopo; su
+  # `release`, dove la verifica non c'è, è il primo lavoro.
   versione:
-    needs: verifica
-    # Si rilascia solo da `main`. Non da una pull request, il cui codice non
-    # è ancora `main`; e nemmeno da un `workflow_dispatch` lanciato su un altro
-    # ramo, che pubblicherebbe — e farebbe firmare — codice mai unito. La
-    # politica di firma su SignPath dice lo stesso, dall'altra parte.
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # Non da una pull request, il cui codice non è ancora `main`; e nemmeno da
+    # un `workflow_dispatch` lanciato su un altro ramo, che pubblicherebbe — e
+    # farebbe firmare — codice mai unito.
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release')
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       tag: ${{ steps.leggi.outputs.tag }}
       nuova: ${{ steps.leggi.outputs.nuova }}
       anteprima: ${{ steps.leggi.outputs.anteprima }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      # Serve solo `package.json`, e il remoto per `ls-remote`.
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: package.json
+          sparse-checkout-cone-mode: false
 
       - id: leggi
         run: |
@@ -102,9 +132,49 @@ jobs:
             echo "Versione nuova: $tag."
           fi
 
+      # Su `release` si costruisce solo un commit che sta già in `main`, cioè
+      # rivisto e verificato. Le regole del ramo vietano i push forzati, non un
+      # commit aggiunto a mano in cima: lo ferma questo controllo.
+      - name: Il commit sta in main
+        if: github.ref == 'refs/heads/release'
+        run: |
+          stato=$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$GITHUB_SHA" --jq .status)
+          case "$stato" in
+            identical|behind) echo "$GITHUB_SHA sta in main ($stato)." ;;
+            *) echo "::error::$GITHUB_SHA non sta in main ($stato): su release arriva solo quel che promuovi porta da main."; exit 1 ;;
+          esac
+
+  # Porta `release` sul commit verificato e ci lancia la costruzione. Il push
+  # è in avanti soltanto: se `release` avesse un commit che `main` non ha,
+  # GitHub lo rifiuta, e il giro si ferma qui invece di nasconderlo. Se il
+  # ramo non c'è ancora, lo crea.
+  promuovi:
+    needs: [verifica, versione]
+    if: github.ref == 'refs/heads/main' && needs.versione.outputs.nuova == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: package.json
+          sparse-checkout-cone-mode: false
+
+      - name: Ramo release
+        run: git push origin "$GITHUB_SHA:refs/heads/release"
+
+      - name: Costruzione su release
+        run: |
+          gh workflow run rilascio.yml --repo "$GITHUB_REPOSITORY" --ref release
+          echo "::notice::${{ needs.versione.outputs.tag }}: release portato a $GITHUB_SHA, costruzione e firma lanciate sul ramo release."
+
   pacchetti:
     needs: versione
-    if: needs.versione.outputs.nuova == 'true'
+    if: github.ref == 'refs/heads/release' && needs.versione.outputs.nuova == 'true'
     runs-on: windows-latest
     # Due richieste di firma, e ognuna aspetta fino a un'ora che qualcuno la
     # approvi su SignPath: tre ore bastano, e il tetto di GitHub, sei, terrebbe
@@ -163,30 +233,6 @@ jobs:
             --title "Regiklass ${TAG#v}" \
             --generate-notes \
             "${anteprima[@]}"
-
-      # Il calendario scolastico ufficiale, riletto dai PDF del DECS: è il
-      # primo passo di `npm run package`. Sul runner non c'è `pdftotext`, e lo
-      # script ripiega su pdfplumber.
-      #
-      # Qui però si rilegge soltanto per sapere se il repository è indietro,
-      # e nel pacchetto entra il JSON del commit. Un eseguibile firmato deve
-      # venire dal codice che sta nel repository, verificabile da chiunque
-      # (SignPath Foundation: «built from source code in a verifiable way»):
-      # dati scaricati durante la costruzione e mai committati non lo sono. Se
-      # il DECS ha pubblicato un calendario nuovo, lo dice un avviso, e lo si
-      # porta dentro con `npm run calendario` e un commit.
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-
-      - name: Calendario scolastico
-        shell: bash
-        run: |
-          python -m pip install pdfplumber
-          node tools/schoolCalendar.mjs
-          git diff --quiet -- resources/calendario-scolastico-ticino.json core/dominio/schoolCalendarTicino.ts ||
-            echo "::warning::Il calendario del DECS è cambiato: il pacchetto usa quello del repository. Lanciare npm run calendario e committare."
-          git checkout -- resources/calendario-scolastico-ticino.json core/dominio/schoolCalendarTicino.ts
 
       # È `npm run package` spezzato in quattro, perché la firma va messa in
       # due punti che electron-builder da solo non lascia raggiungere:
@@ -346,6 +392,39 @@ jobs:
           printf '%s\n' "${file[@]}"
           gh release upload "$TAG" "${file[@]}" --clobber
 
+  # Il calendario scolastico ufficiale, riletto dai PDF del DECS: è il primo
+  # passo di `npm run package`. Qui però si rilegge soltanto per sapere se il
+  # repository è indietro, e nel pacchetto entra il JSON del commit. Un
+  # eseguibile firmato deve venire dal codice che sta nel repository,
+  # verificabile da chiunque (SignPath Foundation: «built from source code in
+  # a verifiable way»): dati scaricati durante la costruzione e mai committati
+  # non lo sono. Se il DECS ha pubblicato un calendario nuovo, lo dice un
+  # avviso, e lo si porta dentro con `npm run calendario` e un commit.
+  #
+  # Un lavoro a parte, su Linux e senza `npm ci` — lo script usa solo Node —,
+  # perché non sta sulla strada della firma: non la rallenta, e se il sito del
+  # DECS non risponde non ferma la release.
+  calendario:
+    needs: versione
+    if: github.ref == 'refs/heads/release' && needs.versione.outputs.nuova == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+
+      # Sul runner non c'è `pdftotext`, e lo script ripiega su pdfplumber.
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Calendario scolastico
+        run: |
+          python -m pip install pdfplumber
+          node tools/schoolCalendar.mjs
+          git diff --quiet -- resources/calendario-scolastico-ticino.json core/dominio/schoolCalendarTicino.ts ||
+            echo "::warning::Il calendario del DECS è cambiato: il pacchetto usa quello del repository. Lanciare npm run calendario e committare."
+
   # I pacchetti per Linux: AppImage, `.deb` e `.rpm`, per x64. Girano accanto a
   # `pacchetti` e non passano dalla firma, che SignPath fa solo per Windows.
   # Non caricano nella bozza, che nasce in `pacchetti` e potrebbe non esserci
@@ -354,8 +433,9 @@ jobs:
   # Come per Windows, nel pacchetto entra il calendario del commit.
   linux:
     needs: versione
-    if: needs.versione.outputs.nuova == 'true'
+    if: github.ref == 'refs/heads/release' && needs.versione.outputs.nuova == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
@@ -401,7 +481,7 @@ jobs:
   # vedi `desktop/apparato/updateMac.ts`.
   mac:
     needs: versione
-    if: needs.versione.outputs.nuova == 'true'
+    if: github.ref == 'refs/heads/release' && needs.versione.outputs.nuova == 'true'
     strategy:
       matrix:
         include:
@@ -410,6 +490,7 @@ jobs:
           - arch: x64
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
     env:
       # Non cercare certificati nel portachiavi del runner: la firma è ad-hoc.
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
@@ -442,6 +523,7 @@ jobs:
   pubblica:
     needs: [versione, pacchetti, linux, mac]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write
     env:
