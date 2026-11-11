@@ -31,10 +31,11 @@ const RIDISEGNO_MS = 50
 /**
  * Quanto la tabella lunga può costare più della corta. A finestra la lunga
  * costa già fino a due volte tanto (primo disegno dell'archivio, ridisegno
- * delle persone, misurati sotto il carico delle altre prove); una tabella
- * tornata a disegnarsi intera costa dieci volte tanto, non tre.
+ * delle persone, misurati sotto il carico delle altre prove), e sul runner
+ * Windows della CI il ridisegno dei voti arriva a 3,2–3,8 volte; una tabella
+ * tornata a disegnarsi intera costa dieci volte tanto, non cinque.
  */
-const MARGINE = 3
+const MARGINE = 5
 const RIPETIZIONI = 7
 
 interface Misura { ms: number, lungo: number }
