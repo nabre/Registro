@@ -105,13 +105,15 @@ function Tessera (opzioni: {
       data-fuoco={`oggi-${opzioni.chiave}`}
       data-pagina={opzioni.pagina}
       title={porta}
-      aria-label={`${opzioni.etichetta}: ${opzioni.valore}. ${opzioni.nota}. ${porta}`}
+      // Il nome comincia con quel che si vede, nello stesso ordine (WCAG 2.5.3).
+      aria-label={`${opzioni.valore} ${opzioni.etichetta}. ${opzioni.nota}. ${porta}`}
       onClick={() => opzioni.al()}
     >
       <span className="oggi-tessera__tondo"><Icona nome={opzioni.simbolo} /></span>
       <span className="oggi-tessera__testo">
-        <span className="oggi-tessera__valore">{String(opzioni.valore)}</span>
-        <span className="oggi-tessera__etichetta">{opzioni.etichetta}</span>
+        {/* Gli spazi separano le parole nel testo del pulsante; il flex non li disegna. */}
+        <span className="oggi-tessera__valore">{String(opzioni.valore)}</span>{' '}
+        <span className="oggi-tessera__etichetta">{opzioni.etichetta}</span>{' '}
         <span className="oggi-tessera__nota">{opzioni.nota}</span>
       </span>
       <Icona nome="destra" classe="oggi-tessera__freccia icona--minuta" />

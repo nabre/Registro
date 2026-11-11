@@ -9,7 +9,7 @@
 // Linux, i semafori su macOS); il loro spazio è in `env(titlebar-area-*)`, e su
 // macOS il CSS legge `data-sistema`.
 
-import type { ReactElement, ReactNode } from 'react'
+import { Fragment, type ReactElement, type ReactNode } from 'react'
 
 import { percorso as percorsoDellaPagina } from './breadcrumb.js'
 import { tendinaDelProgramma } from './commandBar.js'
@@ -157,15 +157,19 @@ function pastigliaCerca (): ReactElement {
       // Il fuoco torna qui quando la palette si chiude, anche dopo un ridisegno (`rifocalizza`).
       data-fuoco="barra-cerca"
       title={`${spiegazione} (${scorciatoia})`}
-      aria-label={spiegazione}
+      // Il nome è quel che si legge, «Cerca» e il tasto (WCAG 2.5.3): resta anche
+      // quando la finestra stretta lascia solo la lente. La spiegazione è nel titolo.
+      aria-label={`${parole().cerca} ${tasti.join(' ')}`}
       aria-haspopup="dialog"
       aria-keyshortcuts={mac ? 'Meta+K' : 'Control+K'} // testo-fisso: nomi dei tasti per i lettori di schermo
       onClick={() => apriPalette()}
     >
       <Icona nome="lente" classe="icona--minuta" />
-      <span className="barra-titolo__cerca-testo">{`${parole().cerca}…`}</span>
+      <span className="barra-titolo__cerca-testo">{`${parole().cerca}…`}</span>{' '}
       <span className="barra-titolo__cerca-tasti" aria-hidden="true">
-        {tasti.map((tasto) => <kbd key={tasto}>{tasto}</kbd>)}
+        {tasti.map((tasto, i) => (
+          <Fragment key={tasto}>{i > 0 ? ' ' : null}<kbd>{tasto}</kbd></Fragment>
+        ))}
       </span>
     </button>
   )

@@ -273,7 +273,9 @@ function vocePagina (pagina: Pagina): ReactElement {
       type="button"
       className="sidebar__pagina"
       data-fuoco={pagina.id}
-      aria-label={pagina.titolo}
+      // Il nome dice anche il conto, come la voce lo mostra (WCAG 2.5.3); con la
+      // barra compatta le etichette spariscono e resta solo questo.
+      aria-label={conto > 0 ? `${pagina.titolo} ${conto}` : pagina.titolo}
       aria-current={pagina.attiva() ? 'page' : undefined}
       aria-disabled={Boolean(pagina.impedimento?.())}
       title={suggerimentoDi(pagina)}
@@ -298,8 +300,9 @@ function vocePagina (pagina: Pagina): ReactElement {
     >
       <Icona nome={pagina.simbolo} classe="icona--minuta" />
       <span>{pagina.titolo}</span>
-      {/* Il conto in coda, solo se maggiore di zero. */}
-      {conto > 0 ? <span className="sidebar__conto">{String(conto)}</span> : null}
+      {/* Il conto in coda, solo se maggiore di zero; lo spazio separa le parole
+          per chi legge il testo del pulsante, il flex non lo disegna. */}
+      {conto > 0 ? <>{' '}<span className="sidebar__conto">{String(conto)}</span></> : null}
     </button>
   )
 }
