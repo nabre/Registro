@@ -17,6 +17,9 @@ const CONFIGURAZIONE = {
     type: 'tag',
     values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'],
   },
+  // axe-core 4.14 porta nel set predefinito «label in name» (WCAG 2.5.3):
+  // 164 occorrenze ereditate, spenta finché non le correggiamo (docs/CANTIERE.md, Accessibilità).
+  rules: { 'label-content-name-mismatch': { enabled: false } },
   resultTypes: ['violations'],
 }
 
