@@ -297,8 +297,10 @@ medi corretti. Restano:
 
 - [ ] SignPath (differito): domanda come Regiklass (progetto `regiklass`); 2FA; app GitHub;
       configurazioni `eseguibile` e `installatori`; politica
-      `release-signing`; segreto e variabile su GitHub (GUIDA § «La firma del
-      codice»).
+      `release-signing` (solo ramo `release`, politica di pipeline di
+      `.signpath/policies/`); regola GitHub sul ramo `release`; segreto e
+      variabile su GitHub (GUIDA § «La firma del codice»). Al primo giro
+      controllare che SignPath legga la politica di pipeline da quel percorso.
 - [ ] Prima release firmata: togliere l'avviso SmartScreen dal README e «quando
       la firma sarà attiva» da SECURITY.
 - [ ] Sei pacchetti MIT di produzione senza file LICENSE (`npm run licenze` li

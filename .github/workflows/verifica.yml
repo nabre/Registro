@@ -28,6 +28,8 @@ on:
 jobs:
   verifica:
     runs-on: windows-latest
+    # Un giro appeso non deve tenere occupato un runner per le sei ore di GitHub.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
@@ -105,6 +107,7 @@ jobs:
   # giorno in cui hanno smesso di passare non lo ha saputo nessuno per mesi.
   interfaccia:
     runs-on: windows-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
@@ -143,6 +146,7 @@ jobs:
   # la named pipe è il caso di chi usa il registro; fuori servirebbe `xvfb-run`.
   fumo:
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 

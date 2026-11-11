@@ -190,8 +190,9 @@ Gli strati e i loro confini sono controllati a macchina a ogni push
 
 La versione si scrive in un posto solo, `package.json`. Quando cambia su
 `main`, [rilascio.yml](.github/workflows/rilascio.yml) rifà tutte le
-verifiche, impacchetta per Windows e per Linux, fa firmare gli eseguibili
-per Windows da SignPath, crea il tag
+verifiche, porta il ramo `release` su quel commit e lì impacchetta per
+Windows, Linux e macOS, fa firmare gli eseguibili per Windows da SignPath,
+crea il tag
 `vX.Y.Z` e pubblica la release con `latest.yml` per l'aggiornamento
 automatico. Il giro della firma è raccontato nella
 [GUIDA](docs/GUIDA.md#la-firma-del-codice).
@@ -203,7 +204,8 @@ by [SignPath Foundation](https://signpath.org).
 
 Gli eseguibili per Windows — l'applicazione (`Regiklass.exe`), l'installer e
 il portabile — li
-costruisce GitHub Actions da questo repository pubblico, dal ramo `main`, e li
+costruisce GitHub Actions da questo repository pubblico, dal ramo `release` —
+che riceve soltanto commit già uniti e verificati su `main` —, e li
 firma SignPath con il certificato di SignPath Foundation. Ogni firma va
 approvata a mano. Un eseguibile che si presenta come Regiklass e non porta la
 firma di **SignPath Foundation** non viene da qui. I componenti di altri
@@ -246,8 +248,8 @@ valgono le loro regole:
 
 Windows binaries (the application — `Regiklass.exe` —, the installer and the
 portable executable)
-are built by GitHub Actions from the `main` branch of this public
-repository and signed by SignPath with the SignPath Foundation certificate;
+are built by GitHub Actions from the `release` branch of this public
+repository (it only receives commits already merged and verified on `main`) and signed by SignPath with the SignPath Foundation certificate;
 every signing request is approved manually. Third-party open source components
 shipped inside the package (Electron, llama.cpp) are not signed by this
 project.
