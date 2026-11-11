@@ -85,10 +85,12 @@ export function riconsegnaDelMomento (
 
   // Chiusa quando non resta un foglio in mano al docente: una data di gruppo
   // non basta, chi mancava quel giorno non l'ha riavuta.
-  const mancanti = riconsegneDegliAllievi(momento, classe, true)
+  // Una passata sola: le righe ancora da ridare sono quelle senza data.
+  const righe = riconsegneDegliAllievi(momento, classe)
+  const mancanti = righe.filter((riga) => !riga.riconsegnataIl)
   const tutteTornate = mancanti.length === 0
   const ultima =
-    riconsegneDegliAllievi(momento, classe)
+    righe
       .map((riga) => riga.riconsegnataIl)
       .filter((quando): quando is Iso => quando !== null)
       .sort()

@@ -5,14 +5,20 @@
 
 import { perNumero } from '#core/i18n/index.js'
 
+// Uno per tutti: `localeCompare` con le opzioni ne costruisce uno a ogni
+// confronto, e una pagina che ordina quaranta allievi per duecento prove ci
+// passava metà del ridisegno. Stesso ordine per definizione (ECMA-402).
+const COLLATORE = new Intl.Collator('it', { numeric: true })
+
 /**
  * Due nomi in ordine, come li metterebbe una persona: `'it'` per gli accenti,
  * `numeric` perché «M2» venga prima di «M10». Lo stesso ordine ovunque, dalla
  * barra laterale al documento salvato.
  */
 export function confrontaNomi (a: string, b: string): number {
-  return a.localeCompare(b, 'it', { numeric: true })
+  return COLLATORE.compare(a, b)
 }
+
 
 /**
  * Un percorso incollato, senza spazi ai lati e senza le virgolette che
