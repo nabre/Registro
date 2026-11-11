@@ -25,7 +25,9 @@ const { percorsoWorkerPdf } = await import('../../dist-tests/environment.mjs')
 describe('il worker di pdfjs', () => {
   it('sta fra i bundle dell’applicazione', () => {
     const trovato = percorsoWorkerPdf()
-    assert.ok(trovato.endsWith(percorso.join('dist', 'pdf.worker.mjs')), trovato)
+    // Con la lettera d'unità `Uri.fsPath` dà un percorso Windows su ogni
+    // piattaforma: il separatore atteso non è quello di `node:path`.
+    assert.ok(trovato.endsWith(percorso.win32.join('dist', 'pdf.worker.mjs')), trovato)
   })
 
   it('sta fuori dall’archivio asar', () => {
